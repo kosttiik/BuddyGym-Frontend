@@ -23,12 +23,15 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true,
+      "preset": "recommended",
       "correctness": {
         "useExhaustiveDependencies": "error"
       },
+      "complexity": {
+        "noImportantStyles": "off"
+      },
       "a11y": {
-        "recommended": true
+        "preset": "recommended"
       }
     }
   },

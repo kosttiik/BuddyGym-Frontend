@@ -1,0 +1,64 @@
+.stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.hint {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.round {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+
+.minus {
+  background: var(--ghost-bg);
+  color: var(--text-secondary-2);
+}
+
+.plus {
+  background: var(--accent-tint);
+  color: var(--accent-link);
+}
+
+.round:disabled {
+  opacity: 0.4;
+}
+
+.value {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  min-width: 30px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}

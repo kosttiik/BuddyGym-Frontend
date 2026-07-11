@@ -1,0 +1,21 @@
+.card {
+  background: var(--card-bg);
+  backdrop-filter: blur(var(--blur-card)) saturate(1.5);
+  -webkit-backdrop-filter: blur(var(--blur-card)) saturate(1.5);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--card-shadow);
+}
+
+.md {
+  padding: 16px;
+}
+
+.lg {
+  padding: 20px;
+  border-radius: var(--radius-card-lg);
+}
+
+.none {
+  padding: 0;
+}

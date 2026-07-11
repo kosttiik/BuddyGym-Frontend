@@ -1,0 +1,54 @@
+.segments {
+  display: flex;
+  gap: 5px;
+  flex: 1;
+}
+
+.segment {
+  height: 12px;
+  border-radius: 7px;
+  flex: 1;
+  background: var(--progress-empty);
+}
+
+.filled {
+  background: var(--progress-fill);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    var(--progress-glow);
+}
+
+.glow {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    var(--progress-glow-strong);
+}
+
+.bar {
+  display: block;
+  width: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--progress-empty);
+  overflow: hidden;
+}
+
+.fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--progress-fill);
+  box-shadow: var(--progress-glow);
+  transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.counter {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.counterMuted {
+  color: var(--text-counter-muted);
+}

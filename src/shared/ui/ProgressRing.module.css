@@ -1,0 +1,4 @@
+.track {
+  fill: none;
+  stroke: var(--accent-tint);
+}

@@ -1,0 +1,144 @@
+:root {
+  --font-body: "Onest Variable", -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Unbounded Variable", var(--font-body);
+  --font-mono: ui-monospace, Menlo, "SF Mono", monospace;
+
+  --radius-card: 20px;
+  --radius-card-lg: 22px;
+  --radius-tile: 16px;
+  --radius-pill: 999px;
+  --radius-sheet: 30px;
+
+  --blur-card: 24px;
+  --blur-nav: 28px;
+  --blur-sheet: 34px;
+
+  --bg-gradient: linear-gradient(165deg, #f0f4f2 0%, #e7eef0 45%, #e9f0e9 100%);
+  --aura-green: rgba(46, 196, 124, 0.2);
+  --aura-blue: rgba(90, 150, 220, 0.14);
+
+  --card-bg: rgba(255, 255, 255, 0.62);
+  --card-border: rgba(255, 255, 255, 0.75);
+  --card-shadow: 0 8px 24px rgba(26, 43, 34, 0.07);
+
+  --text-primary: #14231b;
+  --text-heading: #1a2b22;
+  --text-secondary: #5b7166;
+  --text-secondary-2: #63786d;
+  --text-tertiary: #77897e;
+  --text-counter-muted: rgba(20, 35, 27, 0.35);
+
+  --accent-gradient: linear-gradient(135deg, #22c877, #0ea55c);
+  --accent-link: #1f8a55;
+  --accent-on-tint: #1f6b45;
+  --accent-tint: rgba(46, 196, 124, 0.16);
+  --accent-border: rgba(46, 196, 124, 0.3);
+
+  --purple-text: #7a5aa8;
+  --purple-tint: rgba(140, 100, 200, 0.14);
+
+  --red-text: #c24545;
+  --red-tint: rgba(224, 90, 90, 0.1);
+  --red-border: rgba(224, 90, 90, 0.22);
+
+  --orange-text: #a8642a;
+  --orange-text-strong: #8a5a1f;
+  --orange-tint: rgba(244, 162, 97, 0.16);
+
+  --progress-fill: linear-gradient(180deg, #3ed488, #27b56d);
+  --progress-empty: rgba(20, 35, 27, 0.09);
+  --progress-glow: none;
+  --progress-glow-strong: 0 0 10px rgba(62, 212, 136, 0.7);
+
+  --btn-primary-shadow: 0 10px 28px rgba(14, 165, 92, 0.32);
+  --btn-vote-shadow: 0 6px 16px rgba(14, 165, 92, 0.3);
+  --ghost-bg: rgba(20, 35, 27, 0.06);
+
+  --nav-active-bg: rgba(46, 196, 124, 0.18);
+  --nav-active-text: #1f6b45;
+  --menu-pill-bg: rgba(20, 35, 27, 0.07);
+
+  --sheet-bg: rgba(250, 253, 251, 0.94);
+  --dim-gradient: linear-gradient(180deg, rgba(16, 26, 21, 0.22), rgba(16, 26, 21, 0.55));
+
+  --skeleton-bg: rgba(20, 35, 27, 0.07);
+  --field-border-active: rgba(46, 196, 124, 0.5);
+
+  --screen-dark-bg: #0d1411;
+  --ink-gradient: linear-gradient(150deg, #18261f, #0f1a15);
+
+  --avatar-1: #f4a261;
+  --avatar-2: #5b8def;
+  --avatar-3: #e76f81;
+  --avatar-4: #b9bdc4;
+
+  --toast-bg: #ffffff;
+  --toast-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+
+  --tab-active-bg: #14231b;
+  --tab-active-text: #ffffff;
+  --tab-bg: rgba(255, 255, 255, 0.72);
+  --tab-text: rgba(20, 35, 27, 0.6);
+
+  --segment-track-bg: rgba(20, 35, 27, 0.06);
+  --segment-active-bg: #ffffff;
+  --segment-active-shadow: 0 4px 12px rgba(26, 43, 34, 0.12);
+
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --bg-gradient: linear-gradient(165deg, #121917 0%, #10161a 45%, #12190f 100%);
+  --aura-green: rgba(46, 196, 124, 0.12);
+  --aura-blue: rgba(90, 150, 220, 0.08);
+
+  --card-bg: rgba(255, 255, 255, 0.06);
+  --card-border: rgba(255, 255, 255, 0.1);
+  --card-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+
+  --text-primary: #eef4f0;
+  --text-heading: #eef4f0;
+  --text-secondary: #93a89c;
+  --text-secondary-2: #8ca295;
+  --text-tertiary: #7d9287;
+  --text-counter-muted: rgba(238, 244, 240, 0.35);
+
+  --accent-link: #5fdb9d;
+  --accent-on-tint: #5fdb9d;
+  --accent-tint: rgba(46, 196, 124, 0.18);
+
+  --purple-text: #b79ae0;
+  --purple-tint: rgba(140, 100, 200, 0.18);
+
+  --red-text: #ff9b9b;
+  --red-tint: rgba(224, 90, 90, 0.14);
+  --red-border: rgba(224, 90, 90, 0.3);
+
+  --orange-text: #f4a261;
+  --orange-text-strong: #f4a261;
+  --orange-tint: rgba(244, 162, 97, 0.14);
+
+  --progress-empty: rgba(238, 244, 240, 0.09);
+  --progress-glow: 0 0 12px rgba(62, 212, 136, 0.35);
+
+  --ghost-bg: rgba(238, 244, 240, 0.07);
+
+  --nav-active-text: #5fdb9d;
+  --menu-pill-bg: rgba(238, 244, 240, 0.08);
+
+  --sheet-bg: rgba(18, 25, 22, 0.94);
+  --skeleton-bg: rgba(238, 244, 240, 0.07);
+
+  --toast-bg: #1e2a24;
+
+  --tab-active-bg: #eef4f0;
+  --tab-active-text: #121917;
+  --tab-bg: rgba(255, 255, 255, 0.08);
+  --tab-text: rgba(238, 244, 240, 0.6);
+
+  --segment-track-bg: rgba(238, 244, 240, 0.07);
+  --segment-active-bg: rgba(255, 255, 255, 0.14);
+  --segment-active-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+
+  color-scheme: dark;
+}
