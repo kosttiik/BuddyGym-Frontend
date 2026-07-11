@@ -1,3 +1,5 @@
+import { Link } from "@tanstack/react-router";
+import { motion } from "motion/react";
 import { useVote } from "@/entities/checkin";
 import type { Checkin, Member } from "@/shared/api/types";
 import { useI18n } from "@/shared/i18n";
@@ -50,16 +52,22 @@ export function CheckinCard({
   return (
     <GlassCard className={cx(styles.card, expired && styles.expired)}>
       <div className={styles.top}>
-        <Avatar
-          name={name}
-          photoUrl={author?.photo_url || undefined}
-          seed={checkin.user_id}
-          size={38}
-        />
-        <div className={styles.who}>
-          <span className={styles.name}>{name}</span>
-          <span className={styles.meta}>{meta.join(" · ")}</span>
-        </div>
+        <Link
+          to="/users/$userId"
+          params={{ userId: String(checkin.user_id) }}
+          className={styles.author}
+        >
+          <Avatar
+            name={name}
+            photoUrl={author?.photo_url || undefined}
+            seed={checkin.user_id}
+            size={38}
+          />
+          <div className={styles.who}>
+            <span className={styles.name}>{name}</span>
+            <span className={styles.meta}>{meta.join(" · ")}</span>
+          </div>
+        </Link>
         {checkin.photo_url && (
           <button
             type="button"
@@ -67,7 +75,8 @@ export function CheckinCard({
             onClick={onOpenPhoto}
             aria-label={name}
           >
-            <img
+            <motion.img
+              layoutId={`checkin-photo-${checkin.id}`}
               src={checkin.photo_url}
               alt=""
               className={styles.thumb}

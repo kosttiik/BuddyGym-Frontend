@@ -1,17 +1,17 @@
-import { motion } from "motion/react";
+import { AnimatePresence } from "motion/react";
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useState } from "react";
 import { authenticate } from "@/shared/api/auth";
-import { useI18n } from "@/shared/i18n";
-import { IconDumbbell } from "@/shared/icons";
-import { Button } from "@/shared/ui";
-import styles from "./AuthGate.module.css";
+import { Splash } from "./Splash";
 
 type AuthState = "pending" | "ready" | "error";
 
-export function AuthGate({ children }: { children: ReactNode }) {
+/* Min splash time so the intro reads even when auth resolves instantly. */
+const MIN_SPLASH_MS = 1800;
+
+export function AuthGate({ children, onReady }: { children: ReactNode; onReady?: () => void }) {
   const [state, setState] = useState<AuthState>("pending");
-  const { t } = useI18n();
+  const [minElapsed, setMinElapsed] = useState(false);
 
   const run = useCallback(() => {
     setState("pending");
@@ -22,28 +22,21 @@ export function AuthGate({ children }: { children: ReactNode }) {
 
   useEffect(run, [run]);
 
-  if (state === "ready") {
-    return children;
-  }
+  useEffect(() => {
+    const id = setTimeout(() => setMinElapsed(true), MIN_SPLASH_MS);
+    return () => clearTimeout(id);
+  }, []);
+
+  const showSplash = state !== "ready" || !minElapsed;
 
   return (
-    <div className={styles.splash}>
-      <motion.span
-        className={styles.logo}
-        animate={state === "pending" ? { scale: [1, 1.08, 1] } : undefined}
-        transition={{ duration: 1.6, ease: "easeInOut", repeat: Infinity }}
-      >
-        <IconDumbbell size={44} />
-      </motion.span>
-      <span className={styles.name}>{t.common.appName}</span>
-      {state === "error" && (
-        <div className={styles.error}>
-          <p className={styles.errorText}>{t.errors.generic}</p>
-          <Button variant="secondary" size="sm" onClick={run}>
-            {t.common.retry}
-          </Button>
-        </div>
-      )}
-    </div>
+    <>
+      {state === "ready" && children}
+      <AnimatePresence onExitComplete={onReady}>
+        {showSplash && (
+          <Splash key="splash" status={state === "error" ? "error" : "pending"} onRetry={run} />
+        )}
+      </AnimatePresence>
+    </>
   );
 }

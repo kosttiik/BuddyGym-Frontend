@@ -22,7 +22,7 @@
 
 .stacked {
   border: 2px solid var(--card-border);
-  box-sizing: content-box;
+  box-sizing: border-box;
 }
 
 .stacked + .stacked {
@@ -33,4 +33,5 @@
   background: var(--ghost-bg);
   color: var(--text-secondary-2);
   font-weight: 700;
+  letter-spacing: -0.3px;
 }

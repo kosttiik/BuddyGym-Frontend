@@ -32,23 +32,3 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
-.menu {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  padding: 6px 12px;
-  border-radius: var(--radius-pill);
-  background: var(--menu-pill-bg);
-}
-
-.menu > svg {
-  color: var(--text-secondary-2);
-}
-
-.menuDivider {
-  width: 1px;
-  height: 14px;
-  background: var(--ghost-bg);
-}

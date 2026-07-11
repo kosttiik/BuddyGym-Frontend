@@ -73,6 +73,16 @@ export const handlers = [
     return HttpResponse.json(db.me);
   }),
 
+  http.get("/api/v1/users/:id", async ({ params }) => {
+    await delay(250);
+    const id = Number(params.id);
+    const user = db.users.get(id);
+    if (!user) {
+      return error(404, "user not found");
+    }
+    return HttpResponse.json({ user, achievements: db.userAchievements.get(id) ?? [] });
+  }),
+
   http.get("/api/v1/rooms", async () => {
     await delay(400);
     const mine = db.rooms.filter((r) => db.myRoomIds.has(r.id));

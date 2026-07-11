@@ -4,6 +4,7 @@ import { useI18n } from "@/shared/i18n";
 import { IconPerson, IconRooms } from "@/shared/icons";
 import { cx } from "@/shared/lib/cx";
 import { hapticSelection } from "@/shared/lib/haptics";
+import { spring } from "@/shared/lib/motion";
 import styles from "./BottomNav.module.css";
 
 export function BottomNav() {
@@ -31,15 +32,15 @@ export function BottomNav() {
                 }
               }}
             >
-              {isActive && (
-                <motion.span
-                  layoutId="bottom-nav-pill"
-                  className={styles.activeBg}
-                  transition={{ type: "spring", stiffness: 480, damping: 38 }}
-                />
-              )}
+              {isActive && <span className={styles.activeBg} />}
               <span className={styles.content}>
-                {tab.icon}
+                <motion.span
+                  className={styles.icon}
+                  animate={{ scale: isActive ? 1.12 : 1, y: isActive ? -0.5 : 0 }}
+                  transition={spring.bouncy}
+                >
+                  {tab.icon}
+                </motion.span>
                 {tab.label}
               </span>
             </Link>

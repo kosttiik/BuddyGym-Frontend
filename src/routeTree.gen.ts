@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as JoinRouteImport } from './routes/join'
 import { Route as TabsRouteImport } from './routes/_tabs'
 import { Route as TabsIndexRouteImport } from './routes/_tabs.index'
+import { Route as UsersUserIdRouteImport } from './routes/users.$userId'
 import { Route as RoomsNewRouteImport } from './routes/rooms.new'
 import { Route as RoomsRoomIdRouteImport } from './routes/rooms.$roomId'
 import { Route as TabsProfileRouteImport } from './routes/_tabs.profile'
@@ -30,6 +31,11 @@ const TabsIndexRoute = TabsIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => TabsRoute,
+} as any)
+const UsersUserIdRoute = UsersUserIdRouteImport.update({
+  id: '/users/$userId',
+  path: '/users/$userId',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const RoomsNewRoute = RoomsNewRouteImport.update({
   id: '/rooms/new',
@@ -58,6 +64,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof TabsProfileRoute
   '/rooms/$roomId': typeof RoomsRoomIdRoute
   '/rooms/new': typeof RoomsNewRoute
+  '/users/$userId': typeof UsersUserIdRoute
   '/rooms/$roomId/members': typeof RoomsRoomIdMembersRoute
 }
 export interface FileRoutesByTo {
@@ -65,6 +72,7 @@ export interface FileRoutesByTo {
   '/profile': typeof TabsProfileRoute
   '/rooms/$roomId': typeof RoomsRoomIdRoute
   '/rooms/new': typeof RoomsNewRoute
+  '/users/$userId': typeof UsersUserIdRoute
   '/': typeof TabsIndexRoute
   '/rooms/$roomId/members': typeof RoomsRoomIdMembersRoute
 }
@@ -75,6 +83,7 @@ export interface FileRoutesById {
   '/_tabs/profile': typeof TabsProfileRoute
   '/rooms/$roomId': typeof RoomsRoomIdRoute
   '/rooms/new': typeof RoomsNewRoute
+  '/users/$userId': typeof UsersUserIdRoute
   '/_tabs/': typeof TabsIndexRoute
   '/rooms/$roomId_/members': typeof RoomsRoomIdMembersRoute
 }
@@ -86,6 +95,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/rooms/$roomId'
     | '/rooms/new'
+    | '/users/$userId'
     | '/rooms/$roomId/members'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -93,6 +103,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/rooms/$roomId'
     | '/rooms/new'
+    | '/users/$userId'
     | '/'
     | '/rooms/$roomId/members'
   id:
@@ -102,6 +113,7 @@ export interface FileRouteTypes {
     | '/_tabs/profile'
     | '/rooms/$roomId'
     | '/rooms/new'
+    | '/users/$userId'
     | '/_tabs/'
     | '/rooms/$roomId_/members'
   fileRoutesById: FileRoutesById
@@ -111,6 +123,7 @@ export interface RootRouteChildren {
   JoinRoute: typeof JoinRoute
   RoomsRoomIdRoute: typeof RoomsRoomIdRoute
   RoomsNewRoute: typeof RoomsNewRoute
+  UsersUserIdRoute: typeof UsersUserIdRoute
   RoomsRoomIdMembersRoute: typeof RoomsRoomIdMembersRoute
 }
 
@@ -136,6 +149,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof TabsIndexRouteImport
       parentRoute: typeof TabsRoute
+    }
+    '/users/$userId': {
+      id: '/users/$userId'
+      path: '/users/$userId'
+      fullPath: '/users/$userId'
+      preLoaderRoute: typeof UsersUserIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/rooms/new': {
       id: '/rooms/new'
@@ -185,6 +205,7 @@ const rootRouteChildren: RootRouteChildren = {
   JoinRoute: JoinRoute,
   RoomsRoomIdRoute: RoomsRoomIdRoute,
   RoomsNewRoute: RoomsNewRoute,
+  UsersUserIdRoute: UsersUserIdRoute,
   RoomsRoomIdMembersRoute: RoomsRoomIdMembersRoute,
 }
 export const routeTree = rootRouteImport

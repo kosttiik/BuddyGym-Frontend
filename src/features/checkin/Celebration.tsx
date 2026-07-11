@@ -5,7 +5,8 @@ import { createPortal } from "react-dom";
 import { meKey, useMe } from "@/entities/user";
 import type { Checkin, Room } from "@/shared/api/types";
 import { useI18n } from "@/shared/i18n";
-import { IconCheckBold, IconFire } from "@/shared/icons";
+import { IconFire } from "@/shared/icons";
+import { CheckDraw } from "@/shared/icons/animated";
 import { hapticNotify } from "@/shared/lib/haptics";
 import { Button, GlassCard, ProgressCounter, ProgressRing, SegmentedProgress } from "@/shared/ui";
 import styles from "./Celebration.module.css";
@@ -71,7 +72,7 @@ export function Celebration({ checkin, room, myProgress, onClose }: CelebrationP
             animate={{ scale: 1 }}
             transition={{ type: "spring", stiffness: 320, damping: 18, delay: 0.35 }}
           >
-            <IconCheckBold size={44} />
+            <CheckDraw size={44} />
           </motion.span>
         </motion.div>
 

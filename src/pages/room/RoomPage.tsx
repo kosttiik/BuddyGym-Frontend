@@ -9,7 +9,9 @@ import { ApiError } from "@/shared/api/client";
 import type { Checkin, CheckinStatus, Member } from "@/shared/api/types";
 import { useI18n } from "@/shared/i18n";
 import { IconCloudOff, IconDumbbell, IconKey, IconLockKeyhole, IconShare } from "@/shared/icons";
+import { PulseDots } from "@/shared/icons/animated";
 import { hapticNotify } from "@/shared/lib/haptics";
+import { riseItem, spring, stagger } from "@/shared/lib/motion";
 import {
   AppHeader,
   AvatarStack,
@@ -26,15 +28,7 @@ import { CheckinCard } from "./CheckinCard";
 import { PhotoViewer } from "./PhotoViewer";
 import styles from "./RoomPage.module.css";
 
-const listVariants = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.06 } },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 16 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] as const } },
-};
+const listVariants = stagger(0.06);
 
 export function RoomPage() {
   const { roomId } = useParams({ from: "/rooms/$roomId" });
@@ -76,7 +70,15 @@ export function RoomPage() {
       <AppHeader variant="nested" title={room.data?.room.name ?? t.common.appName} />
       <Page bottomSpace>
         {room.isPending && <RoomHeaderSkeleton />}
-        {room.isSuccess && <RoomHeaderCard detail={room.data} />}
+        {room.isSuccess && (
+          <motion.div
+            initial={{ opacity: 0, y: 16, filter: "blur(6px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            transition={spring.soft}
+          >
+            <RoomHeaderCard detail={room.data} />
+          </motion.div>
+        )}
 
         {checkinsDown && (
           <Banner
@@ -101,10 +103,18 @@ export function RoomPage() {
         {checkins.isPending && !checkinsDown && <FeedSkeleton />}
 
         {checkins.isSuccess && checkins.data.length === 0 && (
-          <div className={styles.emptyFeed}>
+          <motion.div
+            className={styles.emptyFeed}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={spring.soft}
+          >
+            <span className={styles.emptyFeedIcon}>
+              <PulseDots size={26} />
+            </span>
             <p className={styles.emptyFeedTitle}>{t.room.emptyFeed}</p>
             <p className={styles.emptyFeedHint}>{t.room.emptyFeedHint}</p>
-          </div>
+          </motion.div>
         )}
 
         {checkins.isSuccess && (
@@ -116,7 +126,7 @@ export function RoomPage() {
             animate="visible"
           >
             {checkins.data.map((checkin) => (
-              <motion.div key={checkin.id} variants={itemVariants} layout>
+              <motion.div key={checkin.id} variants={riseItem}>
                 <CheckinCard
                   checkin={checkin}
                   author={members.get(checkin.user_id)}
@@ -131,7 +141,12 @@ export function RoomPage() {
         )}
       </Page>
 
-      <div className={styles.ctaWrap}>
+      <motion.div
+        className={styles.ctaWrap}
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ ...spring.soft, delay: 0.12 }}
+      >
         <Button
           block
           icon={<IconDumbbell size={17} />}
@@ -140,7 +155,7 @@ export function RoomPage() {
         >
           {t.room.checkinCta}
         </Button>
-      </div>
+      </motion.div>
 
       {room.isSuccess && (
         <CheckinSheet
@@ -188,7 +203,7 @@ function TabPill({
         <motion.span
           layoutId="room-tab-pill"
           className={styles.tabPillBg}
-          transition={{ type: "spring", stiffness: 500, damping: 40 }}
+          transition={spring.snappy}
         />
       )}
       <span className={styles.tabPillLabel}>

@@ -1,13 +1,12 @@
 import { useI18n } from "@/shared/i18n";
-import { IconChevronDown, IconChevronLeft, IconMenuDots } from "@/shared/icons";
+import { IconChevronLeft } from "@/shared/icons";
 import { cx } from "@/shared/lib/cx";
-import { closeMiniApp } from "@/shared/lib/telegram";
 import { useBackNavigation } from "@/shared/lib/useBackNavigation";
 import styles from "./AppHeader.module.css";
 
 export type AppHeaderProps = {
   title?: string;
-  /* root screens offer "Close", nested ones navigate back */
+  /* Telegram draws close/menu itself; nested screens get a back fallback outside Telegram */
   variant?: "root" | "nested";
   className?: string;
 };
@@ -16,19 +15,9 @@ export function AppHeader({ title, variant = "root", className }: AppHeaderProps
   const { t } = useI18n();
   return (
     <header className={cx(styles.header, className)}>
-      {variant === "root" ? (
-        <button type="button" className={styles.action} onClick={closeMiniApp}>
-          {t.common.close}
-        </button>
-      ) : (
-        <BackAction />
-      )}
+      {variant === "nested" ? <BackAction /> : <span className={styles.actionPlaceholder} />}
       <span className={styles.title}>{title ?? t.common.appName}</span>
-      <span className={styles.menu} aria-hidden="true">
-        <IconMenuDots size={15} />
-        <span className={styles.menuDivider} />
-        <IconChevronDown size={13} />
-      </span>
+      <span className={styles.actionPlaceholder} />
     </header>
   );
 }
