@@ -9,7 +9,9 @@
 .DS_Store
 .AppleDouble
 .LSOverride
-Icon?
+# macOS custom folder icon file. Anchored + exact length so it never matches
+# source dirs like src/shared/icons under case-insensitive git.
+/Icon?
 ._*
 .DocumentRevisions-V100
 .fseventsd
