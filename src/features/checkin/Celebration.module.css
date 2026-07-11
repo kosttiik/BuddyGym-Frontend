@@ -1,0 +1,124 @@
+.screen {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: var(--bg-gradient);
+  overflow-y: auto;
+}
+
+.content {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 40px 20px calc(28px + env(safe-area-inset-bottom));
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.ringWrap {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.checkCircle {
+  position: absolute;
+  width: 104px;
+  height: 104px;
+  border-radius: 50%;
+  background: var(--accent-gradient);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--btn-primary-shadow);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text-heading);
+  text-align: center;
+}
+
+.subtitle {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.cardWrap {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.progressCard {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.progressName {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.progressRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.achievement {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin-top: 8px;
+  padding: 14px 16px;
+  border-radius: var(--radius-tile);
+  background: linear-gradient(170deg, rgba(62, 212, 136, 0.24), rgba(39, 181, 109, 0.1));
+  border: 1px solid var(--accent-border);
+}
+
+.achievementIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--accent-gradient);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--btn-vote-shadow);
+  flex: none;
+}
+
+.achievementText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.achievementLabel {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: var(--accent-link);
+}
+
+.achievementName {
+  font-size: 14.5px;
+  font-weight: 800;
+  color: var(--text-primary);
+}

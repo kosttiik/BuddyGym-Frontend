@@ -1,0 +1,213 @@
+.photoCard {
+  border-radius: var(--radius-card);
+  padding: 1.5px;
+  background: linear-gradient(
+    135deg,
+    rgba(34, 200, 119, 0.7),
+    rgba(34, 200, 119, 0.15),
+    rgba(14, 165, 92, 0.55)
+  );
+  text-align: left;
+  width: 100%;
+}
+
+.photoCardInner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border-radius: calc(var(--radius-card) - 1.5px);
+  background: var(--sheet-bg);
+  overflow: hidden;
+}
+
+/* sheen sweeping across the photo card, from the handoff */
+.shine {
+  position: absolute;
+  top: -20%;
+  bottom: -20%;
+  width: 74px;
+  background: linear-gradient(90deg, transparent, rgba(62, 212, 136, 0.14), transparent);
+  transform: skewX(-16deg);
+  animation: shineX 3.6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes shineX {
+  0% {
+    transform: translateX(-120px) skewX(-16deg);
+  }
+  60%,
+  100% {
+    transform: translateX(430px) skewX(-16deg);
+  }
+}
+
+.cameraIcon {
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  background: var(--accent-gradient);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  box-shadow: var(--btn-primary-shadow);
+  animation: floatY 3.6s ease-in-out infinite;
+}
+
+@keyframes floatY {
+  0%,
+  100% {
+    transform: translateY(-3px);
+  }
+  50% {
+    transform: translateY(3px);
+  }
+}
+
+.cardText {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+}
+
+.cardTitle {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.cardDesc {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 20px;
+  background: var(--accent-tint);
+  color: var(--accent-on-tint);
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+.geoCard {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border-radius: var(--radius-card);
+  background: var(--ink-gradient);
+  text-align: left;
+  width: 100%;
+}
+
+.radar {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.geoIcon {
+  color: #3ed488;
+  --icon-contrast: #0f1a15;
+  position: relative;
+  z-index: 1;
+}
+
+.radarWave,
+.radarWave2 {
+  position: absolute;
+  inset: 8px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(62, 212, 136, 0.7);
+  animation: pingWave 2.4s ease-out infinite;
+}
+
+.radarWave2 {
+  animation-delay: 1.2s;
+}
+
+@keyframes pingWave {
+  0% {
+    transform: scale(0.55);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(2.1);
+    opacity: 0;
+  }
+}
+
+.geoTitle {
+  font-size: 15px;
+  font-weight: 800;
+  color: #eef4f0;
+}
+
+.geoDesc {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: rgba(238, 244, 240, 0.6);
+}
+
+.instant {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 20px;
+  background: rgba(62, 212, 136, 0.16);
+  color: #5fdb9d;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  flex: none;
+}
+
+.instantDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #3ed488;
+  animation: blinkDot 1.6s ease-in-out infinite;
+}
+
+@keyframes blinkDot {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.cancelWrap {
+  display: flex;
+  justify-content: center;
+}
+
+.fileInput {
+  display: none;
+}

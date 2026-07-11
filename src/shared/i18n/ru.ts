@@ -87,8 +87,8 @@ export const ru = {
     since: (date: string) => `в комнате с ${date}`,
     leave: "Покинуть комнату",
     leaveNote: "Прогресс в этой комнате не сохранится",
-    statusBeast: "Зверь",
-    statusRegular: "Регуляр",
+    statusBeast: "Легенда",
+    statusRegular: "Атлет",
     statusNovice: "Новичок",
   },
   checkinSheet: {
@@ -112,7 +112,8 @@ export const ru = {
   },
   celebration: {
     title: "Тренировка зачтена",
-    subtitle: "Чек-ин отправлен и ждёт голосов",
+    sentTitle: "Чек-ин отправлен",
+    subtitle: "Осталось дождаться голосов участников",
     geoSubtitle: "Гео-метка зачтена мгновенно",
     newAchievement: "НОВОЕ ДОСТИЖЕНИЕ",
     ok: "Отлично",
@@ -130,11 +131,11 @@ export const ru = {
     themeSoon: "Скоро",
   },
   achievements: {
-    first_checkin: "Первый чек-ин",
-    workouts_10: "10 тренировок",
-    workouts_50: "50 тренировок",
-    workouts_100: "100 тренировок",
-    streak_7: "Неделя подряд",
+    first_checkin: "Первый подход",
+    workouts_10: "Разгон",
+    workouts_50: "Полсотни",
+    workouts_100: "Сотня",
+    streak_7: "Серия 7 дней",
   },
   forbidden: {
     title: "Только для участников",
