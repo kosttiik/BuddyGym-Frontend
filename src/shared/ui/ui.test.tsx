@@ -40,10 +40,10 @@ describe("SegmentedProgress", () => {
 });
 
 describe("ProgressCounter", () => {
-  it("shows value and goal", () => {
+  it("counts up to the value and shows the goal", async () => {
     render(<ProgressCounter value={2} goal={3} />);
-    expect(screen.getByText("2")).toBeInTheDocument();
     expect(screen.getByText("/3")).toBeInTheDocument();
+    expect(await screen.findByText("2")).toBeInTheDocument();
   });
 });
 

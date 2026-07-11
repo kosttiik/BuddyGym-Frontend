@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { queryOptions, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiError, api } from "@/shared/api/client";
 import type { Checkin, CheckinStatus, GeoPoint } from "@/shared/api/types";
 import { rememberMyVote } from "@/shared/lib/myVotes";
@@ -7,9 +7,9 @@ import { roomsKey } from "./room";
 export const checkinsKey = (roomId: number, status?: CheckinStatus) =>
   ["checkins", roomId, status ?? "all"] as const;
 
-export function useRoomCheckins(roomId: number, status?: CheckinStatus) {
+export const checkinsQueryOptions = (roomId: number, status?: CheckinStatus) => {
   const search = status ? `?status=${status}&limit=100` : "?limit=100";
-  return useQuery({
+  return queryOptions({
     queryKey: checkinsKey(roomId, status),
     queryFn: () => api.get<Checkin[]>(`/rooms/${roomId}/checkins${search}`),
     retry: (failureCount, error) => {
@@ -19,6 +19,10 @@ export function useRoomCheckins(roomId: number, status?: CheckinStatus) {
       return failureCount < 2;
     },
   });
+};
+
+export function useRoomCheckins(roomId: number, status?: CheckinStatus) {
+  return useQuery(checkinsQueryOptions(roomId, status));
 }
 
 export type CreateCheckinInput = { photo: File } | { geo: GeoPoint };

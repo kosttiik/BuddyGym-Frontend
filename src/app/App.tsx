@@ -15,7 +15,13 @@ const queryClient = new QueryClient({
   },
 });
 
-const router = createRouter({ routeTree });
+/* preload route chunks and data on touchstart/hover, before the tap lands */
+const router = createRouter({
+  routeTree,
+  context: { queryClient },
+  defaultPreload: "intent",
+  defaultPreloadStaleTime: 0,
+});
 
 declare module "@tanstack/react-router" {
   interface Register {

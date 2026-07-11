@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { queryOptions, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/shared/api/client";
 import type {
   CreateRoomRequest,
@@ -10,15 +10,14 @@ import type {
 export const roomsKey = ["rooms"] as const;
 export const roomKey = (id: number) => ["room", id] as const;
 
-export function useRooms() {
-  return useQuery({
+export const roomsQueryOptions = () =>
+  queryOptions({
     queryKey: roomsKey,
     queryFn: () => api.get<RoomWithProgress[]>("/rooms"),
   });
-}
 
-export function useRoom(id: number) {
-  return useQuery({
+export const roomQueryOptions = (id: number) =>
+  queryOptions({
     queryKey: roomKey(id),
     queryFn: () => api.get<RoomDetailResponse>(`/rooms/${id}`),
     retry: (failureCount, error) => {
@@ -31,6 +30,13 @@ export function useRoom(id: number) {
       return failureCount < 2;
     },
   });
+
+export function useRooms() {
+  return useQuery(roomsQueryOptions());
+}
+
+export function useRoom(id: number) {
+  return useQuery(roomQueryOptions(id));
 }
 
 export function useCreateRoom() {

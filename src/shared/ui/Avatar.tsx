@@ -22,7 +22,7 @@ export function Avatar({ name, photoUrl, seed, size = 38, className }: AvatarPro
   return (
     <span className={cx(styles.avatar, className)} style={style}>
       {photoUrl ? (
-        <img src={photoUrl} alt="" className={styles.photo} />
+        <img src={photoUrl} alt="" className={styles.photo} loading="lazy" decoding="async" />
       ) : (
         (name.trim().charAt(0) || "•").toUpperCase()
       )}

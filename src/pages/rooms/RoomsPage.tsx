@@ -14,6 +14,7 @@ import {
   GlassCard,
   Page,
   ProgressCounter,
+  PullToRefresh,
   SegmentedProgress,
   Skeleton,
   sanitizeCode,
@@ -55,7 +56,7 @@ export function RoomsPage() {
   }, [navigate]);
 
   return (
-    <>
+    <PullToRefresh onRefresh={() => rooms.refetch()}>
       <AppHeader />
       <Page bottomSpace>
         <h1 className={styles.title}>{t.rooms.title}</h1>
@@ -72,7 +73,7 @@ export function RoomsPage() {
             animate="visible"
           >
             {rooms.data.map((room) => (
-              <motion.div key={room.id} variants={itemVariants}>
+              <motion.div key={room.id} variants={itemVariants} whileTap={{ scale: 0.98 }}>
                 <RoomCard room={room} />
               </motion.div>
             ))}
@@ -106,7 +107,7 @@ export function RoomsPage() {
           {t.rooms.byCode}
         </Button>
       </div>
-    </>
+    </PullToRefresh>
   );
 }
 

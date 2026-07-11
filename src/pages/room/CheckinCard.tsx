@@ -67,7 +67,13 @@ export function CheckinCard({
             onClick={onOpenPhoto}
             aria-label={name}
           >
-            <img src={checkin.photo_url} alt="" className={styles.thumb} />
+            <img
+              src={checkin.photo_url}
+              alt=""
+              className={styles.thumb}
+              loading="lazy"
+              decoding="async"
+            />
           </button>
         )}
         {checkin.geo && (

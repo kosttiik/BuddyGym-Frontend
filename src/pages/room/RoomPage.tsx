@@ -18,6 +18,7 @@ import {
   Button,
   GlassCard,
   Page,
+  PullToRefresh,
   Skeleton,
   useToast,
 } from "@/shared/ui";
@@ -71,7 +72,7 @@ export function RoomPage() {
   ];
 
   return (
-    <>
+    <PullToRefresh onRefresh={() => Promise.all([room.refetch(), checkins.refetch()])}>
       <AppHeader variant="nested" title={room.data?.room.name ?? t.common.appName} />
       <Page bottomSpace>
         {room.isPending && <RoomHeaderSkeleton />}
@@ -161,7 +162,7 @@ export function RoomPage() {
           />
         )}
       </AnimatePresence>
-    </>
+    </PullToRefresh>
   );
 }
 
