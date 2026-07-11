@@ -1,0 +1,78 @@
+# env / secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+*.stackdump
+
+# Linux
+*~
+.directory
+.Trash-*
+.nfs*
+
+# IDE / editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*.iml
+.fleet/
+*.sublime-*
+
+# Claude / AI tooling
+.claude/
+CLAUDE.local.md
+
+# node / build
+node_modules/
+dist/
+dist-ssr/
+.vite/
+coverage/
+*.tsbuildinfo
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# generated (recreated by `npm run msw:init` / postinstall)
+public/mockServiceWorker.js
+
+# logs / tmp
+*.log
+logs/
+tmp/
+*.tmp
+*.bak
+*.local
+
+# local-only docs for teammates
+/docs/
+
+# agent rules, local-only
+CLAUDE.md
+AGENTS.md
