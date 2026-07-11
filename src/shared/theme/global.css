@@ -91,6 +91,122 @@ textarea {
   user-select: text;
 }
 
+/* Route paging via the View Transitions API. Types are set per navigation in
+   app/App.tsx. Back keeps the old page on top so it slides off to reveal the
+   previous one (iOS pop); z-index reorders the default old/new stacking. */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+  }
+
+  html:active-view-transition-type(forward)::view-transition-new(root) {
+    z-index: 2;
+    animation: page-in-right 440ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  html:active-view-transition-type(forward)::view-transition-old(root) {
+    z-index: 1;
+    animation: page-recede-left 440ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  html:active-view-transition-type(back)::view-transition-old(root) {
+    z-index: 2;
+    animation: page-out-right 440ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  html:active-view-transition-type(back)::view-transition-new(root) {
+    z-index: 1;
+    animation: page-return-left 440ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  html:active-view-transition-type(tab-fwd)::view-transition-old(root) {
+    animation: page-slide-out-left 360ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  }
+  html:active-view-transition-type(tab-fwd)::view-transition-new(root) {
+    animation: page-slide-in-right 360ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  }
+  html:active-view-transition-type(tab-back)::view-transition-old(root) {
+    animation: page-slide-out-right 360ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  }
+  html:active-view-transition-type(tab-back)::view-transition-new(root) {
+    animation: page-slide-in-left 360ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  }
+
+  ::view-transition-group(nav-pill) {
+    animation-duration: 380ms;
+    animation-timing-function: cubic-bezier(0.34, 1.4, 0.64, 1);
+  }
+}
+
+@keyframes page-in-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@keyframes page-recede-left {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-22%);
+    opacity: 0.55;
+  }
+}
+@keyframes page-out-right {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+@keyframes page-return-left {
+  from {
+    transform: translateX(-22%);
+    opacity: 0.55;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+@keyframes page-slide-in-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@keyframes page-slide-in-left {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@keyframes page-slide-out-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+@keyframes page-slide-out-right {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

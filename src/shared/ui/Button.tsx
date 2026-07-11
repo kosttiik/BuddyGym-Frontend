@@ -3,6 +3,7 @@ import { motion } from "motion/react";
 import type { ReactNode } from "react";
 import { cx } from "@/shared/lib/cx";
 import { hapticTap } from "@/shared/lib/haptics";
+import { spring } from "@/shared/lib/motion";
 import styles from "./Button.module.css";
 
 type Variant = "primary" | "secondary" | "destructive" | "ghost" | "tint";
@@ -29,7 +30,9 @@ export function Button({
   return (
     <motion.button
       type="button"
-      whileTap={{ scale: 0.97 }}
+      whileTap={{ scale: 0.95 }}
+      whileHover={{ scale: 1.02 }}
+      transition={spring.snappy}
       className={cx(styles.button, styles[variant], styles[size], block && styles.block, className)}
       onClick={(event) => {
         hapticTap();

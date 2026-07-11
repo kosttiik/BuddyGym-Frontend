@@ -5,6 +5,8 @@ import { useRooms } from "@/entities/room";
 import type { RoomWithProgress } from "@/shared/api/types";
 import { useI18n } from "@/shared/i18n";
 import { IconDumbbell, IconKey, IconPlus } from "@/shared/icons";
+import { popItem, riseItem, stagger, tapSubtle } from "@/shared/lib/motion";
+import { useFirstReveal } from "@/shared/lib/playOnce";
 import { getStartParam } from "@/shared/lib/telegram";
 import {
   AppHeader,
@@ -23,20 +25,13 @@ import styles from "./RoomsPage.module.css";
 
 const DEEPLINK_KEY = "bg.deeplink.handled";
 
-const listVariants = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.07 } },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 18 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] as const } },
-};
+const listVariants = stagger(0.07);
 
 export function RoomsPage() {
   const { t } = useI18n();
   const rooms = useRooms();
   const navigate = useNavigate();
+  const firstReveal = useFirstReveal("rooms-list");
 
   /* invite deep link: t.me/...?startapp=CODE opens the join screen prefilled */
   useEffect(() => {
@@ -69,11 +64,11 @@ export function RoomsPage() {
           <motion.div
             className={styles.list}
             variants={listVariants}
-            initial="hidden"
+            initial={firstReveal ? "hidden" : false}
             animate="visible"
           >
             {rooms.data.map((room) => (
-              <motion.div key={room.id} variants={itemVariants} whileTap={{ scale: 0.98 }}>
+              <motion.div key={room.id} variants={riseItem} whileTap={tapSubtle}>
                 <RoomCard room={room} />
               </motion.div>
             ))}
@@ -158,21 +153,33 @@ function RoomsSkeleton() {
 
 function EmptyState() {
   const { t } = useI18n();
+  const firstReveal = useFirstReveal("rooms-empty");
   const steps = [t.empty.step1, t.empty.step2, t.empty.step3];
   return (
-    <motion.div className={styles.empty} variants={listVariants} initial="hidden" animate="visible">
-      <motion.span className={styles.emptyIcon} variants={itemVariants}>
-        <IconDumbbell size={44} />
+    <motion.div
+      className={styles.empty}
+      variants={listVariants}
+      initial={firstReveal ? "hidden" : false}
+      animate="visible"
+    >
+      <motion.span className={styles.emptyIcon} variants={popItem}>
+        <motion.span
+          style={{ display: "inline-flex" }}
+          animate={{ y: [0, -6, 0] }}
+          transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <IconDumbbell size={44} />
+        </motion.span>
       </motion.span>
-      <motion.h2 className={styles.emptyTitle} variants={itemVariants}>
+      <motion.h2 className={styles.emptyTitle} variants={riseItem}>
         {t.empty.title}
       </motion.h2>
-      <motion.p className={styles.emptySubtitle} variants={itemVariants}>
+      <motion.p className={styles.emptySubtitle} variants={riseItem}>
         {t.empty.subtitle}
       </motion.p>
       <div className={styles.steps}>
         {steps.map((step, i) => (
-          <motion.div key={step} variants={itemVariants}>
+          <motion.div key={step} variants={riseItem}>
             <GlassCard className={styles.stepRow}>
               <span className={styles.stepNumber}>{i + 1}</span>
               <span className={styles.stepText}>{step}</span>

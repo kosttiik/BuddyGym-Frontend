@@ -1,5 +1,6 @@
 import type {
   Achievement,
+  AchievementKey,
   Checkin,
   Member,
   Room,
@@ -39,6 +40,8 @@ function user(id: number, firstName: string, status: User["status"]): User {
 export type MockDb = {
   me: User;
   achievements: Achievement[];
+  users: Map<number, User>;
+  userAchievements: Map<number, Achievement[]>;
   rooms: Room[];
   myRoomIds: Set<number>;
   progress: Map<number, number>;
@@ -52,6 +55,10 @@ export type MockDb = {
 
 function member(u: User, workouts: number, joinedDaysAgo: number): Member {
   return { ...u, workouts_count: workouts, joined_at: iso(-joinedDaysAgo * DAY) };
+}
+
+function achs(...keys: AchievementKey[]): Achievement[] {
+  return keys.map((key, i) => ({ key, granted_at: iso(-(70 - i * 8) * DAY) }));
 }
 
 export function createDb(): MockDb {
@@ -196,13 +203,30 @@ export function createDb(): MockDb {
     },
   ];
 
+  const meAchievements: Achievement[] = [
+    { key: "first_checkin", granted_at: iso(-80 * DAY) },
+    { key: "workouts_10", granted_at: iso(-30 * DAY) },
+    { key: "streak_7", granted_at: iso(-7 * DAY) },
+  ];
+
+  const allUsers = [me, marina, dima, lera, pasha, ...extra];
+  const users = new Map<number, User>(allUsers.map((u) => [u.id, u]));
+  const userAchievements = new Map<number, Achievement[]>([
+    [me.id, meAchievements],
+    [marina.id, achs("first_checkin", "workouts_10", "workouts_50", "workouts_100", "streak_7")],
+    [dima.id, achs("first_checkin", "workouts_10")],
+    [lera.id, achs("first_checkin")],
+    [pasha.id, []],
+    ...extra.map(
+      (u, i) => [u.id, i % 2 === 0 ? achs("first_checkin") : []] as [number, Achievement[]],
+    ),
+  ]);
+
   return {
     me,
-    achievements: [
-      { key: "first_checkin", granted_at: iso(-80 * DAY) },
-      { key: "workouts_10", granted_at: iso(-30 * DAY) },
-      { key: "streak_7", granted_at: iso(-7 * DAY) },
-    ],
+    achievements: meAchievements,
+    users,
+    userAchievements,
     rooms,
     myRoomIds: new Set([1, 2, 3]),
     progress: new Map([

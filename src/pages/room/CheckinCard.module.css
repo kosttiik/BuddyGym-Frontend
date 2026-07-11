@@ -14,6 +14,16 @@
   gap: 11px;
 }
 
+.author {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  flex: 1;
+  min-width: 0;
+  text-decoration: none;
+  color: inherit;
+}
+
 .who {
   display: flex;
   flex-direction: column;

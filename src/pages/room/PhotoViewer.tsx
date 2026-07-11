@@ -69,14 +69,17 @@ export function PhotoViewer({ checkin, author, isMine, roomId, onClose }: PhotoV
         </div>
       </header>
 
-      <motion.div
-        className={styles.photoWrap}
-        initial={{ scale: 0.94, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-      >
-        {checkin.photo_url && <img src={checkin.photo_url} alt="" className={styles.photo} />}
-      </motion.div>
+      <div className={styles.photoWrap}>
+        {checkin.photo_url && (
+          <motion.img
+            layoutId={`checkin-photo-${checkin.id}`}
+            src={checkin.photo_url}
+            alt=""
+            className={styles.photo}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+          />
+        )}
+      </div>
 
       {checkin.status === "pending" && (
         <motion.div

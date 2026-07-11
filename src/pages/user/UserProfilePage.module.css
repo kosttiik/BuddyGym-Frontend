@@ -1,0 +1,13 @@
+.errorCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.errorText {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}

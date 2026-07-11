@@ -78,6 +78,8 @@ export type MeResponse = {
   achievements: Achievement[];
 };
 
+export type UserProfileResponse = MeResponse;
+
 export type AuthTelegramResponse = {
   token: string;
   user: User;

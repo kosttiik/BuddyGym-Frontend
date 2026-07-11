@@ -5,9 +5,17 @@
 }
 
 .row {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+.rowLink {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
 }
 
 .info {

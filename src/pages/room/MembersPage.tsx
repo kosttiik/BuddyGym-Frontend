@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "@tanstack/react-router";
+import { Link, useNavigate, useParams } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { useMemo } from "react";
 import { useLeaveRoom, useRoom } from "@/entities/room";
@@ -113,6 +113,16 @@ function MemberRow({
   const { t } = useI18n();
   return (
     <GlassCard className={styles.row}>
+      {isMe ? (
+        <Link to="/profile" className={styles.rowLink} aria-label={member.first_name} />
+      ) : (
+        <Link
+          to="/users/$userId"
+          params={{ userId: String(member.id) }}
+          className={styles.rowLink}
+          aria-label={member.first_name}
+        />
+      )}
       <Avatar
         name={member.first_name}
         photoUrl={member.photo_url || undefined}
