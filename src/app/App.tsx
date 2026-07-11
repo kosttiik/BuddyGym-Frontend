@@ -1,5 +1,19 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
 import { routeTree } from "@/routeTree.gen";
+import { I18nProvider } from "@/shared/i18n";
+import { ThemeProvider } from "@/shared/theme/ThemeProvider";
+import { ToastProvider } from "@/shared/ui";
+import { AuthGate } from "./AuthGate";
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 30_000,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const router = createRouter({ routeTree });
 
@@ -10,5 +24,17 @@ declare module "@tanstack/react-router" {
 }
 
 export function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <I18nProvider>
+      <ThemeProvider>
+        <QueryClientProvider client={queryClient}>
+          <ToastProvider>
+            <AuthGate>
+              <RouterProvider router={router} />
+            </AuthGate>
+          </ToastProvider>
+        </QueryClientProvider>
+      </ThemeProvider>
+    </I18nProvider>
+  );
 }

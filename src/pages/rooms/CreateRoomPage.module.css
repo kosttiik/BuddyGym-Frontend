@@ -1,0 +1,41 @@
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.blockLabel {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-secondary-2);
+}
+
+.blockHint {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+}
+
+.steppers {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.summary {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 12px 14px;
+  border-radius: var(--radius-tile);
+  background: var(--accent-tint);
+  color: var(--accent-on-tint);
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.summaryIcon {
+  flex: none;
+  margin-top: 1px;
+}
