@@ -3,6 +3,18 @@
   --font-display: "Unbounded Variable", var(--font-body);
   --font-mono: ui-monospace, Menlo, "SF Mono", monospace;
 
+  /* Telegram publishes these via viewport.bindCssVars(); 0 in a plain browser, where env() covers
+     the notch instead. Content inset is the strip under Telegram's own header buttons. */
+  --tg-viewport-safe-area-inset-top: 0px;
+  --tg-viewport-safe-area-inset-bottom: 0px;
+  --tg-viewport-content-safe-area-inset-top: 0px;
+  --safe-top: calc(
+    env(safe-area-inset-top, 0px) +
+    var(--tg-viewport-safe-area-inset-top) +
+    var(--tg-viewport-content-safe-area-inset-top)
+  );
+  --safe-bottom: calc(env(safe-area-inset-bottom, 0px) + var(--tg-viewport-safe-area-inset-bottom));
+
   --radius-card: 20px;
   --radius-card-lg: 22px;
   --radius-tile: 16px;

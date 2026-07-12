@@ -81,6 +81,16 @@ export const ru = {
     emptyFeed: "Пока нет чек-инов",
     emptyFeedHint: "Отметьте первую тренировку",
   },
+  share: {
+    title: "Пригласить в комнату",
+    sendInTelegram: "Отправить в Telegram",
+    sendInTelegramDesc: "Выбрать чат и отправить ссылку",
+    copyLink: "Скопировать ссылку",
+    copyLinkDesc: "Открывает комнату сразу, без ввода кода",
+    copyCode: "Скопировать код",
+    linkCopied: "Ссылка скопирована",
+    inviteText: (room: string) => `Присоединяйся к комнате «${room}» в BuddyGym`,
+  },
   members: {
     title: "Участники",
     you: "ВЫ",
@@ -152,6 +162,7 @@ export const ru = {
     checkinsUnavailableDesc: "Комнаты и лента работают. Попробуйте отметиться позже",
     generic: "Что-то пошло не так",
     genericDesc: "Попробуйте ещё раз",
+    copyFailed: "Не удалось скопировать",
   },
   loading: {
     pullToRefresh: "потяните вниз, чтобы обновить",

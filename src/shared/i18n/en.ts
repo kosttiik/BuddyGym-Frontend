@@ -82,6 +82,16 @@ export const en: typeof ru = {
     emptyFeed: "No check-ins yet",
     emptyFeedHint: "Log the first workout",
   },
+  share: {
+    title: "Invite to the room",
+    sendInTelegram: "Send in Telegram",
+    sendInTelegramDesc: "Pick a chat and send the link",
+    copyLink: "Copy link",
+    copyLinkDesc: "Opens the room right away, no code needed",
+    copyCode: "Copy code",
+    linkCopied: "Link copied",
+    inviteText: (room: string) => `Join the "${room}" room on BuddyGym`,
+  },
   members: {
     title: "Members",
     you: "YOU",
@@ -152,6 +162,7 @@ export const en: typeof ru = {
     checkinsUnavailableDesc: "Rooms and the feed still work. Try again later",
     generic: "Something went wrong",
     genericDesc: "Please try again",
+    copyFailed: "Could not copy",
   },
   loading: {
     pullToRefresh: "pull down to refresh",
