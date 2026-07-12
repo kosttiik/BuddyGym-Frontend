@@ -61,8 +61,9 @@
   gap: 7px;
   overflow-x: auto;
   scrollbar-width: none;
+  scroll-snap-type: x proximity;
   margin: 0 -16px;
-  padding: 2px 16px;
+  padding: 6px 16px;
 }
 
 .tabs::-webkit-scrollbar {
@@ -71,6 +72,9 @@
 
 .tabPill {
   position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 38px;
   padding: 9px 15px;
   border-radius: var(--radius-pill);
   background: var(--tab-bg);
@@ -79,6 +83,7 @@
   font-weight: 600;
   white-space: nowrap;
   flex: none;
+  scroll-snap-align: center;
 }
 
 .tabPillBg {
@@ -88,14 +93,52 @@
   background: var(--tab-active-bg);
 }
 
+/* soft halo trailing the pill between tabs */
+.tabPillGlow {
+  position: absolute;
+  inset: -5px;
+  border-radius: var(--radius-pill);
+  background: var(--accent-tint);
+  filter: blur(9px);
+  z-index: -1;
+}
+
 .tabPillLabel {
   position: relative;
   z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tabPillCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 5px;
+  border-radius: var(--radius-pill);
+  background: var(--ghost-bg);
+  font-size: 10.5px;
+  font-weight: 800;
 }
 
 .tabPill[data-active] {
   color: var(--tab-active-text);
   font-weight: 800;
+}
+
+.tabPill[data-active] .tabPillCount {
+  background: var(--tab-bg);
+}
+
+/* clips the panel while it slides sideways so the page never scrolls horizontally */
+.panelViewport {
+  overflow-x: clip;
+  overflow-y: visible;
+  margin: 0 -16px;
+  padding: 0 16px;
 }
 
 .feed {
@@ -141,7 +184,7 @@
   position: fixed;
   left: 16px;
   right: 16px;
-  bottom: calc(16px + env(safe-area-inset-bottom));
+  bottom: calc(16px + var(--safe-bottom));
   max-width: 480px;
   margin: 0 auto;
   z-index: 30;

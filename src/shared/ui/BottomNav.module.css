@@ -2,7 +2,7 @@
   position: fixed;
   left: 0;
   right: 0;
-  bottom: calc(14px + env(safe-area-inset-bottom));
+  bottom: calc(14px + var(--safe-bottom));
   display: flex;
   justify-content: center;
   z-index: 40;

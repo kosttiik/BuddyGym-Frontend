@@ -57,7 +57,7 @@
   position: fixed;
   left: 16px;
   right: 16px;
-  bottom: calc(76px + env(safe-area-inset-bottom));
+  bottom: calc(76px + var(--safe-bottom));
   display: flex;
   gap: 10px;
   max-width: 480px;

@@ -4,6 +4,7 @@ import {
   miniApp,
   retrieveLaunchParams,
   retrieveRawInitData,
+  shareURL,
   swipeBehavior,
   themeParams,
   viewport,
@@ -44,6 +45,12 @@ export function initTelegram(): void {
       if (viewport.expand.isAvailable()) {
         viewport.expand();
       }
+      /* publishes --tg-viewport-safe-area-inset-* and --tg-viewport-content-safe-area-inset-*,
+         which feed --safe-top / --safe-bottom in tokens.css: the device notch plus the strip
+         Telegram's own header buttons occupy */
+      if (viewport.bindCssVars.isAvailable()) {
+        viewport.bindCssVars();
+      }
     });
   }
 }
@@ -80,6 +87,17 @@ export function getTelegramColorScheme(): "light" | "dark" | undefined {
     return miniApp.isDark() ? "dark" : "light";
   } catch {
     return undefined;
+  }
+}
+
+export function canShareToTelegram(): boolean {
+  return insideTelegram && shareURL.isAvailable();
+}
+
+/* Opens Telegram's own "send to chat" sheet. Telegram closes the mini app right after. */
+export function shareToTelegram(url: string, text?: string): void {
+  if (shareURL.isAvailable()) {
+    shareURL(url, text);
   }
 }
 
