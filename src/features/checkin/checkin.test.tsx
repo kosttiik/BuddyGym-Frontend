@@ -90,12 +90,14 @@ test("a purged photo renders a placeholder and never requests the bytes", () => 
   fetchSpy.mockRestore();
 });
 
-/* Multi-camera Androids expose tele and macro as extra "back" devices and the platform
-   default can land on the telephoto, so the lens is picked by hand and remembered. */
-test("the lens button cycles through the back cameras", async () => {
-  const track = { stop: vi.fn(), getSettings: () => ({ facingMode: "environment" }) };
-  const stream = { getTracks: () => [track], getVideoTracks: () => [track] };
-  const getUserMedia = vi.fn(async () => stream as unknown as MediaStream);
+/* Android hands out wide, tele and macro alike as "camera2 N, facing back" and its default
+   can land on the telephoto, so the main lens is found through the track capabilities. */
+test("the back camera auto-picks the lens with the flash and the biggest sensor", async () => {
+  const store = new Map<string, string>();
+  vi.stubGlobal("localStorage", {
+    getItem: (k: string) => store.get(k) ?? null,
+    setItem: (k: string, v: string) => store.set(k, v),
+  });
   vi.spyOn(HTMLMediaElement.prototype, "play").mockResolvedValue(undefined);
   /* jsdom has no srcObject and no MediaStream */
   Object.defineProperty(HTMLMediaElement.prototype, "srcObject", {
@@ -103,10 +105,18 @@ test("the lens button cycles through the back cameras", async () => {
     writable: true,
     value: null,
   });
-  const store = new Map<string, string>();
-  vi.stubGlobal("localStorage", {
-    getItem: (k: string) => store.get(k) ?? null,
-    setItem: (k: string, v: string) => store.set(k, v),
+
+  const caps: Record<string, MediaTrackCapabilities> = {
+    tele: { width: { max: 3000 }, height: { max: 2250 } },
+    main: { width: { max: 4032 }, height: { max: 3024 }, torch: true } as MediaTrackCapabilities,
+  };
+  const streamFor = (id: string) => {
+    const track = { stop: vi.fn(), getCapabilities: () => caps[id] ?? {} };
+    return { getTracks: () => [track], getVideoTracks: () => [track] } as unknown as MediaStream;
+  };
+  const getUserMedia = vi.fn(async (c: MediaStreamConstraints) => {
+    const video = c.video as { deviceId?: { exact: string } };
+    return streamFor(video?.deviceId?.exact ?? "front");
   });
 
   vi.stubGlobal("navigator", {
@@ -115,8 +125,8 @@ test("the lens button cycles through the back cameras", async () => {
       getUserMedia,
       enumerateDevices: vi.fn(async () => [
         { kind: "videoinput", deviceId: "front", label: "camera2 1, facing front" },
-        { kind: "videoinput", deviceId: "main", label: "camera2 0, facing back" },
         { kind: "videoinput", deviceId: "tele", label: "camera2 3, facing back" },
+        { kind: "videoinput", deviceId: "main", label: "camera2 0, facing back" },
       ]),
     },
   });
@@ -128,13 +138,16 @@ test("the lens button cycles through the back cameras", async () => {
   );
 
   await userEvent.click(await screen.findByRole("button", { name: "Flip camera" }));
+
   await waitFor(() =>
     expect(getUserMedia).toHaveBeenLastCalledWith({
       video: { deviceId: { exact: "main" } },
       audio: false,
     }),
   );
+  expect(store.get("bg.camera.lens")).toBe("1");
 
+  /* the manual override still cycles to the other lens */
   await userEvent.click(await screen.findByRole("button", { name: "Switch lens" }));
   await waitFor(() =>
     expect(getUserMedia).toHaveBeenLastCalledWith({
@@ -142,7 +155,6 @@ test("the lens button cycles through the back cameras", async () => {
       audio: false,
     }),
   );
-  expect(store.get("bg.camera.lens")).toBe("1");
 
   vi.unstubAllGlobals();
 });

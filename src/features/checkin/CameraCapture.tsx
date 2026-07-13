@@ -17,9 +17,8 @@ export type CameraCaptureProps = {
 
 const LENS_KEY = "bg.camera.lens";
 
-/* Which back lens is the main one cannot be told apart from the labels: Android hands out
-   wide, tele and macro as plain "camera2 N, facing back" and the platform default can land
-   on the telephoto. So the lens is a user choice, remembered across sessions. */
+/* Labels tell the back lenses apart in name only: Android hands out wide, tele and macro
+   alike as "camera2 N, facing back", and the platform default can land on the telephoto. */
 async function backCameraIds(): Promise<string[]> {
   try {
     const devices = await navigator.mediaDevices.enumerateDevices();
@@ -31,11 +30,51 @@ async function backCameraIds(): Promise<string[]> {
   }
 }
 
-function storedLens(): number {
+/* Track capabilities do tell them apart: the flash sits next to the main sensor, so only it
+   reports torch, and it carries the highest resolution. Probing opens each lens once; the
+   winner is remembered, and the lens button stays as the manual override. */
+async function pickMainLens(ids: string[]): Promise<number> {
+  let best = 0;
+  let bestScore = -1;
+  for (const [index, id] of ids.entries()) {
+    let stream: MediaStream | undefined;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { deviceId: { exact: id } },
+        audio: false,
+      });
+      const caps = stream.getVideoTracks()[0]?.getCapabilities?.() ?? {};
+      const pixels = (caps.width?.max ?? 0) * (caps.height?.max ?? 0);
+      const score = ("torch" in caps && caps.torch ? 1e9 : 0) + pixels;
+      if (score > bestScore) {
+        bestScore = score;
+        best = index;
+      }
+    } catch {
+      /* a lens that will not open cannot be the one we want */
+    } finally {
+      for (const track of stream?.getTracks() ?? []) {
+        track.stop();
+      }
+    }
+  }
+  return best;
+}
+
+function storedLens(): number | null {
   try {
-    return Number(localStorage.getItem(LENS_KEY)) || 0;
+    const raw = localStorage.getItem(LENS_KEY);
+    return raw === null ? null : Number(raw);
   } catch {
-    return 0;
+    return null;
+  }
+}
+
+function rememberLens(index: number): void {
+  try {
+    localStorage.setItem(LENS_KEY, String(index));
+  } catch {
+    /* the choice just does not survive the session */
   }
 }
 
@@ -47,7 +86,7 @@ export function CameraCapture({ onCapture, onPickGallery, onClose, busy }: Camer
 
   const [facing, setFacing] = useState<"user" | "environment">("user");
   const [backIds, setBackIds] = useState<string[]>([]);
-  const [lens, setLens] = useState(storedLens);
+  const [lens, setLens] = useState<number | null>(storedLens);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
   const [shooting, setShooting] = useState(false);
@@ -80,7 +119,13 @@ export function CameraCapture({ onCapture, onPickGallery, onClose, busy }: Camer
            already did by the time the user can flip */
         const ids = await backCameraIds();
         setBackIds(ids);
-        id = ids[Math.min(lens, ids.length - 1)];
+        let index = lens;
+        if (index === null) {
+          index = ids.length > 1 ? await pickMainLens(ids) : 0;
+          rememberLens(index);
+          setLens(index);
+        }
+        id = ids[Math.min(index, ids.length - 1)];
       }
       if (id) {
         try {
@@ -129,13 +174,9 @@ export function CameraCapture({ onCapture, onPickGallery, onClose, busy }: Camer
   };
 
   const nextLens = () => {
-    const next = (lens + 1) % backIds.length;
+    const next = ((lens ?? 0) + 1) % backIds.length;
     setLens(next);
-    try {
-      localStorage.setItem(LENS_KEY, String(next));
-    } catch {
-      /* the choice just does not survive the session */
-    }
+    rememberLens(next);
   };
 
   const shoot = async () => {
@@ -222,7 +263,7 @@ export function CameraCapture({ onCapture, onPickGallery, onClose, busy }: Camer
 
       {lensCount > 1 && !working && (
         <button type="button" className={styles.lens} onClick={nextLens} aria-label={t.camera.lens}>
-          {t.camera.lensLabel(lens + 1, lensCount)}
+          {t.camera.lensLabel((lens ?? 0) + 1, lensCount)}
         </button>
       )}
 
