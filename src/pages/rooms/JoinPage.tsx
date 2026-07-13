@@ -3,18 +3,9 @@ import { useState } from "react";
 import { useJoinByCode } from "@/entities/room";
 import { ApiError } from "@/shared/api/client";
 import { useI18n } from "@/shared/i18n";
-import { IconClipboard, IconLink } from "@/shared/icons";
+import { IconLink } from "@/shared/icons";
 import { hapticNotify } from "@/shared/lib/haptics";
-import { readClipboard } from "@/shared/lib/telegram";
-import {
-  AppHeader,
-  Button,
-  CODE_LENGTH,
-  CodeInput,
-  Page,
-  sanitizeCode,
-  useToast,
-} from "@/shared/ui";
+import { AppHeader, Button, CODE_LENGTH, CodeInput, Page, useToast } from "@/shared/ui";
 import styles from "./JoinPage.module.css";
 
 export function JoinPage() {
@@ -28,15 +19,6 @@ export function JoinPage() {
   const [shakeKey, setShakeKey] = useState(0);
 
   const complete = code.length === CODE_LENGTH;
-
-  const paste = async () => {
-    const text = await readClipboard();
-    if (text) {
-      setCode(sanitizeCode(text));
-    } else {
-      showToast({ title: t.joinByCode.pasteFailed, tone: "error" });
-    }
-  };
 
   const submit = () => {
     joinByCode.mutate(code, {
@@ -64,10 +46,6 @@ export function JoinPage() {
 
         <CodeInput value={code} onChange={setCode} shakeKey={shakeKey} />
         <p className={styles.hint}>{t.joinByCode.hint}</p>
-
-        <Button variant="ghost" size="sm" icon={<IconClipboard size={14} />} onClick={paste}>
-          {t.joinByCode.paste}
-        </Button>
 
         <div className={styles.deepLink}>
           <IconLink size={15} className={styles.deepLinkIcon} />

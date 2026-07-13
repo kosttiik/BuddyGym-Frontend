@@ -314,16 +314,22 @@ export const IconSparkles = icon(
   </>,
 );
 
+/* A lens inside a rotation ring: the camera body made the old glyph unreadable at 20px. */
 export const IconCameraFlip = icon(
   <>
-    <path
-      {...stroke}
-      strokeWidth={2}
-      d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.6l1.2-1.8A1.5 1.5 0 0 1 10.55 3.5h2.9a1.5 1.5 0 0 1 1.25.7L15.9 6h1.6A2.5 2.5 0 0 1 20 8.5v9a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 17.5v-9z"
-    />
-    <path {...stroke} strokeWidth={2} d="M9.2 13.6a2.9 2.9 0 0 1 5-2" />
-    <path {...stroke} strokeWidth={2} d="M14.8 12.4a2.9 2.9 0 0 1-5 2" />
-    <path {...stroke} strokeWidth={2} d="M14.6 8.9v2.7h-2.7" />
-    <path {...stroke} strokeWidth={2} d="M9.4 17.1v-2.7h2.7" />
+    <circle cx="12" cy="12" r="3.8" {...stroke} strokeWidth="2" />
+    <path d="M12 3.6a8.4 8.4 0 0 1 7.4 4.4" {...stroke} strokeWidth="2" />
+    <path d="M19.6 4.4v3.8h-3.8" {...stroke} strokeWidth="2" />
+    <path d="M12 20.4a8.4 8.4 0 0 1-7.4-4.4" {...stroke} strokeWidth="2" />
+    <path d="M4.4 19.6v-3.8h3.8" {...stroke} strokeWidth="2" />
+  </>,
+);
+
+export const IconSliders = icon(
+  <>
+    <path d="M5 4v5M5 15v5M12 4v3M12 13v7M19 4v9M19 19v1" {...stroke} strokeWidth="2.2" />
+    <circle cx="5" cy="12" r="2.4" {...stroke} strokeWidth="2" />
+    <circle cx="12" cy="10" r="2.4" {...stroke} strokeWidth="2" />
+    <circle cx="19" cy="16" r="2.4" {...stroke} strokeWidth="2" />
   </>,
 );

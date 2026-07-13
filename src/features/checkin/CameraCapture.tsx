@@ -15,6 +15,18 @@ export type CameraCaptureProps = {
   busy?: boolean;
 };
 
+async function mainBackCameraId(): Promise<string | undefined> {
+  try {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const back = devices.filter(
+      (d) => d.kind === "videoinput" && /back|rear|environment/i.test(d.label),
+    );
+    return back[0]?.deviceId;
+  } catch {
+    return undefined;
+  }
+}
+
 /* Telegram's Android WebView ignores <input capture> and always opens the gallery. */
 export function CameraCapture({ onCapture, onPickGallery, onClose, busy }: CameraCaptureProps) {
   const { t } = useI18n();
@@ -22,7 +34,6 @@ export function CameraCapture({ onCapture, onPickGallery, onClose, busy }: Camer
   const streamRef = useRef<MediaStream | null>(null);
 
   const [facing, setFacing] = useState<"user" | "environment">("user");
-  const [mirrored, setMirrored] = useState(true);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
   const [shooting, setShooting] = useState(false);
@@ -42,24 +53,36 @@ export function CameraCapture({ onCapture, onPickGallery, onClose, busy }: Camer
       videoRef.current.srcObject = stream;
       await videoRef.current.play().catch(() => undefined);
     }
-    const facing = stream.getVideoTracks()[0]?.getSettings().facingMode;
-    setMirrored(facing !== "environment");
     setReady(true);
   }, []);
 
-  /* facingMode, not deviceId: Android exposes wide, tele and macro as separate devices,
-     and picking one by hand lands on the telephoto lens. The platform default for
-     "environment" is the main camera. No resolution constraints for the same reason. */
   useEffect(() => {
     let cancelled = false;
+
+    async function open(): Promise<MediaStream> {
+      /* Plain facingMode: "environment" lands on the telephoto lens on multi-camera Androids.
+         Chrome lists the main back camera first, so pick that device explicitly and fall back
+         to facingMode when labels are hidden (no permission yet) or the device is gone. */
+      if (facing === "environment") {
+        const id = await mainBackCameraId();
+        if (id) {
+          try {
+            return await navigator.mediaDevices.getUserMedia({
+              video: { deviceId: { exact: id } },
+              audio: false,
+            });
+          } catch {
+            /* fall through to facingMode */
+          }
+        }
+      }
+      return navigator.mediaDevices.getUserMedia({ video: { facingMode: facing }, audio: false });
+    }
 
     async function start() {
       setReady(false);
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: facing },
-          audio: false,
-        });
+        const stream = await open();
         if (cancelled) {
           for (const track of stream.getTracks()) {
             track.stop();
@@ -81,6 +104,8 @@ export function CameraCapture({ onCapture, onPickGallery, onClose, busy }: Camer
       stop();
     };
   }, [facing, attach, stop]);
+
+  const mirrored = facing === "user";
 
   const flip = () => {
     setFacing((current) => (current === "user" ? "environment" : "user"));

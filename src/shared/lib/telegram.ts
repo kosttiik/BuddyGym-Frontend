@@ -2,7 +2,6 @@ import {
   backButton,
   init,
   miniApp,
-  readTextFromClipboard,
   retrieveLaunchParams,
   retrieveRawInitData,
   shareURL,
@@ -99,23 +98,6 @@ export function canShareToTelegram(): boolean {
 export function shareToTelegram(url: string, text?: string): void {
   if (shareURL.isAvailable()) {
     shareURL(url, text);
-  }
-}
-
-/* navigator.clipboard.readText is blocked inside Telegram's WebView; the SDK asks the
-   client for the clipboard instead. */
-export async function readClipboard(): Promise<string> {
-  try {
-    if (insideTelegram && readTextFromClipboard.isAvailable()) {
-      return (await readTextFromClipboard()) ?? "";
-    }
-  } catch {
-    /* fall through to the browser API */
-  }
-  try {
-    return await navigator.clipboard.readText();
-  } catch {
-    return "";
   }
 }
 
