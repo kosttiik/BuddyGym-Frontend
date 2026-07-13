@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { App } from "@/app/App";
+import { HttpResponse, http } from "msw";
+import { App, queryClient } from "@/app/App";
 import { resetDb } from "@/mocks/handlers";
 import { server } from "@/mocks/node";
 import { setToken } from "@/shared/api/client";
@@ -10,6 +11,7 @@ afterEach(() => {
   server.resetHandlers();
   resetDb();
   setToken(null);
+  queryClient.clear();
 });
 afterAll(() => server.close());
 
@@ -23,6 +25,13 @@ test("open rooms list hides the rooms I am already in", async () => {
   expect(await screen.findByText("Клуб новичков", {}, { timeout: 4000 })).toBeInTheDocument();
   expect(screen.queryByText("Утренние тренировки")).not.toBeInTheDocument();
   expect(screen.queryByText("Большая цель")).not.toBeInTheDocument();
+});
+
+test("with no joinable rooms the open list shows the empty state", async () => {
+  server.use(http.get("/api/v1/rooms/open", () => HttpResponse.json([])));
+  open("/rooms/open");
+  expect(await screen.findByText("No open rooms yet", {}, { timeout: 4000 })).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: /Create room/ })).toBeInTheDocument();
 });
 
 test("the creator edits the room settings and the room reflects them", async () => {

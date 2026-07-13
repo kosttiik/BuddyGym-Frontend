@@ -2,7 +2,8 @@ import { useNavigate } from "@tanstack/react-router";
 import { useJoinRoom, useOpenRooms } from "@/entities/room";
 import type { Room } from "@/shared/api/types";
 import { useI18n } from "@/shared/i18n";
-import { IconUsers } from "@/shared/icons";
+import { IconGlobe, IconPlus, IconUsers } from "@/shared/icons";
+import { cx } from "@/shared/lib/cx";
 import { AppHeader, Badge, Button, GlassCard, Page, PullToRefresh, Skeleton } from "@/shared/ui";
 import styles from "./RoomsPage.module.css";
 
@@ -26,7 +27,20 @@ export function OpenRoomsPage() {
       <Page>
         {rooms.isPending && <OpenRoomsSkeleton />}
         {rooms.isSuccess && rooms.data.length === 0 && (
-          <p className={styles.emptySubtitle}>{t.rooms.noOpen}</p>
+          <div className={cx(styles.empty, styles.emptyCentered)}>
+            <span className={styles.emptyIcon}>
+              <IconGlobe size={44} />
+            </span>
+            <h2 className={styles.emptyTitle}>{t.rooms.noOpen}</h2>
+            <p className={styles.emptySubtitle}>{t.rooms.noOpenHint}</p>
+            <Button
+              className={styles.emptyCta}
+              icon={<IconPlus size={15} />}
+              onClick={() => navigate({ to: "/rooms/new" })}
+            >
+              {t.rooms.create}
+            </Button>
+          </div>
         )}
         {rooms.isSuccess && rooms.data.length > 0 && (
           <div className={styles.list}>

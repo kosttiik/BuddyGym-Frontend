@@ -27,6 +27,7 @@ export const en: typeof ru = {
     inviteBadge: "invite",
     join: "Join",
     noOpen: "No open rooms yet",
+    noOpenHint: "Create your own room, or join one with an invite code",
   },
   empty: {
     title: "Sport is more fun together",
