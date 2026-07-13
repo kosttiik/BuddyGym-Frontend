@@ -1,4 +1,4 @@
-import { motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useI18n } from "@/shared/i18n";
@@ -30,37 +30,10 @@ async function backCameraIds(): Promise<string[]> {
   }
 }
 
-/* Track capabilities do tell them apart: the flash sits next to the main sensor, so only it
-   reports torch, and it carries the highest resolution. Probing opens each lens once; the
-   winner is remembered, and the lens button stays as the manual override. */
-async function pickMainLens(ids: string[]): Promise<number> {
-  let best = 0;
-  let bestScore = -1;
-  for (const [index, id] of ids.entries()) {
-    let stream: MediaStream | undefined;
-    try {
-      stream = await navigator.mediaDevices.getUserMedia({
-        video: { deviceId: { exact: id } },
-        audio: false,
-      });
-      const caps = stream.getVideoTracks()[0]?.getCapabilities?.() ?? {};
-      const pixels = (caps.width?.max ?? 0) * (caps.height?.max ?? 0);
-      const score = ("torch" in caps && caps.torch ? 1e9 : 0) + pixels;
-      if (score > bestScore) {
-        bestScore = score;
-        best = index;
-      }
-    } catch {
-      /* a lens that will not open cannot be the one we want */
-    } finally {
-      for (const track of stream?.getTracks() ?? []) {
-        track.stop();
-      }
-    }
-  }
-  return best;
-}
-
+/* Capabilities (torch, sensor size) would name the main lens, but reading them means opening
+   every lens, and Telegram's WebView asks for the camera permission on each getUserMedia. One
+   stream, one prompt: the first back stream is whatever the platform picks, and the lens
+   button lets the user correct it once; the choice is then remembered. */
 function storedLens(): number | null {
   try {
     const raw = localStorage.getItem(LENS_KEY);
@@ -87,6 +60,12 @@ export function CameraCapture({ onCapture, onPickGallery, onClose, busy }: Camer
   const [facing, setFacing] = useState<"user" | "environment">("user");
   const [backIds, setBackIds] = useState<string[]>([]);
   const [lens, setLens] = useState<number | null>(storedLens);
+  /* the stream is opened from refs, so learning which lens is running does not reopen it:
+     every getUserMedia call costs another permission prompt inside Telegram */
+  const backIdsRef = useRef<string[]>([]);
+  const lensRef = useRef<number | null>(lens);
+  const [reopen, setReopen] = useState(0);
+  const [lensHint, setLensHint] = useState(false);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
   const [shooting, setShooting] = useState(false);
@@ -109,24 +88,12 @@ export function CameraCapture({ onCapture, onPickGallery, onClose, busy }: Camer
     setReady(true);
   }, []);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: reopen restarts the stream on a lens switch
   useEffect(() => {
     let cancelled = false;
 
     async function open(): Promise<MediaStream> {
-      let id: string | undefined;
-      if (facing === "environment") {
-        /* labels are only exposed once a stream has been granted, which the front camera
-           already did by the time the user can flip */
-        const ids = await backCameraIds();
-        setBackIds(ids);
-        let index = lens;
-        if (index === null) {
-          index = ids.length > 1 ? await pickMainLens(ids) : 0;
-          rememberLens(index);
-          setLens(index);
-        }
-        id = ids[Math.min(index, ids.length - 1)];
-      }
+      const id = facing === "environment" ? backIdsRef.current[lensRef.current ?? -1] : undefined;
       if (id) {
         try {
           return await navigator.mediaDevices.getUserMedia({
@@ -152,6 +119,23 @@ export function CameraCapture({ onCapture, onPickGallery, onClose, busy }: Camer
         }
         stop();
         await attach(stream);
+
+        if (facing === "environment") {
+          /* device labels only exist once a stream was granted, so the lens list is built
+             from the running stream, and the lens in use is looked up in it */
+          const ids = await backCameraIds();
+          if (cancelled) {
+            return;
+          }
+          backIdsRef.current = ids;
+          setBackIds(ids);
+          if (lensRef.current === null) {
+            const current = stream.getVideoTracks()[0]?.getSettings().deviceId;
+            const index = current ? ids.indexOf(current) : -1;
+            lensRef.current = index < 0 ? 0 : index;
+            setLens(lensRef.current);
+          }
+        }
       } catch {
         if (!cancelled) {
           setFailed(true);
@@ -164,19 +148,32 @@ export function CameraCapture({ onCapture, onPickGallery, onClose, busy }: Camer
       cancelled = true;
       stop();
     };
-  }, [facing, lens, attach, stop]);
+  }, [facing, reopen, attach, stop]);
 
   const mirrored = facing === "user";
   const lensCount = facing === "environment" ? backIds.length : 0;
+
+  /* the hint says the lens may be the wrong one; it has done its job after a few seconds */
+  useEffect(() => {
+    if (lensCount < 2) {
+      return;
+    }
+    setLensHint(true);
+    const timer = setTimeout(() => setLensHint(false), 5000);
+    return () => clearTimeout(timer);
+  }, [lensCount]);
 
   const flip = () => {
     setFacing((current) => (current === "user" ? "environment" : "user"));
   };
 
   const nextLens = () => {
-    const next = ((lens ?? 0) + 1) % backIds.length;
+    const next = ((lensRef.current ?? 0) + 1) % backIds.length;
+    lensRef.current = next;
     setLens(next);
     rememberLens(next);
+    setLensHint(false);
+    setReopen((n) => n + 1);
   };
 
   const shoot = async () => {
@@ -262,9 +259,29 @@ export function CameraCapture({ onCapture, onPickGallery, onClose, busy }: Camer
       </header>
 
       {lensCount > 1 && !working && (
-        <button type="button" className={styles.lens} onClick={nextLens} aria-label={t.camera.lens}>
-          {t.camera.lensLabel((lens ?? 0) + 1, lensCount)}
-        </button>
+        <div className={styles.lensBox}>
+          <AnimatePresence>
+            {lensHint && (
+              <motion.span
+                className={styles.lensHint}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 6 }}
+                transition={{ duration: 0.2 }}
+              >
+                {t.camera.lensHint}
+              </motion.span>
+            )}
+          </AnimatePresence>
+          <button
+            type="button"
+            className={styles.lens}
+            onClick={nextLens}
+            aria-label={t.camera.lens}
+          >
+            {t.camera.lensLabel((lens ?? 0) + 1, lensCount)}
+          </button>
+        </div>
       )}
 
       {!failed && (
