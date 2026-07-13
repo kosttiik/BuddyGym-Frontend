@@ -1,10 +1,12 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useRef, useState } from "react";
 import { useCreateCheckin } from "@/entities/checkin";
+import { useRooms } from "@/entities/room";
 import type { Checkin, Room } from "@/shared/api/types";
 import { useI18n } from "@/shared/i18n";
 import { IconCamera, IconClock, IconGeoPinFilled, IconImage } from "@/shared/icons";
 import { hapticNotify } from "@/shared/lib/haptics";
+import { type CompressedPhoto, compressPhoto } from "@/shared/lib/photo";
 import { useApiErrorToast } from "@/shared/lib/useApiErrorToast";
 import { BottomSheet, Button, sheetItemVariants, useToast } from "@/shared/ui";
 import { Celebration } from "./Celebration";
@@ -26,14 +28,25 @@ export function CheckinSheet({ open, onClose, room, myProgress }: CheckinSheetPr
   const showToast = useToast();
   const showApiError = useApiErrorToast();
   const createCheckin = useCreateCheckin(room.id);
+  const rooms = useRooms();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [photo, setPhoto] = useState<File | null>(null);
+  const [photo, setPhoto] = useState<CompressedPhoto | null>(null);
+  const [selected, setSelected] = useState<number[]>([room.id]);
+  const [progress, setProgress] = useState(0);
   const [celebrated, setCelebrated] = useState<Checkin | null>(null);
+
+  const myRooms = rooms.data ?? [];
 
   const pickPhoto = () => fileInputRef.current?.click();
 
-  const onFile = (file: File | undefined) => {
+  const toggleRoom = (roomId: number) => {
+    setSelected((current) =>
+      current.includes(roomId) ? current.filter((id) => id !== roomId) : [...current, roomId],
+    );
+  };
+
+  const onFile = async (file: File | undefined) => {
     if (!file) {
       return;
     }
@@ -47,23 +60,36 @@ export function CheckinSheet({ open, onClose, room, myProgress }: CheckinSheetPr
       });
       return;
     }
-    setPhoto(file);
+    try {
+      /* resizing here also strips EXIF, so camera GPS tags never leave the device */
+      setPhoto(await compressPhoto(file));
+      setSelected([room.id]);
+      setProgress(0);
+    } catch {
+      hapticNotify("error");
+      showToast({ title: t.errors.photoUnreadable, tone: "error" });
+    }
   };
 
   const sendPhoto = () => {
-    if (!photo) {
+    if (!photo || selected.length === 0) {
       return;
     }
+    setProgress(0);
     createCheckin.mutate(
-      { photo },
+      { photo: photo.file, roomIds: selected, onProgress: setProgress },
       {
-        onSuccess: (checkin) => {
+        onSuccess: (checkins) => {
           hapticNotify("success");
           setPhoto(null);
           onClose();
-          setCelebrated(checkin);
+          const mine = checkins.find((c) => c.room_id === room.id) ?? checkins[0];
+          setCelebrated(mine ?? null);
         },
-        onError: showApiError,
+        onError: (error) => {
+          setProgress(0);
+          showApiError(error);
+        },
       },
     );
   };
@@ -72,12 +98,15 @@ export function CheckinSheet({ open, onClose, room, myProgress }: CheckinSheetPr
     navigator.geolocation.getCurrentPosition(
       (position) => {
         createCheckin.mutate(
-          { geo: { lat: position.coords.latitude, lon: position.coords.longitude } },
           {
-            onSuccess: (checkin) => {
+            geo: { lat: position.coords.latitude, lon: position.coords.longitude },
+            roomIds: [room.id],
+          },
+          {
+            onSuccess: (checkins) => {
               hapticNotify("success");
               onClose();
-              setCelebrated(checkin);
+              setCelebrated(checkins[0] ?? null);
             },
             onError: showApiError,
           },
@@ -158,7 +187,7 @@ export function CheckinSheet({ open, onClose, room, myProgress }: CheckinSheetPr
         capture="environment"
         className={styles.fileInput}
         onChange={(e) => {
-          onFile(e.target.files?.[0]);
+          void onFile(e.target.files?.[0]);
           e.target.value = "";
         }}
       />
@@ -167,8 +196,11 @@ export function CheckinSheet({ open, onClose, room, myProgress }: CheckinSheetPr
         {photo && (
           <PhotoPreview
             photo={photo}
-            room={room}
+            rooms={myRooms}
+            selected={selected}
+            onToggleRoom={toggleRoom}
             pending={createCheckin.isPending}
+            progress={progress}
             onRetake={pickPhoto}
             onSubmit={sendPhoto}
             onClose={() => setPhoto(null)}

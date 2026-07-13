@@ -172,18 +172,14 @@ export const handlers = [
     return HttpResponse.json(list);
   }),
 
-  http.post("/api/v1/rooms/:id/checkins", async ({ params, request }) => {
+  http.post("/api/v1/checkins", async ({ request }) => {
     if (db.flags.checkinsDown) {
       return unavailable();
     }
-    const res = requireRoom(String(params.id));
-    if ("fail" in res) {
-      return res.fail;
-    }
-    const room = res.room;
     const contentType = request.headers.get("content-type") ?? "";
     let geo: GeoPoint | undefined;
-    let photoUrl: string | undefined;
+    let hasPhoto = false;
+    let roomIds: number[] = [];
 
     if (contentType.includes("multipart/form-data")) {
       const form = await request.formData();
@@ -194,35 +190,69 @@ export const handlers = [
       if (photo.size > MAX_PHOTO_BYTES) {
         return error(400, "photo too large");
       }
-      photoUrl = PLACEHOLDER_PHOTO;
+      hasPhoto = true;
+      roomIds = form.getAll("room_ids").map((value) => Number(value));
     } else {
-      const body = (await request.json()) as { geo?: GeoPoint };
+      const body = (await request.json()) as { geo?: GeoPoint; room_ids?: number[] };
       if (!body.geo) {
         return error(400, "geo required");
       }
       geo = body.geo;
+      roomIds = body.room_ids ?? [];
+    }
+
+    if (roomIds.length === 0) {
+      return error(400, "room_ids required");
+    }
+
+    const rooms = [];
+    for (const roomId of roomIds) {
+      const res = requireRoom(String(roomId));
+      if ("fail" in res) {
+        return res.fail;
+      }
+      rooms.push(res.room);
     }
 
     await delay(600);
     const instant = geo !== undefined;
-    const checkin: Checkin = {
-      id: `c-${db.nextCheckinId++}`,
-      room_id: room.id,
-      user_id: db.me.id,
-      status: instant ? "approved" : "pending",
-      photo_url: photoUrl,
-      geo,
-      votes_approve: 0,
-      votes_reject: 0,
-      votes_required: room.votes_required,
-      created_at: new Date().toISOString(),
-      expires_at: new Date(Date.now() + 24 * 3_600_000).toISOString(),
-    };
-    if (instant) {
-      db.progress.set(room.id, (db.progress.get(room.id) ?? 0) + 1);
+    /* one proof, one photo, one checkin per room */
+    const created: Checkin[] = rooms.map((room) => {
+      const checkin: Checkin = {
+        id: `c-${db.nextCheckinId++}`,
+        room_id: room.id,
+        user_id: db.me.id,
+        status: instant ? "approved" : "pending",
+        has_photo: hasPhoto,
+        photo_purged: false,
+        photo_expires_at: hasPhoto
+          ? new Date(Date.now() + 14 * 24 * 3_600_000).toISOString()
+          : undefined,
+        geo,
+        votes_approve: 0,
+        votes_reject: 0,
+        votes_required: room.votes_required,
+        created_at: new Date().toISOString(),
+        expires_at: new Date(Date.now() + 24 * 3_600_000).toISOString(),
+      };
+      if (instant) {
+        db.progress.set(room.id, (db.progress.get(room.id) ?? 0) + 1);
+      }
+      db.checkins.unshift(checkin);
+      return checkin;
+    });
+
+    return HttpResponse.json(created, { status: 201 });
+  }),
+
+  http.get("/api/v1/checkins/:id/photo", async ({ params }) => {
+    const checkin = db.checkins.find((c) => c.id === params.id);
+    if (!checkin?.has_photo || checkin.photo_purged) {
+      return error(404, "photo not found");
     }
-    db.checkins.unshift(checkin);
-    return HttpResponse.json(checkin, { status: 201 });
+    await delay(200);
+    const svg = decodeURIComponent(PLACEHOLDER_PHOTO.replace("data:image/svg+xml,", ""));
+    return new HttpResponse(svg, { headers: { "Content-Type": "image/svg+xml" } });
   }),
 
   http.post("/api/v1/checkins/:id/vote", async ({ params, request }) => {

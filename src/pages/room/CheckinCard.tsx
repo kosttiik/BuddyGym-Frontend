@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { motion } from "motion/react";
 import { useVote } from "@/entities/checkin";
+import { CheckinPhoto } from "@/features/checkin/CheckinPhoto";
 import type { Checkin, Member } from "@/shared/api/types";
 import { useI18n } from "@/shared/i18n";
 import { IconCheck, IconClock, IconCross, IconGeoPinFilled } from "@/shared/icons";
@@ -68,22 +68,20 @@ export function CheckinCard({
             <span className={styles.meta}>{meta.join(" · ")}</span>
           </div>
         </Link>
-        {checkin.photo_url && (
+        {checkin.has_photo && (
           <button
             type="button"
             className={styles.thumbButton}
             onClick={onOpenPhoto}
             aria-label={name}
           >
-            <motion.img
-              layoutId={`checkin-photo-${checkin.id}`}
-              src={checkin.photo_url}
-              alt=""
-              className={styles.thumb}
-              loading="lazy"
-              decoding="async"
-            />
+            <CheckinPhoto checkin={checkin} className={styles.thumb} />
           </button>
+        )}
+        {checkin.photo_purged && (
+          <span className={styles.thumbButton}>
+            <CheckinPhoto checkin={checkin} className={styles.thumb} />
+          </span>
         )}
         {checkin.geo && (
           <Badge tone="green" icon={<IconGeoPinFilled size={11} />}>
@@ -97,7 +95,7 @@ export function CheckinCard({
         )}
       </div>
 
-      {checkin.status === "pending" && checkin.photo_url && (
+      {checkin.status === "pending" && checkin.has_photo && (
         <>
           <div className={styles.votes}>
             <span className={styles.votesBar}>

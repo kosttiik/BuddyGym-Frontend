@@ -64,7 +64,11 @@ export type Checkin = {
   room_id: number;
   user_id: number;
   status: CheckinStatus;
-  photo_url?: string;
+  /* the bucket is private: bytes come from GET /checkins/{id}/photo with the Bearer token */
+  has_photo: boolean;
+  /* photos are purged after a retention window; after that the bytes are gone */
+  photo_purged: boolean;
+  photo_expires_at?: string;
   geo?: GeoPoint;
   votes_approve: number;
   votes_reject: number;

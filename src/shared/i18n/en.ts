@@ -116,10 +116,22 @@ export const en: typeof ru = {
   },
   photoPreview: {
     retake: "Retake",
-    sizeOf: (mb: string) => `${mb} MB of 10`,
-    info: (room: string, votes: number) =>
-      `Goes to "${room}" — waits for ${votes} ${pluralEn(votes, "approval", "approvals")}, expires in 24 h`,
+    sendTo: "Send to rooms",
+    votesNeeded: (n: number) => `${n} ${pluralEn(n, "vote", "votes")}`,
+    oneShotMany: (n: number) => `One photo, ${n} rooms. It is stored once, not copied`,
+    sending: "Sending",
     submit: "Send for confirmation",
+  },
+  uploadProgress: {
+    uploading: (n: number) => `Uploading to ${n} ${pluralEn(n, "room", "rooms")}`,
+    processing: "Almost there",
+  },
+  photo: {
+    purged: "Photo deleted",
+    purgedNote: "Proof photos are kept for 14 days",
+    expiresIn: (n: number) => `Photo is deleted in ${n} ${pluralEn(n, "day", "days")}`,
+    expiresToday: "Photo is deleted today",
+    unavailable: "Photo unavailable",
   },
   celebration: {
     title: "Workout counted",
@@ -155,7 +167,8 @@ export const en: typeof ru = {
   },
   errors: {
     photoTooLarge: "Photo is over 10 MB",
-    photoTooLargeDesc: (mb: string) => `File size is ${mb} MB — compress it or pick another`,
+    photoTooLargeDesc: (mb: string) => `File size is ${mb} MB, compress it or pick another`,
+    photoUnreadable: "Could not read this image",
     tooOften: "Too many requests",
     tooOftenDesc: "Wait a minute",
     checkinsUnavailable: "Check-ins are temporarily unavailable",

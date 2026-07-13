@@ -1,0 +1,39 @@
+.skeleton {
+  display: block;
+  background: var(--skeleton-bg);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}
+
+.placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  background: var(--skeleton-bg);
+  color: var(--text-tertiary);
+  text-align: center;
+  padding: 8px;
+}
+
+.placeholderText {
+  font-size: 10.5px;
+  font-weight: 600;
+  line-height: 1.3;
+}

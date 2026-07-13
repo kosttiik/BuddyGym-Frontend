@@ -1,4 +1,5 @@
 import { queryOptions, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { ApiError, api } from "@/shared/api/client";
 import type { Checkin, CheckinStatus, GeoPoint } from "@/shared/api/types";
 import { rememberMyVote } from "@/shared/lib/myVotes";
@@ -25,7 +26,11 @@ export function useRoomCheckins(roomId: number, status?: CheckinStatus) {
   return useQuery(checkinsQueryOptions(roomId, status));
 }
 
-export type CreateCheckinInput = { photo: File } | { geo: GeoPoint };
+export type CreateCheckinInput = {
+  /* one proof, many rooms: the photo is uploaded once and shared by every checkin */
+  roomIds: number[];
+  onProgress?: (fraction: number) => void;
+} & ({ photo: File } | { geo: GeoPoint });
 
 export function useCreateCheckin(roomId: number) {
   const queryClient = useQueryClient();
@@ -34,15 +39,58 @@ export function useCreateCheckin(roomId: number) {
       if ("photo" in input) {
         const form = new FormData();
         form.append("photo", input.photo);
-        return api.postForm<Checkin>(`/rooms/${roomId}/checkins`, form);
+        for (const id of input.roomIds) {
+          form.append("room_ids", String(id));
+        }
+        return api.upload<Checkin[]>("/checkins", form, input.onProgress);
       }
-      return api.post<Checkin>(`/rooms/${roomId}/checkins`, { geo: input.geo });
+      return api.post<Checkin[]>("/checkins", { room_ids: input.roomIds, geo: input.geo });
     },
-    onSuccess: () => {
+    onSuccess: (_checkins, input) => {
+      for (const id of input.roomIds) {
+        void queryClient.invalidateQueries({ queryKey: ["checkins", id] });
+      }
       void queryClient.invalidateQueries({ queryKey: ["checkins", roomId] });
       void queryClient.invalidateQueries({ queryKey: roomsKey });
     },
   });
+}
+
+/* The photo bucket is private, so the bytes are pulled with the Bearer token and
+   exposed to <img> as an object URL. Revoked on unmount to avoid leaking blobs. */
+export function useCheckinPhoto(checkin: Checkin | null | undefined): string | undefined {
+  const [url, setUrl] = useState<string>();
+  const id = checkin?.id;
+  const available = Boolean(checkin?.has_photo) && !checkin?.photo_purged;
+
+  useEffect(() => {
+    if (!id || !available) {
+      setUrl(undefined);
+      return;
+    }
+    let cancelled = false;
+    let objectUrl: string | undefined;
+
+    api
+      .getBlob(`/checkins/${id}/photo`)
+      .then((blob) => {
+        if (cancelled) {
+          return;
+        }
+        objectUrl = URL.createObjectURL(blob);
+        setUrl(objectUrl);
+      })
+      .catch(() => setUrl(undefined));
+
+    return () => {
+      cancelled = true;
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
+      }
+    };
+  }, [id, available]);
+
+  return url;
 }
 
 export function useVote(roomId: number) {
