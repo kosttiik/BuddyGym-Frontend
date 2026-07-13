@@ -107,8 +107,16 @@ export function closeMiniApp(): void {
   }
 }
 
+export function canUseTelegramBackButton(): boolean {
+  try {
+    return insideTelegram && backButton.isMounted() && backButton.show.isAvailable();
+  } catch {
+    return false;
+  }
+}
+
 export function showBackButton(onClick: () => void): () => void {
-  if (!insideTelegram || !backButton.show.isAvailable()) {
+  if (!canUseTelegramBackButton()) {
     return () => {};
   }
   backButton.show();

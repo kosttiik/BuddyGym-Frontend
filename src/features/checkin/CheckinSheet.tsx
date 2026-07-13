@@ -9,6 +9,7 @@ import { hapticNotify } from "@/shared/lib/haptics";
 import { type CompressedPhoto, compressPhoto } from "@/shared/lib/photo";
 import { useApiErrorToast } from "@/shared/lib/useApiErrorToast";
 import { BottomSheet, Button, sheetItemVariants, useToast } from "@/shared/ui";
+import { CameraCapture } from "./CameraCapture";
 import { Celebration } from "./Celebration";
 import styles from "./CheckinSheet.module.css";
 import { PhotoPreview } from "./PhotoPreview";
@@ -29,9 +30,9 @@ export function CheckinSheet({ open, onClose, room, myProgress }: CheckinSheetPr
   const showApiError = useApiErrorToast();
   const createCheckin = useCreateCheckin(room.id);
   const rooms = useRooms();
-  const cameraInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
 
+  const [cameraOpen, setCameraOpen] = useState(false);
   const [photo, setPhoto] = useState<CompressedPhoto | null>(null);
   const [selected, setSelected] = useState<number[]>([room.id]);
   const [progress, setProgress] = useState(0);
@@ -39,10 +40,11 @@ export function CheckinSheet({ open, onClose, room, myProgress }: CheckinSheetPr
 
   const myRooms = rooms.data ?? [];
 
-  /* capture="environment" opens the camera straight away; the gallery input has no
-     capture attribute, which is what lets the picker show existing photos */
-  const takePhoto = () => cameraInputRef.current?.click();
-  const pickFromGallery = () => galleryInputRef.current?.click();
+  const takePhoto = () => setCameraOpen(true);
+  const pickFromGallery = () => {
+    setCameraOpen(false);
+    galleryInputRef.current?.click();
+  };
 
   const toggleRoom = (roomId: number) => {
     setSelected((current) =>
@@ -164,10 +166,9 @@ export function CheckinSheet({ open, onClose, room, myProgress }: CheckinSheetPr
       </BottomSheet>
 
       <input
-        ref={cameraInputRef}
+        ref={galleryInputRef}
         type="file"
-        accept="image/*"
-        capture="environment"
+        accept="image/*,.heic,.heif,.avif"
         className={styles.fileInput}
         onChange={(e) => {
           void onFile(e.target.files?.[0]);
@@ -175,16 +176,18 @@ export function CheckinSheet({ open, onClose, room, myProgress }: CheckinSheetPr
         }}
       />
 
-      <input
-        ref={galleryInputRef}
-        type="file"
-        accept="image/*"
-        className={styles.fileInput}
-        onChange={(e) => {
-          void onFile(e.target.files?.[0]);
-          e.target.value = "";
-        }}
-      />
+      <AnimatePresence>
+        {cameraOpen && (
+          <CameraCapture
+            onCapture={(file) => {
+              setCameraOpen(false);
+              void onFile(file);
+            }}
+            onPickGallery={pickFromGallery}
+            onClose={() => setCameraOpen(false)}
+          />
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
         {photo && (

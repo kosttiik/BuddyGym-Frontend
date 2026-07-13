@@ -53,7 +53,7 @@ export function RoomsPage() {
   return (
     <PullToRefresh onRefresh={() => rooms.refetch()}>
       <AppHeader />
-      <Page bottomSpace>
+      <Page bottomSpace className={styles.page}>
         <h1 className={styles.title}>{t.rooms.title}</h1>
 
         {rooms.isPending && <RoomsSkeleton />}
@@ -135,8 +135,16 @@ function RoomCard({ room }: { room: RoomWithProgress }) {
         {t.rooms.goalMeta(room.goal_per_period, room.period_days)}
       </p>
       <div className={styles.progressRow}>
-        <SegmentedProgress value={room.workouts_count} goal={room.goal_per_period} />
-        <ProgressCounter value={room.workouts_count} goal={room.goal_per_period} />
+        <SegmentedProgress
+          value={room.workouts_count}
+          goal={room.goal_per_period}
+          trackId={`room:${room.id}`}
+        />
+        <ProgressCounter
+          value={room.workouts_count}
+          goal={room.goal_per_period}
+          trackId={`room:${room.id}`}
+        />
       </div>
     </GlassCard>
   );

@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
 import { routeTree } from "@/routeTree.gen";
 import { I18nProvider } from "@/shared/i18n";
+import { useEdgeSwipeBack } from "@/shared/lib/useEdgeSwipeBack";
 import { ThemeProvider } from "@/shared/theme/ThemeProvider";
 import { ToastProvider } from "@/shared/ui";
 import { AuthGate } from "./AuthGate";
@@ -79,6 +80,11 @@ declare module "@tanstack/react-router" {
   }
 }
 
+function Shell() {
+  useEdgeSwipeBack();
+  return <RouterProvider router={router} />;
+}
+
 export function App() {
   return (
     <I18nProvider>
@@ -86,7 +92,7 @@ export function App() {
         <QueryClientProvider client={queryClient}>
           <ToastProvider>
             <AuthGate onReady={enableViewTransitions}>
-              <RouterProvider router={router} />
+              <Shell />
             </AuthGate>
           </ToastProvider>
         </QueryClientProvider>

@@ -121,6 +121,11 @@ export const en: typeof ru = {
     instant: "INSTANT",
     geoDenied: "Could not get your location",
   },
+  camera: {
+    shoot: "Take photo",
+    flip: "Flip camera",
+    denied: "Camera is unavailable. Allow access in settings, or pick a photo from the gallery.",
+  },
   photoPreview: {
     retake: "Retake",
     sendTo: "Send to rooms",

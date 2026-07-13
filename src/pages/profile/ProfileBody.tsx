@@ -91,9 +91,14 @@ export function ProfileBody({ user, achievements }: { user: User; achievements: 
           <GlassCard>
             <div className={styles.statusTop}>
               <span className={styles.statusTitle}>{t.profile.toStatus(nextStatus)}</span>
-              <ProgressCounter value={workouts} goal={nextGoal} />
+              <ProgressCounter value={workouts} goal={nextGoal} trackId="profile" />
             </div>
-            <ProgressBar value={workouts} max={nextGoal} className={styles.statusBar} />
+            <ProgressBar
+              value={workouts}
+              max={nextGoal}
+              trackId="profile"
+              className={styles.statusBar}
+            />
             <span className={styles.statusLeft}>{t.profile.workoutsLeft(nextGoal - workouts)}</span>
           </GlassCard>
         </motion.div>

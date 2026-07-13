@@ -26,8 +26,8 @@
   --blur-sheet: 34px;
 
   --bg-gradient: linear-gradient(165deg, #f0f4f2 0%, #e7eef0 45%, #e9f0e9 100%);
-  --aura-green: rgba(46, 196, 124, 0.2);
-  --aura-blue: rgba(90, 150, 220, 0.14);
+  --aura-green: transparent;
+  --aura-blue: transparent;
 
   --card-bg: rgba(255, 255, 255, 0.62);
   --card-border: rgba(255, 255, 255, 0.75);
@@ -60,10 +60,10 @@
   --progress-fill: linear-gradient(180deg, #3ed488, #27b56d);
   --progress-empty: rgba(20, 35, 27, 0.09);
   --progress-glow: none;
-  --progress-glow-strong: 0 0 10px rgba(62, 212, 136, 0.7);
+  --progress-glow-strong: none;
 
-  --btn-primary-shadow: 0 10px 28px rgba(14, 165, 92, 0.32);
-  --btn-vote-shadow: 0 6px 16px rgba(14, 165, 92, 0.3);
+  --btn-primary-shadow: 0 6px 16px rgba(11, 15, 13, 0.14);
+  --btn-vote-shadow: 0 4px 12px rgba(11, 15, 13, 0.12);
   --ghost-bg: rgba(20, 35, 27, 0.06);
 
   --nav-active-bg: rgba(46, 196, 124, 0.18);
@@ -101,8 +101,8 @@
 
 [data-theme="dark"] {
   --bg-gradient: linear-gradient(165deg, #121917 0%, #10161a 45%, #12190f 100%);
-  --aura-green: rgba(46, 196, 124, 0.12);
-  --aura-blue: rgba(90, 150, 220, 0.08);
+  --aura-green: transparent;
+  --aura-blue: transparent;
 
   --card-bg: rgba(255, 255, 255, 0.06);
   --card-border: rgba(255, 255, 255, 0.1);
@@ -131,7 +131,7 @@
   --orange-tint: rgba(244, 162, 97, 0.14);
 
   --progress-empty: rgba(238, 244, 240, 0.09);
-  --progress-glow: 0 0 12px rgba(62, 212, 136, 0.35);
+  --progress-glow: none;
 
   --ghost-bg: rgba(238, 244, 240, 0.07);
 

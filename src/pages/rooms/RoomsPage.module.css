@@ -1,3 +1,8 @@
+/* the CTA row is fixed above the nav, so the page needs room to scroll clear of both */
+.page {
+  padding-bottom: calc(150px + var(--safe-bottom));
+}
+
 .title {
   font-family: var(--font-display);
   font-size: 19px;

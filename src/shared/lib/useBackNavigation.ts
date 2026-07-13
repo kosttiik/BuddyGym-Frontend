@@ -1,8 +1,8 @@
 import { useRouter } from "@tanstack/react-router";
 import { useCallback, useEffect } from "react";
-import { isInsideTelegram, showBackButton } from "@/shared/lib/telegram";
+import { canUseTelegramBackButton, showBackButton } from "@/shared/lib/telegram";
 
-/* Nested screens: Telegram BackButton inside Telegram, in-app fallback outside. */
+/* Telegram omits its BackButton on iOS and desktop, so fall back to an in-app one. */
 export function useBackNavigation() {
   const router = useRouter();
 
@@ -16,5 +16,5 @@ export function useBackNavigation() {
 
   useEffect(() => showBackButton(goBack), [goBack]);
 
-  return { goBack, showFallback: !isInsideTelegram() };
+  return { goBack, showFallback: !canUseTelegramBackButton() };
 }

@@ -137,7 +137,7 @@ function MemberRow({
         </span>
         <span className={styles.meta}>{t.members.since(formatDay(member.joined_at, locale))}</span>
       </div>
-      <ProgressCounter value={member.workouts_count} goal={goal} />
+      <ProgressCounter value={member.workouts_count} goal={goal} trackId={`member:${member.id}`} />
     </GlassCard>
   );
 }

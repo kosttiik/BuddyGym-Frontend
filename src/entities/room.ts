@@ -15,6 +15,9 @@ export const roomsQueryOptions = () =>
   queryOptions({
     queryKey: roomsKey,
     queryFn: () => api.get<RoomWithProgress[]>("/rooms"),
+    refetchInterval: 30_000,
+    refetchIntervalInBackground: false,
+    refetchOnWindowFocus: true,
   });
 
 export const openRoomsQueryOptions = () =>
@@ -27,6 +30,9 @@ export const roomQueryOptions = (id: number) =>
   queryOptions({
     queryKey: roomKey(id),
     queryFn: () => api.get<RoomDetailResponse>(`/rooms/${id}`),
+    refetchInterval: 30_000,
+    refetchIntervalInBackground: false,
+    refetchOnWindowFocus: true,
     retry: (failureCount, error) => {
       if (error instanceof Error && "status" in error) {
         const status = (error as { status: number }).status;

@@ -13,6 +13,11 @@ export const checkinsQueryOptions = (roomId: number, status?: CheckinStatus) => 
   return queryOptions({
     queryKey: checkinsKey(roomId, status),
     queryFn: () => api.get<Checkin[]>(`/rooms/${roomId}/checkins${search}`),
+    /* poll so other members' check-ins and votes appear without a manual refresh */
+    refetchInterval: 15_000,
+    refetchIntervalInBackground: false,
+    refetchOnWindowFocus: true,
+    refetchOnMount: "always",
     retry: (failureCount, error) => {
       if (error instanceof ApiError && (error.status === 502 || error.status === 403)) {
         return false;

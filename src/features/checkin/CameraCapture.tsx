@@ -16,15 +16,13 @@ export type CameraCaptureProps = {
 
 type Facing = "environment" | "user";
 
-/* Telegram's Android WebView ignores <input capture>, so tapping "take a photo" would
-   drop the user into the gallery picker. Driving the camera through getUserMedia is the
-   only way to actually open the lens on both platforms. */
+/* Telegram's Android WebView ignores <input capture> and always opens the gallery. */
 export function CameraCapture({ onCapture, onPickGallery, onClose }: CameraCaptureProps) {
   const { t } = useI18n();
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
-  const [facing, setFacing] = useState<Facing>("environment");
+  const [facing, setFacing] = useState<Facing>("user");
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -46,7 +44,11 @@ export function CameraCapture({ onCapture, onPickGallery, onClose }: CameraCaptu
       setFailed(false);
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: { ideal: facing }, width: { ideal: 1920 } },
+          video: {
+            facingMode: { ideal: facing },
+            width: { ideal: 2560 },
+            height: { ideal: 1440 },
+          },
           audio: false,
         });
         if (cancelled) {
@@ -139,7 +141,12 @@ export function CameraCapture({ onCapture, onPickGallery, onClose }: CameraCaptu
       )}
 
       <header className={styles.header}>
-        <button type="button" className={styles.round} onClick={onClose} aria-label={t.common.close}>
+        <button
+          type="button"
+          className={styles.round}
+          onClick={onClose}
+          aria-label={t.common.close}
+        >
           <IconCross size={16} />
         </button>
       </header>
