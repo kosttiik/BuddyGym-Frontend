@@ -1,5 +1,6 @@
 export { AppHeader } from "./AppHeader";
 export { Avatar, AvatarStack } from "./Avatar";
+export { AvatarViewer } from "./AvatarViewer";
 export { Badge, type BadgeTone } from "./Badge";
 export { Banner } from "./Banner";
 export { BottomNav } from "./BottomNav";

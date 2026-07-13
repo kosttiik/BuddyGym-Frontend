@@ -1,6 +1,4 @@
-/* A phone camera hands us 3-12 MB. Re-encoding through a canvas cuts that to a few
-   hundred KB and, just as importantly, drops the EXIF block: camera photos carry GPS
-   coordinates, and we are not shipping the user's home address to the server. */
+/* Re-encoding through a canvas shrinks the file and drops EXIF, which carries GPS. */
 
 const MAX_EDGE = 1600;
 const QUALITY = 0.82;
@@ -10,6 +8,30 @@ export type CompressedPhoto = {
   originalBytes: number;
   bytes: number;
 };
+
+/* Only Safari decodes HEIC. Anything the browser cannot open falls back to libheif,
+   which is wasm and therefore imported lazily. */
+async function toDecodable(file: File): Promise<File> {
+  if (await canDecodeNatively(file)) {
+    return file;
+  }
+  const { heicTo } = await import("heic-to/csp");
+  const blob = await heicTo({ blob: file, type: "image/jpeg", quality: 0.92 });
+  return new File([blob], `${file.name.replace(/\.[^.]+$/, "")}.jpg`, { type: "image/jpeg" });
+}
+
+async function canDecodeNatively(file: File): Promise<boolean> {
+  if (typeof createImageBitmap !== "function") {
+    return false;
+  }
+  try {
+    const bitmap = await createImageBitmap(file);
+    bitmap.close();
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 function loadBitmap(file: File): Promise<ImageBitmap | HTMLImageElement> {
   if (typeof createImageBitmap === "function") {
@@ -41,7 +63,8 @@ function scaledSize(width: number, height: number): [number, number] {
 }
 
 export async function compressPhoto(file: File): Promise<CompressedPhoto> {
-  const bitmap = await loadBitmap(file);
+  const decodable = await toDecodable(file);
+  const bitmap = await loadBitmap(decodable);
   const [width, height] = scaledSize(bitmap.width, bitmap.height);
 
   const canvas = document.createElement("canvas");

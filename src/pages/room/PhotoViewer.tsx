@@ -73,7 +73,6 @@ export function PhotoViewer({ checkin, author, isMine, roomId, onClose }: PhotoV
 
       <div className={styles.photoWrap}>
         <CheckinPhoto checkin={checkin} className={styles.photo} />
-        {expiry && <span className={styles.expiry}>{expiry}</span>}
       </div>
 
       {checkin.status === "pending" && (
@@ -83,6 +82,7 @@ export function PhotoViewer({ checkin, author, isMine, roomId, onClose }: PhotoV
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
         >
+          {expiry && <span className={styles.expiry}>{expiry}</span>}
           <div className={styles.votes}>
             <span className={styles.segments}>
               {Array.from({ length: checkin.votes_required }, (_, i) => (

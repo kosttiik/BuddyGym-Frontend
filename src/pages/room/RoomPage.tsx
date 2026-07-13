@@ -1,24 +1,18 @@
 import { Link, useNavigate, useParams } from "@tanstack/react-router";
 import { AnimatePresence, motion, useReducedMotion, type Variants } from "motion/react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRoomCheckins } from "@/entities/checkin";
-import { useLeaveRoom, useRoom } from "@/entities/room";
+import { useRoom } from "@/entities/room";
 import { useMe } from "@/entities/user";
 import { CheckinSheet } from "@/features/checkin/CheckinSheet";
 import { ApiError } from "@/shared/api/client";
 import type { Checkin, CheckinStatus, Member } from "@/shared/api/types";
 import { useI18n } from "@/shared/i18n";
-import {
-  IconCloudOff,
-  IconDumbbell,
-  IconKey,
-  IconLeave,
-  IconLockKeyhole,
-  IconShare,
-} from "@/shared/icons";
+import { IconCloudOff, IconDumbbell, IconKey, IconLockKeyhole, IconShare } from "@/shared/icons";
 import { PulseDots } from "@/shared/icons/animated";
-import { hapticNotify, hapticSelection } from "@/shared/lib/haptics";
-import { ease, popItem, spring, stagger } from "@/shared/lib/motion";
+import { hapticSelection } from "@/shared/lib/haptics";
+import { spring, stagger } from "@/shared/lib/motion";
+import { markSeen, unreadCount } from "@/shared/lib/seenTabs";
 import {
   AppHeader,
   AvatarStack,
@@ -52,23 +46,12 @@ const feedItem: Variants = {
 
 /* The panel travels toward the tab you left: forward tabs enter from the right. */
 const panelVariants: Variants = {
-  enter: (dir: number) => ({
-    opacity: 0,
-    x: dir * 56,
-    scale: 0.94,
-  }),
+  enter: (dir: number) => ({ opacity: 0, x: dir * 18 }),
   center: {
     opacity: 1,
     x: 0,
-    scale: 1,
-    transition: { ...spring.soft, opacity: { duration: 0.25 } },
+    transition: { duration: 0.16, ease: [0.22, 1, 0.36, 1] },
   },
-  exit: (dir: number) => ({
-    opacity: 0,
-    x: dir * -56,
-    scale: 0.94,
-    transition: { duration: 0.22, ease: ease.exit },
-  }),
 };
 
 const SWIPE_DISTANCE = 56;
@@ -78,20 +61,18 @@ export function RoomPage() {
   const { roomId } = useParams({ from: "/rooms/$roomId" });
   const id = Number(roomId);
   const { t } = useI18n();
-  const navigate = useNavigate();
   const room = useRoom(id);
   const me = useMe();
-  const leaveRoom = useLeaveRoom();
   const reduceMotion = useReducedMotion();
   const [{ tab, dir }, setTabState] = useState<{ tab: CheckinStatus; dir: number }>({
     tab: "pending",
     dir: 1,
   });
-  const checkins = useRoomCheckins(id, tab);
-  const pendingCheckins = useRoomCheckins(id, "pending");
+  const allCheckins = useRoomCheckins(id);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [viewer, setViewer] = useState<Checkin | null>(null);
+  const [edgeSwipe, setEdgeSwipe] = useState(false);
 
   const selectTab = (next: CheckinStatus) => {
     if (next === tab) {
@@ -108,15 +89,6 @@ export function RoomPage() {
     }
   };
 
-  const leave = () => {
-    leaveRoom.mutate(id, {
-      onSuccess: () => {
-        hapticNotify("warning");
-        void navigate({ to: "/", replace: true });
-      },
-    });
-  };
-
   const members = useMemo(() => {
     const map = new Map<number, Member>();
     for (const m of room.data?.members ?? []) {
@@ -125,23 +97,54 @@ export function RoomPage() {
     return map;
   }, [room.data]);
 
+  const byStatus = useMemo(() => {
+    const groups: Record<CheckinStatus, Checkin[]> = {
+      pending: [],
+      approved: [],
+      rejected: [],
+      expired: [],
+    };
+    for (const checkin of allCheckins.data ?? []) {
+      groups[checkin.status]?.push(checkin);
+    }
+    return groups;
+  }, [allCheckins.data]);
+
+  const visible = allCheckins.isSuccess ? byStatus[tab] : [];
+
+  useEffect(() => {
+    if (allCheckins.isSuccess) {
+      markSeen(id, tab, byStatus[tab].length);
+    }
+  }, [id, tab, byStatus, allCheckins.isSuccess]);
+
   const forbidden = room.isError && room.error instanceof ApiError && room.error.status === 403;
   const checkinsDown =
-    checkins.isError && checkins.error instanceof ApiError && checkins.error.status === 502;
+    allCheckins.isError &&
+    allCheckins.error instanceof ApiError &&
+    allCheckins.error.status === 502;
 
   if (forbidden) {
     return <ForbiddenScreen />;
   }
 
-  const tabs: Array<{ key: CheckinStatus; label: string; count?: number }> = [
-    { key: "pending", label: t.room.tabPending, count: pendingCheckins.data?.length },
-    { key: "approved", label: t.room.tabApproved },
-    { key: "rejected", label: t.room.tabRejected },
-    { key: "expired", label: t.room.tabExpired },
-  ];
+  const tabs = TAB_ORDER.map((key) => {
+    const total = allCheckins.isSuccess ? byStatus[key].length : undefined;
+    return {
+      key,
+      label: {
+        pending: t.room.tabPending,
+        approved: t.room.tabApproved,
+        rejected: t.room.tabRejected,
+        expired: t.room.tabExpired,
+      }[key],
+      count: total,
+      unread: total === undefined ? 0 : unreadCount(id, key, total),
+    };
+  });
 
   return (
-    <PullToRefresh onRefresh={() => Promise.all([room.refetch(), checkins.refetch()])}>
+    <PullToRefresh onRefresh={() => Promise.all([room.refetch(), allCheckins.refetch()])}>
       <AppHeader variant="nested" title={room.data?.room.name ?? t.common.appName} />
       <Page bottomSpace>
         {room.isPending && <RoomHeaderSkeleton />}
@@ -151,12 +154,7 @@ export function RoomPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={spring.soft}
           >
-            <RoomHeaderCard
-              detail={room.data}
-              leaving={leaveRoom.isPending}
-              onLeave={leave}
-              onShare={() => setShareOpen(true)}
-            />
+            <RoomHeaderCard detail={room.data} onShare={() => setShareOpen(true)} />
           </motion.div>
         )}
 
@@ -174,16 +172,23 @@ export function RoomPage() {
               key={item.key}
               label={item.label}
               count={item.count}
+              unread={item.unread}
               active={tab === item.key}
               onClick={() => selectTab(item.key)}
             />
           ))}
         </div>
 
-        <div className={styles.panelViewport}>
+        <div
+          className={styles.panelViewport}
+          onTouchStartCapture={(event) => {
+            /* a drag that starts at the edge is the back gesture, not a tab swipe */
+            setEdgeSwipe((event.touches[0]?.clientX ?? 99) <= 28);
+          }}
+        >
           <motion.div
             /* swipe the feed sideways to walk the tabs, like Telegram's own chat lists */
-            drag={reduceMotion ? false : "x"}
+            drag={reduceMotion || edgeSwipe ? false : "x"}
             dragDirectionLock
             dragConstraints={{ left: 0, right: 0 }}
             dragElastic={0.12}
@@ -197,61 +202,53 @@ export function RoomPage() {
               }
             }}
           >
-            <AnimatePresence mode="popLayout" initial={false} custom={dir}>
-              <motion.div
-                key={tab}
-                role="tabpanel"
-                custom={dir}
-                variants={panelVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-              >
-                {checkins.isPending && !checkinsDown && <FeedSkeleton />}
+            <motion.div
+              key={tab}
+              role="tabpanel"
+              custom={dir}
+              variants={panelVariants}
+              initial="enter"
+              animate="center"
+            >
+              {allCheckins.isPending && !checkinsDown && <FeedSkeleton />}
 
-                {checkins.isSuccess && checkins.data.length === 0 && (
-                  <div className={styles.emptyFeed}>
-                    <span className={styles.emptyFeedIcon}>
-                      <PulseDots size={26} />
-                    </span>
-                    <p className={styles.emptyFeedTitle}>{t.room.emptyFeed}</p>
-                    <p className={styles.emptyFeedHint}>{t.room.emptyFeedHint}</p>
-                  </div>
-                )}
+              {allCheckins.isSuccess && visible.length === 0 && (
+                <div className={styles.emptyFeed}>
+                  <span className={styles.emptyFeedIcon}>
+                    <PulseDots size={26} />
+                  </span>
+                  <p className={styles.emptyFeedTitle}>{t.room.emptyFeed}</p>
+                  <p className={styles.emptyFeedHint}>{t.room.emptyFeedHint}</p>
+                </div>
+              )}
 
-                {checkins.isSuccess && checkins.data.length > 0 && (
-                  <motion.div
-                    className={styles.feed}
-                    variants={listVariants}
-                    initial="hidden"
-                    animate="visible"
-                  >
-                    {checkins.data.map((checkin) => (
-                      <motion.div key={checkin.id} variants={feedItem}>
-                        <CheckinCard
-                          checkin={checkin}
-                          author={members.get(checkin.user_id)}
-                          isMine={checkin.user_id === me.data?.user.id}
-                          roomId={id}
-                          disabled={checkinsDown}
-                          onOpenPhoto={() => setViewer(checkin)}
-                        />
-                      </motion.div>
-                    ))}
-                  </motion.div>
-                )}
-              </motion.div>
-            </AnimatePresence>
+              {allCheckins.isSuccess && visible.length > 0 && (
+                <motion.div
+                  className={styles.feed}
+                  variants={listVariants}
+                  initial="hidden"
+                  animate="visible"
+                >
+                  {visible.map((checkin) => (
+                    <motion.div key={checkin.id} variants={feedItem}>
+                      <CheckinCard
+                        checkin={checkin}
+                        author={members.get(checkin.user_id)}
+                        isMine={checkin.user_id === me.data?.user.id}
+                        roomId={id}
+                        disabled={checkinsDown}
+                        onOpenPhoto={() => setViewer(checkin)}
+                      />
+                    </motion.div>
+                  ))}
+                </motion.div>
+              )}
+            </motion.div>
           </motion.div>
         </div>
       </Page>
 
-      <motion.div
-        className={styles.ctaWrap}
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ ...spring.soft, delay: 0.12 }}
-      >
+      <div className={styles.ctaWrap}>
         <Button
           block
           icon={<IconDumbbell size={17} />}
@@ -260,7 +257,7 @@ export function RoomPage() {
         >
           {t.room.checkinCta}
         </Button>
-      </motion.div>
+      </div>
 
       {room.isSuccess && room.data.room.invite_code && (
         <ShareRoomSheet
@@ -297,71 +294,55 @@ export function RoomPage() {
 function TabPill({
   label,
   count,
+  unread,
   active,
   onClick,
 }: {
   label: string;
   count?: number;
+  unread: number;
   active: boolean;
   onClick: () => void;
 }) {
+  const hasUnread = !active && unread > 0;
   return (
-    <motion.button
+    <button
       type="button"
       role="tab"
       aria-selected={active}
       className={styles.tabPill}
       data-active={active || undefined}
-      whileTap={{ scale: 0.94 }}
-      transition={spring.snappy}
       onClick={onClick}
     >
       {active && (
-        <>
-          <motion.span
-            layoutId="room-tab-glow"
-            className={styles.tabPillGlow}
-            transition={spring.snappy}
-          />
-          <motion.span
-            layoutId="room-tab-pill"
-            className={styles.tabPillBg}
-            transition={spring.snappy}
-          />
-        </>
+        <motion.span
+          layoutId="room-tab-pill"
+          className={styles.tabPillBg}
+          style={{ borderRadius: 999 }}
+          transition={{ type: "spring", stiffness: 420, damping: 38 }}
+        />
       )}
       <span className={styles.tabPillLabel}>
-        <motion.span layout="position" transition={spring.snappy}>
-          {label}
-        </motion.span>
-        <AnimatePresence mode="popLayout" initial={false}>
-          {count !== undefined && count > 0 && (
-            <motion.span
-              key={count}
-              className={styles.tabPillCount}
-              variants={popItem}
-              initial="hidden"
-              animate="visible"
-              exit={{ opacity: 0, scale: 0.6 }}
-            >
-              {count}
-            </motion.span>
-          )}
-        </AnimatePresence>
+        {label}
+        {count !== undefined && count > 0 && (
+          <span className={styles.tabPillCount} data-unread={hasUnread || undefined}>
+            {formatCount(hasUnread ? unread : count)}
+          </span>
+        )}
       </span>
-    </motion.button>
+    </button>
   );
+}
+
+function formatCount(value: number): string {
+  return value > 99 ? "99+" : String(value);
 }
 
 function RoomHeaderCard({
   detail,
-  leaving,
-  onLeave,
   onShare,
 }: {
   detail: { room: import("@/shared/api/types").Room; members: Member[] };
-  leaving: boolean;
-  onLeave: () => void;
   onShare: () => void;
 }) {
   const { t } = useI18n();
@@ -407,15 +388,6 @@ function RoomHeaderCard({
               <IconShare size={14} />
             </motion.button>
           )}
-          <Button
-            variant="destructive"
-            size="sm"
-            icon={<IconLeave size={15} />}
-            disabled={leaving}
-            onClick={onLeave}
-          >
-            {t.members.leave}
-          </Button>
         </div>
       </div>
     </GlassCard>

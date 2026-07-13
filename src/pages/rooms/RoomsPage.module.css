@@ -1,3 +1,8 @@
+/* the CTA block is fixed above the nav, so the page must scroll clear of both */
+.page {
+  padding-bottom: calc(210px + var(--safe-bottom));
+}
+
 .title {
   font-family: var(--font-display);
   font-size: 19px;
@@ -62,7 +67,8 @@
   left: 16px;
   right: 16px;
   bottom: calc(76px + var(--safe-bottom));
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 10px;
   max-width: 480px;
   margin: 0 auto;
@@ -70,15 +76,15 @@
 }
 
 .ctaCreate {
-  flex: 1;
+  grid-column: 1 / -1;
 }
 
 .ctaOpen {
-  flex: 1;
+  min-width: 0;
 }
 
 .ctaJoin {
-  flex: 1;
+  min-width: 0;
 }
 
 .errorCard {

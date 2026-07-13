@@ -2,6 +2,7 @@ import {
   backButton,
   init,
   miniApp,
+  readTextFromClipboard,
   retrieveLaunchParams,
   retrieveRawInitData,
   shareURL,
@@ -101,14 +102,39 @@ export function shareToTelegram(url: string, text?: string): void {
   }
 }
 
+/* navigator.clipboard.readText is blocked inside Telegram's WebView; the SDK asks the
+   client for the clipboard instead. */
+export async function readClipboard(): Promise<string> {
+  try {
+    if (insideTelegram && readTextFromClipboard.isAvailable()) {
+      return (await readTextFromClipboard()) ?? "";
+    }
+  } catch {
+    /* fall through to the browser API */
+  }
+  try {
+    return await navigator.clipboard.readText();
+  } catch {
+    return "";
+  }
+}
+
 export function closeMiniApp(): void {
   if (miniApp.close.isAvailable()) {
     miniApp.close();
   }
 }
 
+export function canUseTelegramBackButton(): boolean {
+  try {
+    return insideTelegram && backButton.isMounted() && backButton.show.isAvailable();
+  } catch {
+    return false;
+  }
+}
+
 export function showBackButton(onClick: () => void): () => void {
-  if (!insideTelegram || !backButton.show.isAvailable()) {
+  if (!canUseTelegramBackButton()) {
     return () => {};
   }
   backButton.show();

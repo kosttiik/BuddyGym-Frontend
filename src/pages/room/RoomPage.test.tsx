@@ -76,9 +76,11 @@ test("the room code opens the share sheet and copies an invite link", async () =
   expect(await screen.findByText("Link copied")).toBeInTheDocument();
 });
 
-test("leaving from the room returns to my rooms", async () => {
-  openRoom("/rooms/2");
-  await userEvent.click(await screen.findByRole("button", { name: /Leave room/ }));
+test("leaving from the members screen returns to my rooms", async () => {
+  openRoom("/rooms/2/members");
+  await userEvent.click(
+    await screen.findByRole("button", { name: /Leave room/ }, { timeout: 4000 }),
+  );
 
   expect(await screen.findByRole("heading", { name: "My rooms" })).toBeInTheDocument();
 });

@@ -100,16 +100,6 @@
   background: var(--tab-active-bg);
 }
 
-/* soft halo trailing the pill between tabs */
-.tabPillGlow {
-  position: absolute;
-  inset: -5px;
-  border-radius: var(--radius-pill);
-  background: var(--accent-tint);
-  filter: blur(9px);
-  z-index: -1;
-}
-
 .tabPillLabel {
   position: relative;
   z-index: 1;
@@ -122,11 +112,13 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 17px;
-  height: 17px;
-  padding: 0 5px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 6px;
   border-radius: var(--radius-pill);
   background: var(--ghost-bg);
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
   font-size: 10.5px;
   font-weight: 800;
 }
@@ -189,6 +181,7 @@
 
 .ctaWrap {
   position: fixed;
+  view-transition-name: room-cta;
   left: 16px;
   right: 16px;
   bottom: calc(16px + var(--safe-bottom));
@@ -246,4 +239,10 @@
   color: var(--text-secondary);
   max-width: 280px;
   margin-bottom: 8px;
+}
+
+/* unseen check-ins read as an accent badge; once looked at, the number goes quiet */
+.tabPillCount[data-unread] {
+  background: var(--progress-fill);
+  color: #fff;
 }

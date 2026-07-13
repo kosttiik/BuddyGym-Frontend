@@ -37,30 +37,6 @@ body {
   user-select: none;
 }
 
-/* soft radial auras behind all content, per handoff */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background:
-    radial-gradient(320px 320px at 18% 8%, var(--aura-green), transparent 70%),
-    radial-gradient(300px 300px at 88% 30%, var(--aura-blue), transparent 70%),
-    radial-gradient(280px 280px at 30% 92%, var(--aura-green), transparent 70%);
-  filter: blur(12px);
-  animation: auraDrift 16s ease-in-out infinite alternate;
-}
-
-@keyframes auraDrift {
-  from {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-  to {
-    transform: translate3d(0, -18px, 0) scale(1.07);
-  }
-}
-
 button,
 input {
   font-family: inherit;
@@ -117,6 +93,19 @@ textarea {
     mix-blend-mode: normal;
     border-radius: var(--radius-pill);
     overflow: hidden;
+  }
+
+  /* the check-in button is fixed, so the page transition would drag a half-drawn copy
+     of it across the screen: it is taken out of the paging and simply appears */
+  ::view-transition-group(room-cta) {
+    animation: none;
+  }
+  ::view-transition-old(room-cta) {
+    display: none;
+  }
+  ::view-transition-new(room-cta) {
+    animation: none;
+    mix-blend-mode: normal;
   }
 
   html:active-view-transition-type(forward)::view-transition-new(root) {

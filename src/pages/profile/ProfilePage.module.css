@@ -214,3 +214,8 @@
 .language {
   margin-top: 6px;
 }
+
+.avatarButton {
+  border-radius: 50%;
+  line-height: 0;
+}

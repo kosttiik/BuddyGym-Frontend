@@ -5,6 +5,7 @@ import { ApiError } from "@/shared/api/client";
 import { useI18n } from "@/shared/i18n";
 import { IconClipboard, IconLink } from "@/shared/icons";
 import { hapticNotify } from "@/shared/lib/haptics";
+import { readClipboard } from "@/shared/lib/telegram";
 import {
   AppHeader,
   Button,
@@ -29,11 +30,11 @@ export function JoinPage() {
   const complete = code.length === CODE_LENGTH;
 
   const paste = async () => {
-    try {
-      const text = await navigator.clipboard.readText();
+    const text = await readClipboard();
+    if (text) {
       setCode(sanitizeCode(text));
-    } catch {
-      /* clipboard permission denied: user can type the code */
+    } else {
+      showToast({ title: t.joinByCode.pasteFailed, tone: "error" });
     }
   };
 

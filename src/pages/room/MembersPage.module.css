@@ -48,13 +48,20 @@
 .leaveBlock {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 9px;
-  margin-top: 14px;
+  gap: 10px;
+  margin-top: 28px;
+}
+
+/* same footprint as every other full-width action, just quieter than a solid red fill */
+.leaveButton {
+  background: var(--red-tint);
+  border: 1px solid var(--red-border);
+  color: var(--red-text);
 }
 
 .leaveNote {
   font-size: 12px;
   font-weight: 500;
   color: var(--text-tertiary);
+  text-align: center;
 }

@@ -105,3 +105,9 @@
   background: #eef4f0;
   box-shadow: 0 0 0 3px rgba(11, 15, 13, 0.35) inset;
 }
+
+.stateText {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(238, 244, 240, 0.85);
+}

@@ -44,6 +44,9 @@ export function FilterTabs<K extends string>({
               <motion.span
                 layoutId="filter-tab-pill"
                 className={styles.pill}
+                /* Motion only undistorts a radius it owns: set through a class it would
+                   stretch into square corners while the pill flies between tabs */
+                style={{ borderRadius: 999 }}
                 transition={{ type: "spring", stiffness: 500, damping: 40 }}
               />
             )}

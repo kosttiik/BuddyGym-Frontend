@@ -1,4 +1,5 @@
 import { motion } from "motion/react";
+import type { ReactNode } from "react";
 import { IconMinus, IconPlus } from "@/shared/icons";
 import { cx } from "@/shared/lib/cx";
 import { hapticSelection } from "@/shared/lib/haptics";
@@ -7,6 +8,7 @@ import styles from "./Stepper.module.css";
 export type StepperProps = {
   label: string;
   hint?: string;
+  icon?: ReactNode;
   value: number;
   min: number;
   max: number;
@@ -14,7 +16,7 @@ export type StepperProps = {
   className?: string;
 };
 
-export function Stepper({ label, hint, value, min, max, onChange, className }: StepperProps) {
+export function Stepper({ label, hint, icon, value, min, max, onChange, className }: StepperProps) {
   const step = (delta: number) => {
     const next = Math.max(min, Math.min(max, value + delta));
     if (next !== value) {
@@ -24,6 +26,7 @@ export function Stepper({ label, hint, value, min, max, onChange, className }: S
   };
   return (
     <div className={cx(styles.stepper, className)}>
+      {icon && <span className={styles.icon}>{icon}</span>}
       <div className={styles.text}>
         <span className={styles.label}>{label}</span>
         {hint && <span className={styles.hint}>{hint}</span>}
