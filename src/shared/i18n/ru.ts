@@ -16,12 +16,16 @@ export const ru = {
   rooms: {
     title: "Мои комнаты",
     create: "Создать комнату",
+    open: "Открытые комнаты",
+    browseOpen: "Найти комнату",
     byCode: "По коду",
     joinByCode: "Войти по коду",
     members: (n: number) => `${n} ${pluralRu(n, "участник", "участника", "участников")}`,
     goalMeta: (goal: number, days: number) => `цель ${goal} / ${periodRu(days)}`,
     openBadge: "открытая",
     inviteBadge: "инвайт",
+    join: "Вступить",
+    noOpen: "Открытых комнат пока нет",
   },
   empty: {
     title: "Спорт веселее вместе",

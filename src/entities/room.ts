@@ -8,12 +8,19 @@ import type {
 } from "@/shared/api/types";
 
 export const roomsKey = ["rooms"] as const;
+export const openRoomsKey = ["open-rooms"] as const;
 export const roomKey = (id: number) => ["room", id] as const;
 
 export const roomsQueryOptions = () =>
   queryOptions({
     queryKey: roomsKey,
     queryFn: () => api.get<RoomWithProgress[]>("/rooms"),
+  });
+
+export const openRoomsQueryOptions = () =>
+  queryOptions({
+    queryKey: openRoomsKey,
+    queryFn: () => api.get<Room[]>("/rooms/open"),
   });
 
 export const roomQueryOptions = (id: number) =>
@@ -33,6 +40,10 @@ export const roomQueryOptions = (id: number) =>
 
 export function useRooms() {
   return useQuery(roomsQueryOptions());
+}
+
+export function useOpenRooms() {
+  return useQuery(openRoomsQueryOptions());
 }
 
 export function useRoom(id: number) {
@@ -65,6 +76,7 @@ export function useJoinRoom() {
     mutationFn: (roomId: number) => api.post<Room>(`/rooms/${roomId}/join`),
     onSuccess: (_, roomId) => {
       void queryClient.invalidateQueries({ queryKey: roomsKey });
+      void queryClient.invalidateQueries({ queryKey: openRoomsKey });
       void queryClient.invalidateQueries({ queryKey: roomKey(roomId) });
     },
   });

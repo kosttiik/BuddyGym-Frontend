@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRooms } from "@/entities/room";
 import type { RoomWithProgress } from "@/shared/api/types";
 import { useI18n } from "@/shared/i18n";
-import { IconDumbbell, IconKey, IconPlus } from "@/shared/icons";
+import { IconDumbbell, IconKey, IconPlus, IconUsers } from "@/shared/icons";
 import { popItem, riseItem, stagger, tapSubtle } from "@/shared/lib/motion";
 import { useFirstReveal } from "@/shared/lib/playOnce";
 import { getStartParam } from "@/shared/lib/telegram";
@@ -92,6 +92,14 @@ export function RoomsPage() {
           onClick={() => navigate({ to: "/rooms/new" })}
         >
           {t.rooms.create}
+        </Button>
+        <Button
+          variant="secondary"
+          className={styles.ctaOpen}
+          icon={<IconUsers size={15} />}
+          onClick={() => navigate({ to: "/rooms/open" })}
+        >
+          {t.rooms.browseOpen}
         </Button>
         <Button
           variant="secondary"

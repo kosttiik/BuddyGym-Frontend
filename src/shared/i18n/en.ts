@@ -17,12 +17,16 @@ export const en: typeof ru = {
   rooms: {
     title: "My rooms",
     create: "Create room",
+    open: "Open rooms",
+    browseOpen: "Find a room",
     byCode: "By code",
     joinByCode: "Join by code",
     members: (n: number) => `${n} ${pluralEn(n, "member", "members")}`,
     goalMeta: (goal: number, days: number) => `goal ${goal} / ${periodEn(days)}`,
     openBadge: "open",
     inviteBadge: "invite",
+    join: "Join",
+    noOpen: "No open rooms yet",
   },
   empty: {
     title: "Sport is more fun together",

@@ -89,6 +89,13 @@ export const handlers = [
     return HttpResponse.json(mine.map((r) => roomWithProgress(db, r)));
   }),
 
+  http.get("/api/v1/rooms/open", async () => {
+    await delay(400);
+    return HttpResponse.json(
+      db.rooms.filter((room) => room.kind === "open").map(({ invite_code: _, ...room }) => room),
+    );
+  }),
+
   http.post("/api/v1/rooms", async ({ request }) => {
     const body = (await request.json()) as CreateRoomRequest;
     const name = body.name.trim();

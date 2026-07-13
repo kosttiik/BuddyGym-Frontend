@@ -53,6 +53,10 @@
   margin-top: 14px;
 }
 
+.openRoomJoin {
+  margin-top: 14px;
+}
+
 .ctaRow {
   position: fixed;
   left: 16px;
@@ -66,7 +70,11 @@
 }
 
 .ctaCreate {
-  flex: 1.4;
+  flex: 1;
+}
+
+.ctaOpen {
+  flex: 1;
 }
 
 .ctaJoin {
