@@ -66,3 +66,90 @@
   text-align: center;
   line-height: 1.5;
 }
+
+.sizeWas {
+  color: rgba(238, 244, 240, 0.4);
+  margin-right: 6px;
+  text-decoration-thickness: 1px;
+}
+
+.photoWrap {
+  position: relative;
+}
+
+.sendTo {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(238, 244, 240, 0.45);
+  padding-inline: 2px;
+}
+
+.rooms {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 30vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.room {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 13px;
+  border-radius: 14px;
+  background: rgba(238, 244, 240, 0.07);
+  border: 1px solid transparent;
+  color: rgba(238, 244, 240, 0.75);
+  text-align: left;
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.room[data-on] {
+  background: rgba(238, 244, 240, 0.13);
+  border-color: rgba(238, 244, 240, 0.28);
+  color: #eef4f0;
+}
+
+.room:disabled {
+  opacity: 0.55;
+}
+
+.box {
+  flex: none;
+  width: 19px;
+  height: 19px;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  border: 1.6px solid rgba(238, 244, 240, 0.35);
+  color: var(--screen-dark-bg);
+}
+
+.room[data-on] .box {
+  background: #eef4f0;
+  border-color: #eef4f0;
+}
+
+.roomName {
+  flex: 1;
+  font-size: 13.5px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.roomVotes {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(238, 244, 240, 0.5);
+}

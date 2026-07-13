@@ -2,6 +2,7 @@ import { motion } from "motion/react";
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useVote } from "@/entities/checkin";
+import { CheckinPhoto, photoExpiryLabel } from "@/features/checkin/CheckinPhoto";
 import type { Checkin, Member } from "@/shared/api/types";
 import { useI18n } from "@/shared/i18n";
 import { IconCheck, IconChevronLeft, IconCross } from "@/shared/icons";
@@ -25,6 +26,7 @@ export function PhotoViewer({ checkin, author, isMine, roomId, onClose }: PhotoV
   const vote = useVote(roomId);
   const myVote = getMyVote(checkin.id);
   const name = author?.first_name ?? "—";
+  const expiry = photoExpiryLabel(checkin, t);
 
   useEffect(() => showBackButton(onClose), [onClose]);
 
@@ -70,15 +72,8 @@ export function PhotoViewer({ checkin, author, isMine, roomId, onClose }: PhotoV
       </header>
 
       <div className={styles.photoWrap}>
-        {checkin.photo_url && (
-          <motion.img
-            layoutId={`checkin-photo-${checkin.id}`}
-            src={checkin.photo_url}
-            alt=""
-            className={styles.photo}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-          />
-        )}
+        <CheckinPhoto checkin={checkin} className={styles.photo} />
+        {expiry && <span className={styles.expiry}>{expiry}</span>}
       </div>
 
       {checkin.status === "pending" && (

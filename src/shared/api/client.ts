@@ -68,10 +68,60 @@ async function request<T>(path: string, init?: RequestInit, allowRetry = true): 
   return body as T;
 }
 
+/* fetch cannot report upload progress, so the one request that carries a photo goes
+   through XHR. Everything else stays on fetch. */
+function upload<T>(
+  path: string,
+  form: FormData,
+  onProgress?: (fraction: number) => void,
+): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", `${BASE}${path}`);
+    if (token) {
+      xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+    }
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable) {
+        onProgress?.(event.loaded / event.total);
+      }
+    };
+    xhr.onload = () => {
+      const body: unknown = xhr.responseText ? JSON.parse(xhr.responseText) : null;
+      if (xhr.status >= 200 && xhr.status < 300) {
+        onProgress?.(1);
+        resolve(body as T);
+        return;
+      }
+      const message =
+        body !== null && typeof body === "object" && "error" in body
+          ? String((body as { error: unknown }).error)
+          : xhr.statusText;
+      reject(new ApiError(xhr.status, message));
+    };
+    xhr.onerror = () => reject(new ApiError(0, "network error"));
+    xhr.send(form);
+  });
+}
+
 export const api = {
   get<T>(path: string): Promise<T> {
     return request<T>(path);
   },
+  /* photos live in a private bucket, so they are fetched with the Bearer token and
+     turned into an object URL rather than being pointed at with a plain <img src> */
+  async getBlob(path: string): Promise<Blob> {
+    const headers = new Headers();
+    if (token) {
+      headers.set("Authorization", `Bearer ${token}`);
+    }
+    const res = await fetch(`${BASE}${path}`, { headers });
+    if (!res.ok) {
+      throw new ApiError(res.status, res.statusText);
+    }
+    return res.blob();
+  },
+  upload,
   post<T>(path: string, json?: unknown): Promise<T> {
     return request<T>(path, {
       method: "POST",

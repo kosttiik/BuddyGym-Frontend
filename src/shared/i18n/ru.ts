@@ -115,10 +115,23 @@ export const ru = {
   },
   photoPreview: {
     retake: "Переснять",
-    sizeOf: (mb: string) => `${mb} МБ из 10`,
-    info: (room: string, votes: number) =>
-      `Уйдёт в «${room}» — ждёт ${votes} ${pluralRu(votes, "голос", "голоса", "голосов")} «за», истекает через 24 ч`,
+    sendTo: "Отправить в комнаты",
+    votesNeeded: (n: number) => `${n} ${pluralRu(n, "голос", "голоса", "голосов")}`,
+    oneShotMany: (n: number) =>
+      `Одно фото, ${n} ${pluralRu(n, "комната", "комнаты", "комнат")}. Хранится один раз, без копий`,
+    sending: "Отправляем",
     submit: "Отправить на подтверждение",
+  },
+  uploadProgress: {
+    uploading: (n: number) => `Загружаем в ${n} ${pluralRu(n, "комнату", "комнаты", "комнат")}`,
+    processing: "Почти готово",
+  },
+  photo: {
+    purged: "Фото удалено",
+    purgedNote: "Фото-пруфы хранятся 14 дней",
+    expiresIn: (n: number) => `Фото удалится через ${n} ${pluralRu(n, "день", "дня", "дней")}`,
+    expiresToday: "Фото удалится сегодня",
+    unavailable: "Фото недоступно",
   },
   celebration: {
     title: "Тренировка зачтена",
@@ -155,7 +168,8 @@ export const ru = {
   },
   errors: {
     photoTooLarge: "Фото больше 10 МБ",
-    photoTooLargeDesc: (mb: string) => `Размер файла ${mb} МБ — сожмите или выберите другое`,
+    photoTooLargeDesc: (mb: string) => `Размер файла ${mb} МБ, сожмите или выберите другое`,
+    photoUnreadable: "Не удалось прочитать это изображение",
     tooOften: "Слишком часто",
     tooOftenDesc: "Подождите минуту",
     checkinsUnavailable: "Чек-ины временно недоступны",
