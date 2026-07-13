@@ -140,6 +140,17 @@
   max-width: 280px;
 }
 
+/* the open-rooms screen has nothing else on it, so its empty state sits mid-screen */
+.emptyCentered {
+  justify-content: center;
+  min-height: 68vh;
+  padding-top: 0;
+}
+
+.emptyCta {
+  margin-top: 16px;
+}
+
 .steps {
   display: flex;
   flex-direction: column;

@@ -7,7 +7,7 @@ import { ThemeProvider } from "@/shared/theme/ThemeProvider";
 import { ToastProvider } from "@/shared/ui";
 import { AuthGate } from "./AuthGate";
 
-const queryClient = new QueryClient({
+export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 30_000,
@@ -25,6 +25,7 @@ const RANKS: Array<[RegExp, number]> = [
   [/^\/rooms\/new\/?$/, 20],
   [/^\/join\/?$/, 20],
   [/^\/rooms\/[^/]+\/members\/?$/, 40],
+  [/^\/rooms\/[^/]+\/edit\/?$/, 40],
   [/^\/rooms\/[^/]+\/?$/, 30],
   [/^\/users\/[^/]+\/?$/, 50],
 ];
