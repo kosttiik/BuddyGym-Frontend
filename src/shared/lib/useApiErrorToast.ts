@@ -26,6 +26,14 @@ export function useApiErrorToast(): (error: unknown) => void {
         });
         return;
       }
+      if (error instanceof ApiError && error.status === 409) {
+        showToast({
+          title: t.errors.checkinAlreadyExists,
+          description: t.errors.checkinAlreadyExistsDesc,
+          tone: "warning",
+        });
+        return;
+      }
       showToast({ title: t.errors.generic, description: t.errors.genericDesc, tone: "error" });
     },
     [showToast, t],

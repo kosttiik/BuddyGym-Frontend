@@ -180,6 +180,8 @@ export const en: typeof ru = {
     tooOftenDesc: "Wait a minute",
     checkinsUnavailable: "Check-ins are temporarily unavailable",
     checkinsUnavailableDesc: "Rooms and the feed still work. Try again later",
+    checkinAlreadyExists: "Workout already logged",
+    checkinAlreadyExistsDesc: "You can log one workout per room each day",
     generic: "Something went wrong",
     genericDesc: "Please try again",
     copyFailed: "Could not copy",

@@ -181,6 +181,8 @@ export const ru = {
     tooOftenDesc: "Подождите минуту",
     checkinsUnavailable: "Чек-ины временно недоступны",
     checkinsUnavailableDesc: "Комнаты и лента работают. Попробуйте отметиться позже",
+    checkinAlreadyExists: "Тренировка уже отмечена",
+    checkinAlreadyExistsDesc: "В каждой комнате можно отметить одну тренировку в день",
     generic: "Что-то пошло не так",
     genericDesc: "Попробуйте ещё раз",
     copyFailed: "Не удалось скопировать",

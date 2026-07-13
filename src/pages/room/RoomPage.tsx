@@ -2,15 +2,22 @@ import { Link, useNavigate, useParams } from "@tanstack/react-router";
 import { AnimatePresence, motion, useReducedMotion, type Variants } from "motion/react";
 import { useMemo, useState } from "react";
 import { useRoomCheckins } from "@/entities/checkin";
-import { useRoom } from "@/entities/room";
+import { useLeaveRoom, useRoom } from "@/entities/room";
 import { useMe } from "@/entities/user";
 import { CheckinSheet } from "@/features/checkin/CheckinSheet";
 import { ApiError } from "@/shared/api/client";
 import type { Checkin, CheckinStatus, Member } from "@/shared/api/types";
 import { useI18n } from "@/shared/i18n";
-import { IconCloudOff, IconDumbbell, IconKey, IconLockKeyhole, IconShare } from "@/shared/icons";
+import {
+  IconCloudOff,
+  IconDumbbell,
+  IconKey,
+  IconLeave,
+  IconLockKeyhole,
+  IconShare,
+} from "@/shared/icons";
 import { PulseDots } from "@/shared/icons/animated";
-import { hapticSelection } from "@/shared/lib/haptics";
+import { hapticNotify, hapticSelection } from "@/shared/lib/haptics";
 import { ease, popItem, spring, stagger } from "@/shared/lib/motion";
 import {
   AppHeader,
@@ -71,8 +78,10 @@ export function RoomPage() {
   const { roomId } = useParams({ from: "/rooms/$roomId" });
   const id = Number(roomId);
   const { t } = useI18n();
+  const navigate = useNavigate();
   const room = useRoom(id);
   const me = useMe();
+  const leaveRoom = useLeaveRoom();
   const reduceMotion = useReducedMotion();
   const [{ tab, dir }, setTabState] = useState<{ tab: CheckinStatus; dir: number }>({
     tab: "pending",
@@ -97,6 +106,15 @@ export function RoomPage() {
     if (next) {
       selectTab(next);
     }
+  };
+
+  const leave = () => {
+    leaveRoom.mutate(id, {
+      onSuccess: () => {
+        hapticNotify("warning");
+        void navigate({ to: "/", replace: true });
+      },
+    });
   };
 
   const members = useMemo(() => {
@@ -133,7 +151,12 @@ export function RoomPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={spring.soft}
           >
-            <RoomHeaderCard detail={room.data} onShare={() => setShareOpen(true)} />
+            <RoomHeaderCard
+              detail={room.data}
+              leaving={leaveRoom.isPending}
+              onLeave={leave}
+              onShare={() => setShareOpen(true)}
+            />
           </motion.div>
         )}
 
@@ -332,9 +355,13 @@ function TabPill({
 
 function RoomHeaderCard({
   detail,
+  leaving,
+  onLeave,
   onShare,
 }: {
   detail: { room: import("@/shared/api/types").Room; members: Member[] };
+  leaving: boolean;
+  onLeave: () => void;
   onShare: () => void;
 }) {
   const { t } = useI18n();
@@ -366,19 +393,30 @@ function RoomHeaderCard({
             }))}
           />
         </Link>
-        {room.invite_code && (
-          <motion.button
-            type="button"
-            className={styles.codePill}
-            aria-label={t.share.title}
-            whileTap={{ scale: 0.95 }}
-            transition={spring.snappy}
-            onClick={onShare}
+        <div className={styles.headerActions}>
+          {room.invite_code && (
+            <motion.button
+              type="button"
+              className={styles.codePill}
+              aria-label={t.share.title}
+              whileTap={{ scale: 0.95 }}
+              transition={spring.snappy}
+              onClick={onShare}
+            >
+              <span className={styles.code}>{room.invite_code}</span>
+              <IconShare size={14} />
+            </motion.button>
+          )}
+          <Button
+            variant="destructive"
+            size="sm"
+            icon={<IconLeave size={15} />}
+            disabled={leaving}
+            onClick={onLeave}
           >
-            <span className={styles.code}>{room.invite_code}</span>
-            <IconShare size={14} />
-          </motion.button>
-        )}
+            {t.members.leave}
+          </Button>
+        </div>
       </div>
     </GlassCard>
   );
