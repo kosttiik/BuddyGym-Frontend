@@ -91,8 +91,9 @@ test("a purged photo renders a placeholder and never requests the bytes", () => 
 });
 
 /* Android hands out wide, tele and macro alike as "camera2 N, facing back" and its default
-   can land on the telephoto, so the main lens is found through the track capabilities. */
-test("the back camera auto-picks the lens with the flash and the biggest sensor", async () => {
+   can land on the telephoto, so the lens is switched by hand. Each getUserMedia costs another
+   permission prompt inside Telegram, so opening the back camera must be a single call. */
+test("the back camera opens with one request and the lens button switches it", async () => {
   const store = new Map<string, string>();
   vi.stubGlobal("localStorage", {
     getItem: (k: string) => store.get(k) ?? null,
@@ -106,17 +107,17 @@ test("the back camera auto-picks the lens with the flash and the biggest sensor"
     value: null,
   });
 
-  const caps: Record<string, MediaTrackCapabilities> = {
-    tele: { width: { max: 3000 }, height: { max: 2250 } },
-    main: { width: { max: 4032 }, height: { max: 3024 }, torch: true } as MediaTrackCapabilities,
-  };
-  const streamFor = (id: string) => {
-    const track = { stop: vi.fn(), getCapabilities: () => caps[id] ?? {} };
+  const streamFor = (deviceId: string) => {
+    const track = { stop: vi.fn(), getSettings: () => ({ deviceId }) };
     return { getTracks: () => [track], getVideoTracks: () => [track] } as unknown as MediaStream;
   };
+  /* the platform default for "environment" is the telephoto on this device */
   const getUserMedia = vi.fn(async (c: MediaStreamConstraints) => {
-    const video = c.video as { deviceId?: { exact: string } };
-    return streamFor(video?.deviceId?.exact ?? "front");
+    const video = c.video as { deviceId?: { exact: string }; facingMode?: string };
+    if (video.deviceId) {
+      return streamFor(video.deviceId.exact);
+    }
+    return streamFor(video.facingMode === "environment" ? "tele" : "front");
   });
 
   vi.stubGlobal("navigator", {
@@ -139,6 +140,12 @@ test("the back camera auto-picks the lens with the flash and the biggest sensor"
 
   await userEvent.click(await screen.findByRole("button", { name: "Flip camera" }));
 
+  /* one call for the front camera, one for the back: no per-lens probing */
+  await waitFor(() => expect(screen.getByText("Lens 1/2")).toBeInTheDocument());
+  expect(getUserMedia).toHaveBeenCalledTimes(2);
+  expect(screen.getByText("Wrong lens? Tap to switch")).toBeInTheDocument();
+
+  await userEvent.click(screen.getByRole("button", { name: "Switch lens" }));
   await waitFor(() =>
     expect(getUserMedia).toHaveBeenLastCalledWith({
       video: { deviceId: { exact: "main" } },
@@ -146,15 +153,6 @@ test("the back camera auto-picks the lens with the flash and the biggest sensor"
     }),
   );
   expect(store.get("bg.camera.lens")).toBe("1");
-
-  /* the manual override still cycles to the other lens */
-  await userEvent.click(await screen.findByRole("button", { name: "Switch lens" }));
-  await waitFor(() =>
-    expect(getUserMedia).toHaveBeenLastCalledWith({
-      video: { deviceId: { exact: "tele" } },
-      audio: false,
-    }),
-  );
 
   vi.unstubAllGlobals();
 });
