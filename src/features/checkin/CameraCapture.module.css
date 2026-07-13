@@ -58,6 +58,23 @@
   color: #eef4f0;
 }
 
+/* which back lens is the main one cannot be guessed, so the choice sits above the shutter */
+.lens {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(122px + var(--safe-bottom));
+  padding: 7px 14px;
+  border-radius: var(--radius-pill);
+  background: rgba(238, 244, 240, 0.14);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  color: #eef4f0;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
 .footer {
   position: relative;
   z-index: 1;

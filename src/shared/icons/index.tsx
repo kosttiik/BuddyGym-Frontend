@@ -162,8 +162,13 @@ export const IconClipboard = icon(
 
 export const IconShare = icon(
   <>
-    <path d="M12 3v12M12 3l-4 4M12 3l4 4" {...stroke} strokeWidth="2.4" />
-    <rect x="5" y="13" width="14" height="8" rx="2.5" {...stroke} strokeWidth="2.2" />
+    <path d="M12 15.2V3.8" {...stroke} strokeWidth="2.2" />
+    <path d="M8.3 7.4L12 3.7l3.7 3.7" {...stroke} strokeWidth="2.2" />
+    <path
+      d="M5.6 13.4v5A2.6 2.6 0 0 0 8.2 21h7.6a2.6 2.6 0 0 0 2.6-2.6v-5"
+      {...stroke}
+      strokeWidth="2.2"
+    />
   </>,
 );
 
@@ -314,14 +319,15 @@ export const IconSparkles = icon(
   </>,
 );
 
-/* A lens inside a rotation ring: the camera body made the old glyph unreadable at 20px. */
+/* A lens inside a rotation ring: the camera body made the old glyph unreadable at 20px.
+   The arrow heads are chevrons, so the whole glyph stays round-cornered. */
 export const IconCameraFlip = icon(
   <>
-    <circle cx="12" cy="12" r="3.8" {...stroke} strokeWidth="2" />
-    <path d="M12 3.6a8.4 8.4 0 0 1 7.4 4.4" {...stroke} strokeWidth="2" />
-    <path d="M19.6 4.4v3.8h-3.8" {...stroke} strokeWidth="2" />
-    <path d="M12 20.4a8.4 8.4 0 0 1-7.4-4.4" {...stroke} strokeWidth="2" />
-    <path d="M4.4 19.6v-3.8h3.8" {...stroke} strokeWidth="2" />
+    <circle cx="12" cy="12" r="3.7" {...stroke} strokeWidth="2.1" />
+    <path d="M4.5 8.6A8.3 8.3 0 0 1 19.2 8.1" {...stroke} strokeWidth="2.1" />
+    <path d="M15.6 8.6l3.7-.4.5-3.7" {...stroke} strokeWidth="2.1" />
+    <path d="M19.5 15.4A8.3 8.3 0 0 1 4.8 15.9" {...stroke} strokeWidth="2.1" />
+    <path d="M8.4 15.4l-3.7.4-.5 3.7" {...stroke} strokeWidth="2.1" />
   </>,
 );
 
