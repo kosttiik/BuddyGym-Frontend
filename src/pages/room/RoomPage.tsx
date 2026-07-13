@@ -408,7 +408,7 @@ function RoomHeaderCard({
               onClick={onShare}
             >
               <span className={styles.code}>{room.invite_code}</span>
-              <IconShare size={14} />
+              <IconShare size={17} />
             </motion.button>
           )}
         </div>

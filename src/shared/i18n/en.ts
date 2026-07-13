@@ -133,6 +133,8 @@ export const en: typeof ru = {
   camera: {
     shoot: "Take photo",
     flip: "Flip camera",
+    lens: "Switch lens",
+    lensLabel: (n: number, total: number) => `Lens ${n}/${total}`,
     denied: "Camera is unavailable. Allow access in settings, or pick a photo from the gallery.",
     processing: "Preparing the photo",
     decoding: "Converting the photo, this can take a moment",

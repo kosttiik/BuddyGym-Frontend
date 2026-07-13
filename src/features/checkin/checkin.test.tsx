@@ -90,9 +90,9 @@ test("a purged photo renders a placeholder and never requests the bytes", () => 
   fetchSpy.mockRestore();
 });
 
-/* Multi-camera Androids expose tele and macro lenses as extra "back" devices; a plain
-   facingMode: environment can land on the telephoto, so the first back device wins. */
-test("flipping to the back camera opens the main lens, not the telephoto", async () => {
+/* Multi-camera Androids expose tele and macro as extra "back" devices and the platform
+   default can land on the telephoto, so the lens is picked by hand and remembered. */
+test("the lens button cycles through the back cameras", async () => {
   const track = { stop: vi.fn(), getSettings: () => ({ facingMode: "environment" }) };
   const stream = { getTracks: () => [track], getVideoTracks: () => [track] };
   const getUserMedia = vi.fn(async () => stream as unknown as MediaStream);
@@ -102,6 +102,11 @@ test("flipping to the back camera opens the main lens, not the telephoto", async
     configurable: true,
     writable: true,
     value: null,
+  });
+  const store = new Map<string, string>();
+  vi.stubGlobal("localStorage", {
+    getItem: (k: string) => store.get(k) ?? null,
+    setItem: (k: string, v: string) => store.set(k, v),
   });
 
   vi.stubGlobal("navigator", {
@@ -123,13 +128,21 @@ test("flipping to the back camera opens the main lens, not the telephoto", async
   );
 
   await userEvent.click(await screen.findByRole("button", { name: "Flip camera" }));
-
   await waitFor(() =>
     expect(getUserMedia).toHaveBeenLastCalledWith({
       video: { deviceId: { exact: "main" } },
       audio: false,
     }),
   );
+
+  await userEvent.click(await screen.findByRole("button", { name: "Switch lens" }));
+  await waitFor(() =>
+    expect(getUserMedia).toHaveBeenLastCalledWith({
+      video: { deviceId: { exact: "tele" } },
+      audio: false,
+    }),
+  );
+  expect(store.get("bg.camera.lens")).toBe("1");
 
   vi.unstubAllGlobals();
 });
