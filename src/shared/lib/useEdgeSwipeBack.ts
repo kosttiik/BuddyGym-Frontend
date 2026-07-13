@@ -22,7 +22,7 @@ export function useEdgeSwipeBack(): void {
         tracking = false;
         return;
       }
-      if (touch.clientX > EDGE || !router.history.canGoBack()) {
+      if (touch.clientX > EDGE) {
         tracking = false;
         return;
       }
@@ -51,7 +51,11 @@ export function useEdgeSwipeBack(): void {
       }
       if (dx >= DISTANCE || dx / elapsed >= VELOCITY) {
         hapticImpact("light");
-        router.history.back();
+        if (router.history.canGoBack()) {
+          router.history.back();
+        } else {
+          void router.navigate({ to: "/" });
+        }
       }
     };
 

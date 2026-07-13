@@ -62,9 +62,10 @@ export function Celebration({ checkin, room, myProgress, onClose }: CelebrationP
       >
         <motion.div className={styles.ringWrap} variants={itemVariants}>
           <ProgressRing
-            progress={Math.min(progress / room.goal_per_period, 1)}
+            progress={approved ? Math.min(progress / room.goal_per_period, 1) : 1}
             size={150}
             animated
+            muted={!approved}
           />
           <motion.span
             className={styles.checkCircle}

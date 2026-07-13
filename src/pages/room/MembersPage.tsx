@@ -84,8 +84,9 @@ export function MembersPage() {
 
         <div className={styles.leaveBlock}>
           <Button
-            variant="destructive"
+            variant="ghost"
             block
+            className={styles.leaveButton}
             icon={<IconLeave size={15} />}
             disabled={leaveRoom.isPending}
             onClick={leave}

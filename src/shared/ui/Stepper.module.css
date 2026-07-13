@@ -5,6 +5,18 @@
   gap: 12px;
 }
 
+.icon {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-tint);
+  color: var(--accent-link);
+}
+
 .text {
   display: flex;
   flex-direction: column;

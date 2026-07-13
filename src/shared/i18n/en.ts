@@ -59,6 +59,7 @@ export const en: typeof ru = {
     subtitle: "Enter the 8-character invite code",
     hint: "Codes never contain look-alike characters 0/O and 1/I",
     paste: "Paste from clipboard",
+    pasteFailed: "Clipboard is empty or unavailable",
     deepLink: "An invite link from a chat opens the room right away",
     submit: "Join",
     fillAll: "Enter all 8 characters",
@@ -125,6 +126,8 @@ export const en: typeof ru = {
     shoot: "Take photo",
     flip: "Flip camera",
     denied: "Camera is unavailable. Allow access in settings, or pick a photo from the gallery.",
+    processing: "Preparing the photo",
+    decoding: "Converting the photo, this can take a moment",
   },
   photoPreview: {
     retake: "Retake",

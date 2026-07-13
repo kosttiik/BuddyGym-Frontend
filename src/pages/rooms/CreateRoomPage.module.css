@@ -5,9 +5,17 @@
 }
 
 .blockLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 13px;
   font-weight: 700;
   color: var(--text-secondary-2);
+}
+
+.blockLabelIcon {
+  flex: none;
+  color: var(--accent-link);
 }
 
 .blockHint {

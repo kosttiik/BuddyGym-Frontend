@@ -2,7 +2,7 @@ import { motion } from "motion/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useI18n } from "@/shared/i18n";
-import { IconCamera, IconCross, IconImage } from "@/shared/icons";
+import { IconCameraFlip, IconCross, IconImage } from "@/shared/icons";
 import { hapticImpact } from "@/shared/lib/haptics";
 import { showBackButton } from "@/shared/lib/telegram";
 import { Button, Spinner } from "@/shared/ui";
@@ -12,20 +12,20 @@ export type CameraCaptureProps = {
   onCapture: (file: File) => void;
   onPickGallery: () => void;
   onClose: () => void;
+  busy?: boolean;
 };
 
-type Facing = "environment" | "user";
-
 /* Telegram's Android WebView ignores <input capture> and always opens the gallery. */
-export function CameraCapture({ onCapture, onPickGallery, onClose }: CameraCaptureProps) {
+export function CameraCapture({ onCapture, onPickGallery, onClose, busy }: CameraCaptureProps) {
   const { t } = useI18n();
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
-  const [facing, setFacing] = useState<Facing>("user");
+  const [facing, setFacing] = useState<"user" | "environment">("user");
+  const [mirrored, setMirrored] = useState(true);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
-  const [busy, setBusy] = useState(false);
+  const [shooting, setShooting] = useState(false);
 
   useEffect(() => showBackButton(onClose), [onClose]);
 
@@ -36,19 +36,28 @@ export function CameraCapture({ onCapture, onPickGallery, onClose }: CameraCaptu
     streamRef.current = null;
   }, []);
 
+  const attach = useCallback(async (stream: MediaStream) => {
+    streamRef.current = stream;
+    if (videoRef.current) {
+      videoRef.current.srcObject = stream;
+      await videoRef.current.play().catch(() => undefined);
+    }
+    const facing = stream.getVideoTracks()[0]?.getSettings().facingMode;
+    setMirrored(facing !== "environment");
+    setReady(true);
+  }, []);
+
+  /* facingMode, not deviceId: Android exposes wide, tele and macro as separate devices,
+     and picking one by hand lands on the telephoto lens. The platform default for
+     "environment" is the main camera. No resolution constraints for the same reason. */
   useEffect(() => {
     let cancelled = false;
 
     async function start() {
       setReady(false);
-      setFailed(false);
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: {
-            facingMode: { ideal: facing },
-            width: { ideal: 2560 },
-            height: { ideal: 1440 },
-          },
+          video: { facingMode: facing },
           audio: false,
         });
         if (cancelled) {
@@ -58,12 +67,7 @@ export function CameraCapture({ onCapture, onPickGallery, onClose }: CameraCaptu
           return;
         }
         stop();
-        streamRef.current = stream;
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          await videoRef.current.play().catch(() => undefined);
-        }
-        setReady(true);
+        await attach(stream);
       } catch {
         if (!cancelled) {
           setFailed(true);
@@ -76,14 +80,18 @@ export function CameraCapture({ onCapture, onPickGallery, onClose }: CameraCaptu
       cancelled = true;
       stop();
     };
-  }, [facing, stop]);
+  }, [facing, attach, stop]);
+
+  const flip = () => {
+    setFacing((current) => (current === "user" ? "environment" : "user"));
+  };
 
   const shoot = async () => {
     const video = videoRef.current;
-    if (!video || !ready || busy) {
+    if (!video || !ready || shooting || busy) {
       return;
     }
-    setBusy(true);
+    setShooting(true);
     hapticImpact("medium");
 
     const canvas = document.createElement("canvas");
@@ -91,7 +99,7 @@ export function CameraCapture({ onCapture, onPickGallery, onClose }: CameraCaptu
     canvas.height = video.videoHeight;
     const context = canvas.getContext("2d");
     if (!context) {
-      setBusy(false);
+      setShooting(false);
       return;
     }
     context.drawImage(video, 0, 0);
@@ -100,13 +108,15 @@ export function CameraCapture({ onCapture, onPickGallery, onClose }: CameraCaptu
       canvas.toBlob(resolve, "image/jpeg", 0.92);
     });
     if (!blob) {
-      setBusy(false);
+      setShooting(false);
       return;
     }
 
     stop();
     onCapture(new File([blob], "checkin.jpg", { type: "image/jpeg" }));
   };
+
+  const working = shooting || busy;
 
   return createPortal(
     <motion.div
@@ -119,15 +129,22 @@ export function CameraCapture({ onCapture, onPickGallery, onClose }: CameraCaptu
       <video
         ref={videoRef}
         className={styles.video}
-        data-mirrored={facing === "user" || undefined}
+        data-mirrored={mirrored || undefined}
         playsInline
         muted
         autoPlay
       />
 
-      {!ready && !failed && (
+      {!ready && !failed && !working && (
         <div className={styles.state}>
           <Spinner />
+        </div>
+      )}
+
+      {working && (
+        <div className={styles.state}>
+          <Spinner />
+          <span className={styles.stateText}>{t.camera.processing}</span>
         </div>
       )}
 
@@ -166,7 +183,7 @@ export function CameraCapture({ onCapture, onPickGallery, onClose }: CameraCaptu
             type="button"
             className={styles.shutter}
             onClick={() => void shoot()}
-            disabled={!ready || busy}
+            disabled={!ready || working}
             aria-label={t.camera.shoot}
           >
             <span className={styles.shutterRing} aria-hidden="true" />
@@ -175,10 +192,11 @@ export function CameraCapture({ onCapture, onPickGallery, onClose }: CameraCaptu
           <button
             type="button"
             className={styles.side}
-            onClick={() => setFacing((f) => (f === "environment" ? "user" : "environment"))}
+            onClick={flip}
+            disabled={working}
             aria-label={t.camera.flip}
           >
-            <IconCamera size={20} />
+            <IconCameraFlip size={20} />
           </button>
         </footer>
       )}

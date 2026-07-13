@@ -13,6 +13,7 @@ import { CameraCapture } from "./CameraCapture";
 import { Celebration } from "./Celebration";
 import styles from "./CheckinSheet.module.css";
 import { PhotoPreview } from "./PhotoPreview";
+import { ProcessingOverlay } from "./ProcessingOverlay";
 
 const MAX_PHOTO_BYTES = 10 << 20;
 
@@ -33,6 +34,7 @@ export function CheckinSheet({ open, onClose, room, myProgress }: CheckinSheetPr
   const galleryInputRef = useRef<HTMLInputElement>(null);
 
   const [cameraOpen, setCameraOpen] = useState(false);
+  const [processing, setProcessing] = useState<string | null>(null);
   const [photo, setPhoto] = useState<CompressedPhoto | null>(null);
   const [selected, setSelected] = useState<number[]>([room.id]);
   const [progress, setProgress] = useState(0);
@@ -66,14 +68,19 @@ export function CheckinSheet({ open, onClose, room, myProgress }: CheckinSheetPr
       });
       return;
     }
+    const needsDecode = !file.type.startsWith("image/jpeg") && !file.type.startsWith("image/png");
+    setProcessing(needsDecode ? t.camera.decoding : t.camera.processing);
     try {
       /* resizing here also strips EXIF, so camera GPS tags never leave the device */
       setPhoto(await compressPhoto(file));
       setSelected([room.id]);
       setProgress(0);
+      setCameraOpen(false);
     } catch {
       hapticNotify("error");
       showToast({ title: t.errors.photoUnreadable, tone: "error" });
+    } finally {
+      setProcessing(null);
     }
   };
 
@@ -177,12 +184,14 @@ export function CheckinSheet({ open, onClose, room, myProgress }: CheckinSheetPr
       />
 
       <AnimatePresence>
+        {processing !== null && !cameraOpen && <ProcessingOverlay label={processing} />}
+      </AnimatePresence>
+
+      <AnimatePresence>
         {cameraOpen && (
           <CameraCapture
-            onCapture={(file) => {
-              setCameraOpen(false);
-              void onFile(file);
-            }}
+            busy={processing !== null}
+            onCapture={(file) => void onFile(file)}
             onPickGallery={pickFromGallery}
             onClose={() => setCameraOpen(false)}
           />

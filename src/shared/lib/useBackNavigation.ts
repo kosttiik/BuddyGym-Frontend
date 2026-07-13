@@ -1,8 +1,9 @@
 import { useRouter } from "@tanstack/react-router";
 import { useCallback, useEffect } from "react";
-import { canUseTelegramBackButton, showBackButton } from "@/shared/lib/telegram";
+import { showBackButton } from "@/shared/lib/telegram";
 
-/* Telegram omits its BackButton on iOS and desktop, so fall back to an in-app one. */
+/* Telegram reports its BackButton as available even on clients that never draw it (iOS,
+   desktop), so the in-app control is always shown rather than trusted away. */
 export function useBackNavigation() {
   const router = useRouter();
 
@@ -16,5 +17,5 @@ export function useBackNavigation() {
 
   useEffect(() => showBackButton(goBack), [goBack]);
 
-  return { goBack, showFallback: !canUseTelegramBackButton() };
+  return { goBack, showFallback: true };
 }

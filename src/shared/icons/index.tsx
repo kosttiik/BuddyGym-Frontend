@@ -313,3 +313,17 @@ export const IconSparkles = icon(
     <path d="M18.4 13.6l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8.8-2z" fill="currentColor" />
   </>,
 );
+
+export const IconCameraFlip = icon(
+  <>
+    <path
+      {...stroke}
+      strokeWidth={2}
+      d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.6l1.2-1.8A1.5 1.5 0 0 1 10.55 3.5h2.9a1.5 1.5 0 0 1 1.25.7L15.9 6h1.6A2.5 2.5 0 0 1 20 8.5v9a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 17.5v-9z"
+    />
+    <path {...stroke} strokeWidth={2} d="M9.2 13.6a2.9 2.9 0 0 1 5-2" />
+    <path {...stroke} strokeWidth={2} d="M14.8 12.4a2.9 2.9 0 0 1-5 2" />
+    <path {...stroke} strokeWidth={2} d="M14.6 8.9v2.7h-2.7" />
+    <path {...stroke} strokeWidth={2} d="M9.4 17.1v-2.7h2.7" />
+  </>,
+);

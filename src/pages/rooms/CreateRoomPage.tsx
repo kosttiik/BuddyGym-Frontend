@@ -3,7 +3,14 @@ import { useState } from "react";
 import { useCreateRoom } from "@/entities/room";
 import type { RoomKind } from "@/shared/api/types";
 import { useI18n } from "@/shared/i18n";
-import { IconInfo } from "@/shared/icons";
+import {
+  IconCalendar,
+  IconGlobe,
+  IconInfo,
+  IconLock,
+  IconTarget,
+  IconUserCheck,
+} from "@/shared/icons";
 import { hapticNotify } from "@/shared/lib/haptics";
 import {
   AppHeader,
@@ -68,7 +75,14 @@ export function CreateRoomPage() {
         />
 
         <div className={styles.block}>
-          <span className={styles.blockLabel}>{t.createRoom.whoCanJoin}</span>
+          <span className={styles.blockLabel}>
+            {kind === "open" ? (
+              <IconGlobe size={15} className={styles.blockLabelIcon} />
+            ) : (
+              <IconLock size={15} className={styles.blockLabelIcon} />
+            )}
+            {t.createRoom.whoCanJoin}
+          </span>
           <SegmentedControl
             options={[
               { key: "open", label: t.createRoom.open },
@@ -84,6 +98,7 @@ export function CreateRoomPage() {
 
         <GlassCard className={styles.steppers}>
           <Stepper
+            icon={<IconTarget size={17} />}
             label={t.createRoom.goal}
             hint={t.createRoom.goalHint}
             value={goal}
@@ -92,6 +107,7 @@ export function CreateRoomPage() {
             onChange={setGoal}
           />
           <Stepper
+            icon={<IconCalendar size={17} />}
             label={t.createRoom.period}
             hint={t.createRoom.periodHint}
             value={period}
@@ -100,6 +116,7 @@ export function CreateRoomPage() {
             onChange={setPeriod}
           />
           <Stepper
+            icon={<IconUserCheck size={17} />}
             label={t.createRoom.votes}
             hint={t.createRoom.votesHint}
             value={votes}

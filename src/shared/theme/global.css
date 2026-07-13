@@ -95,6 +95,19 @@ textarea {
     overflow: hidden;
   }
 
+  /* the check-in button is fixed, so the page transition would drag a half-drawn copy
+     of it across the screen: it is taken out of the paging and simply appears */
+  ::view-transition-group(room-cta) {
+    animation: none;
+  }
+  ::view-transition-old(room-cta) {
+    display: none;
+  }
+  ::view-transition-new(room-cta) {
+    animation: none;
+    mix-blend-mode: normal;
+  }
+
   html:active-view-transition-type(forward)::view-transition-new(root) {
     z-index: 2;
     animation: page-in-right 440ms cubic-bezier(0.22, 1, 0.36, 1) both;

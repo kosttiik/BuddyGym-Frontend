@@ -24,13 +24,6 @@ export type PhotoPreviewProps = {
   onClose: () => void;
 };
 
-function formatSize(bytes: number): string {
-  if (bytes >= 1 << 20) {
-    return `${(bytes / (1 << 20)).toFixed(1)} MB`;
-  }
-  return `${Math.max(1, Math.round(bytes / 1024))} KB`;
-}
-
 export function PhotoPreview({
   photo,
   rooms,
@@ -48,9 +41,6 @@ export function PhotoPreview({
   useEffect(() => () => URL.revokeObjectURL(url), [url]);
   useEffect(() => showBackButton(onClose), [onClose]);
 
-  /* only worth showing when the resize actually saved something */
-  const shrank = photo.originalBytes > photo.bytes * 1.15;
-
   return createPortal(
     <motion.div
       className={styles.screen}
@@ -64,10 +54,6 @@ export function PhotoPreview({
           <IconCamera size={15} />
           {t.photoPreview.retake}
         </button>
-        <span className={styles.sizeBadge}>
-          {shrank && <s className={styles.sizeWas}>{formatSize(photo.originalBytes)}</s>}
-          {formatSize(photo.bytes)}
-        </span>
       </header>
 
       <motion.div

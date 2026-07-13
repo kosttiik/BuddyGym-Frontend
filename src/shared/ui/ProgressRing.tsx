@@ -9,6 +9,8 @@ export type ProgressRingProps = {
   strokeWidth?: number;
   /* draw the arc with an animation on mount */
   animated?: boolean;
+  /* waiting on votes rather than counted: the ring fills, but stays quiet */
+  muted?: boolean;
   className?: string;
 };
 
@@ -17,6 +19,7 @@ export function ProgressRing({
   size = 150,
   strokeWidth = 10,
   animated = false,
+  muted = false,
   className,
 }: ProgressRingProps) {
   const gradientId = useId();
@@ -54,8 +57,8 @@ export function ProgressRing({
       />
       <defs>
         <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#3ed488" />
-          <stop offset="1" stopColor="#0ea55c" />
+          <stop offset="0" stopColor={muted ? "#5f7d6d" : "#3ed488"} />
+          <stop offset="1" stopColor={muted ? "#41604f" : "#0ea55c"} />
         </linearGradient>
       </defs>
     </svg>

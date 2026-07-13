@@ -1,4 +1,5 @@
-import { motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
+import { useState } from "react";
 import type { Achievement, AchievementKey, User, UserStatus } from "@/shared/api/types";
 import { useI18n } from "@/shared/i18n";
 import {
@@ -13,7 +14,7 @@ import {
 } from "@/shared/icons";
 import { cx } from "@/shared/lib/cx";
 import { riseItem } from "@/shared/lib/motion";
-import { Avatar, Badge, GlassCard, ProgressBar, ProgressCounter } from "@/shared/ui";
+import { Avatar, AvatarViewer, Badge, GlassCard, ProgressBar, ProgressCounter } from "@/shared/ui";
 import styles from "./ProfilePage.module.css";
 
 const ALL_ACHIEVEMENTS: AchievementKey[] = [
@@ -62,6 +63,7 @@ export function StatusBadge({ status, label }: { status: UserStatus; label: stri
 /* Public profile: identity, status progress and achievements. Rendered for
    both the current user and other members, inside a stagger container. */
 export function ProfileBody({ user, achievements }: { user: User; achievements: Achievement[] }) {
+  const [avatarOpen, setAvatarOpen] = useState(false);
   const { t } = useI18n();
   const earned = new Set(achievements.map((a) => a.key));
   const statusLabel: Record<UserStatus, string> = {
@@ -76,12 +78,18 @@ export function ProfileBody({ user, achievements }: { user: User; achievements: 
   return (
     <>
       <motion.div className={styles.head} variants={riseItem}>
-        <Avatar
-          name={user.first_name}
-          photoUrl={user.photo_url || undefined}
-          seed={user.id}
-          size={84}
-        />
+        {user.photo_url ? (
+          <button
+            type="button"
+            className={styles.avatarButton}
+            onClick={() => setAvatarOpen(true)}
+            aria-label={user.first_name}
+          >
+            <Avatar name={user.first_name} photoUrl={user.photo_url} seed={user.id} size={84} />
+          </button>
+        ) : (
+          <Avatar name={user.first_name} seed={user.id} size={84} />
+        )}
         <h1 className={styles.name}>{user.first_name}</h1>
         <StatusBadge status={user.status} label={statusLabel[user.status]} />
       </motion.div>
@@ -130,6 +138,12 @@ export function ProfileBody({ user, achievements }: { user: User; achievements: 
           <span className={styles.tileLabel}>{t.profile.soonMore}</span>
         </div>
       </motion.div>
+
+      <AnimatePresence>
+        {avatarOpen && user.photo_url && (
+          <AvatarViewer photoUrl={user.photo_url} onClose={() => setAvatarOpen(false)} />
+        )}
+      </AnimatePresence>
     </>
   );
 }
