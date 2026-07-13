@@ -38,8 +38,8 @@
 
 .secondary {
   background: var(--card-bg);
-  backdrop-filter: blur(var(--blur-card)) saturate(1.5);
   -webkit-backdrop-filter: blur(var(--blur-card)) saturate(1.5);
+  backdrop-filter: blur(var(--blur-card)) saturate(1.5);
   border-color: var(--card-border);
   color: var(--accent-on-tint);
   font-weight: 700;

@@ -28,8 +28,8 @@
   border-radius: var(--radius-tile);
   border: 1.5px solid var(--card-border);
   background: var(--card-bg);
-  backdrop-filter: blur(var(--blur-card)) saturate(1.5);
   -webkit-backdrop-filter: blur(var(--blur-card)) saturate(1.5);
+  backdrop-filter: blur(var(--blur-card)) saturate(1.5);
   font-size: 15px;
   font-weight: 600;
   color: var(--text-primary);

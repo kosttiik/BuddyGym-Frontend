@@ -101,6 +101,24 @@ textarea {
     mix-blend-mode: normal;
   }
 
+  /* The nav pill snapshot is not clipped to its border-radius, so the blurred backdrop
+     bleeds into the corners as dark squares. Clipping the group restores the shape.
+     The pill is identical across pages, so only the new snapshot is drawn. */
+  ::view-transition-group(bottom-nav) {
+    animation: none;
+    border-radius: var(--radius-pill);
+    overflow: hidden;
+  }
+  ::view-transition-old(bottom-nav) {
+    display: none;
+  }
+  ::view-transition-new(bottom-nav) {
+    animation: none;
+    mix-blend-mode: normal;
+    border-radius: var(--radius-pill);
+    overflow: hidden;
+  }
+
   html:active-view-transition-type(forward)::view-transition-new(root) {
     z-index: 2;
     animation: page-in-right 440ms cubic-bezier(0.22, 1, 0.36, 1) both;

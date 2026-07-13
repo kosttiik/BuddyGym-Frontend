@@ -21,8 +21,8 @@
   padding: 9px 15px;
   border-radius: var(--radius-pill);
   background: rgba(238, 244, 240, 0.1);
-  backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
   color: #eef4f0;
   font-size: 13px;
   font-weight: 700;

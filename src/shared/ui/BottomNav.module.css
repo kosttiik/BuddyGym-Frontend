@@ -7,8 +7,6 @@
   justify-content: center;
   z-index: 40;
   pointer-events: none;
-  /* opt out of the page paging so the nav stays put */
-  view-transition-name: bottom-nav;
 }
 
 .pill {
@@ -18,8 +16,13 @@
   padding: 5px;
   border-radius: var(--radius-pill);
   background: var(--card-bg);
-  backdrop-filter: blur(var(--blur-nav)) saturate(1.5);
+  /* The name has to sit on the pill itself, not on the wrapper: an element with
+     view-transition-name becomes a containing block, and that would leave the
+     backdrop-filter below with nothing but the wrapper to blur. Keeping it here
+     still opts the nav out of the page paging. */
+  view-transition-name: bottom-nav;
   -webkit-backdrop-filter: blur(var(--blur-nav)) saturate(1.5);
+  backdrop-filter: blur(var(--blur-nav)) saturate(1.5);
   border: 1px solid var(--card-border);
   box-shadow: var(--card-shadow);
 }

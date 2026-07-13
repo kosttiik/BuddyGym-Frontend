@@ -215,8 +215,8 @@
   height: 96px;
   border-radius: 26px;
   background: var(--card-bg);
-  backdrop-filter: blur(var(--blur-card)) saturate(1.5);
   -webkit-backdrop-filter: blur(var(--blur-card)) saturate(1.5);
+  backdrop-filter: blur(var(--blur-card)) saturate(1.5);
   border: 1px solid var(--card-border);
   box-shadow: var(--card-shadow);
   display: flex;

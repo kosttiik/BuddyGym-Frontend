@@ -34,12 +34,11 @@ const listVariants = stagger(0.055, 0.08);
 
 /* Cards fan in behind the sliding panel, so the switch reads as one motion. */
 const feedItem: Variants = {
-  hidden: { opacity: 0, y: 22, scale: 0.96, filter: "blur(7px)" },
+  hidden: { opacity: 0, y: 22, scale: 0.96 },
   visible: {
     opacity: 1,
     y: 0,
     scale: 1,
-    filter: "blur(0px)",
     transition: spring.soft,
   },
 };
@@ -50,20 +49,17 @@ const panelVariants: Variants = {
     opacity: 0,
     x: dir * 56,
     scale: 0.94,
-    filter: "blur(10px)",
   }),
   center: {
     opacity: 1,
     x: 0,
     scale: 1,
-    filter: "blur(0px)",
     transition: { ...spring.soft, opacity: { duration: 0.25 } },
   },
   exit: (dir: number) => ({
     opacity: 0,
     x: dir * -56,
     scale: 0.94,
-    filter: "blur(10px)",
     transition: { duration: 0.22, ease: ease.exit },
   }),
 };
@@ -133,8 +129,8 @@ export function RoomPage() {
         {room.isPending && <RoomHeaderSkeleton />}
         {room.isSuccess && (
           <motion.div
-            initial={{ opacity: 0, y: 16, filter: "blur(6px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={spring.soft}
           >
             <RoomHeaderCard detail={room.data} onShare={() => setShareOpen(true)} />

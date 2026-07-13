@@ -24,12 +24,13 @@ export function stagger(step = 0.06, delayChildren = 0.04): Variants {
   };
 }
 
+/* Never animate `filter` on a wrapper: a filter on an ancestor, even blur(0px), makes it
+   a containing block and kills backdrop-filter on the glass cards inside. */
 export const riseItem: Variants = {
-  hidden: { opacity: 0, y: 20, filter: "blur(6px)" },
+  hidden: { opacity: 0, y: 20 },
   visible: {
     opacity: 1,
     y: 0,
-    filter: "blur(0px)",
     transition: spring.soft,
   },
 };

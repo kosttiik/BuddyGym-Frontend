@@ -29,7 +29,8 @@ export function CheckinSheet({ open, onClose, room, myProgress }: CheckinSheetPr
   const showApiError = useApiErrorToast();
   const createCheckin = useCreateCheckin(room.id);
   const rooms = useRooms();
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
 
   const [photo, setPhoto] = useState<CompressedPhoto | null>(null);
   const [selected, setSelected] = useState<number[]>([room.id]);
@@ -38,7 +39,10 @@ export function CheckinSheet({ open, onClose, room, myProgress }: CheckinSheetPr
 
   const myRooms = rooms.data ?? [];
 
-  const pickPhoto = () => fileInputRef.current?.click();
+  /* capture="environment" opens the camera straight away; the gallery input has no
+     capture attribute, which is what lets the picker show existing photos */
+  const takePhoto = () => cameraInputRef.current?.click();
+  const pickFromGallery = () => galleryInputRef.current?.click();
 
   const toggleRoom = (roomId: number) => {
     setSelected((current) =>
@@ -94,32 +98,6 @@ export function CheckinSheet({ open, onClose, room, myProgress }: CheckinSheetPr
     );
   };
 
-  const sendGeo = () => {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        createCheckin.mutate(
-          {
-            geo: { lat: position.coords.latitude, lon: position.coords.longitude },
-            roomIds: [room.id],
-          },
-          {
-            onSuccess: (checkins) => {
-              hapticNotify("success");
-              onClose();
-              setCelebrated(checkins[0] ?? null);
-            },
-            onError: showApiError,
-          },
-        );
-      },
-      () => {
-        hapticNotify("error");
-        showToast({ title: t.checkinSheet.geoDenied, tone: "error" });
-      },
-      { enableHighAccuracy: false, timeout: 10_000 },
-    );
-  };
-
   return (
     <>
       <BottomSheet open={open} onClose={onClose} title={t.checkinSheet.title}>
@@ -128,7 +106,7 @@ export function CheckinSheet({ open, onClose, room, myProgress }: CheckinSheetPr
           className={styles.photoCard}
           variants={sheetItemVariants}
           whileTap={{ scale: 0.98 }}
-          onClick={pickPhoto}
+          onClick={takePhoto}
           disabled={createCheckin.isPending}
         >
           <span className={styles.photoCardInner}>
@@ -152,26 +130,31 @@ export function CheckinSheet({ open, onClose, room, myProgress }: CheckinSheetPr
 
         <motion.button
           type="button"
-          className={styles.geoCard}
+          className={styles.galleryRow}
           variants={sheetItemVariants}
           whileTap={{ scale: 0.98 }}
-          onClick={sendGeo}
+          onClick={pickFromGallery}
           disabled={createCheckin.isPending}
         >
+          <IconImage size={18} />
+          {t.checkinSheet.fromGallery}
+        </motion.button>
+
+        <motion.div
+          className={styles.geoCard}
+          data-soon="true"
+          variants={sheetItemVariants}
+          aria-disabled="true"
+        >
           <span className={styles.radar}>
-            <span className={styles.radarWave} aria-hidden="true" />
-            <span className={styles.radarWave2} aria-hidden="true" />
             <IconGeoPinFilled size={22} className={styles.geoIcon} />
           </span>
           <span className={styles.cardText}>
             <span className={styles.geoTitle}>{t.checkinSheet.geoTitle}</span>
-            <span className={styles.geoDesc}>{t.checkinSheet.geoDesc}</span>
+            <span className={styles.geoDesc}>{t.checkinSheet.geoSoonDesc}</span>
           </span>
-          <span className={styles.instant}>
-            <span className={styles.instantDot} aria-hidden="true" />
-            {t.checkinSheet.instant}
-          </span>
-        </motion.button>
+          <span className={styles.soon}>{t.checkinSheet.soon}</span>
+        </motion.div>
 
         <motion.div variants={sheetItemVariants} className={styles.cancelWrap}>
           <Button variant="ghost" onClick={onClose}>
@@ -181,10 +164,21 @@ export function CheckinSheet({ open, onClose, room, myProgress }: CheckinSheetPr
       </BottomSheet>
 
       <input
-        ref={fileInputRef}
+        ref={cameraInputRef}
         type="file"
         accept="image/*"
         capture="environment"
+        className={styles.fileInput}
+        onChange={(e) => {
+          void onFile(e.target.files?.[0]);
+          e.target.value = "";
+        }}
+      />
+
+      <input
+        ref={galleryInputRef}
+        type="file"
+        accept="image/*"
         className={styles.fileInput}
         onChange={(e) => {
           void onFile(e.target.files?.[0]);
@@ -201,7 +195,7 @@ export function CheckinSheet({ open, onClose, room, myProgress }: CheckinSheetPr
             onToggleRoom={toggleRoom}
             pending={createCheckin.isPending}
             progress={progress}
-            onRetake={pickPhoto}
+            onRetake={takePhoto}
             onSubmit={sendPhoto}
             onClose={() => setPhoto(null)}
           />

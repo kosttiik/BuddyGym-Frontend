@@ -17,8 +17,8 @@
   position: relative;
   border-radius: var(--radius-sheet) var(--radius-sheet) 0 0;
   background: var(--sheet-bg);
-  backdrop-filter: blur(var(--blur-sheet)) saturate(1.4);
   -webkit-backdrop-filter: blur(var(--blur-sheet)) saturate(1.4);
+  backdrop-filter: blur(var(--blur-sheet)) saturate(1.4);
   padding: 10px 18px calc(18px + var(--safe-bottom));
   overflow: hidden;
   touch-action: none;
