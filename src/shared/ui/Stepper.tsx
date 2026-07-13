@@ -8,6 +8,7 @@ import styles from "./Stepper.module.css";
 export type StepperProps = {
   label: string;
   hint?: string;
+  unit?: string;
   icon?: ReactNode;
   value: number;
   min: number;
@@ -16,7 +17,17 @@ export type StepperProps = {
   className?: string;
 };
 
-export function Stepper({ label, hint, icon, value, min, max, onChange, className }: StepperProps) {
+export function Stepper({
+  label,
+  hint,
+  unit,
+  icon,
+  value,
+  min,
+  max,
+  onChange,
+  className,
+}: StepperProps) {
   const step = (delta: number) => {
     const next = Math.max(min, Math.min(max, value + delta));
     if (next !== value) {
@@ -42,7 +53,10 @@ export function Stepper({ label, hint, icon, value, min, max, onChange, classNam
         >
           <IconMinus size={15} />
         </motion.button>
-        <span className={styles.value}>{value}</span>
+        <span className={styles.valueBox}>
+          <span className={styles.value}>{value}</span>
+          {unit && <span className={styles.unit}>{unit}</span>}
+        </span>
         <motion.button
           type="button"
           whileTap={{ scale: 0.9 }}

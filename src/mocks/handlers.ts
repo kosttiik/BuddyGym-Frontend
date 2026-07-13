@@ -92,7 +92,9 @@ export const handlers = [
   http.get("/api/v1/rooms/open", async () => {
     await delay(400);
     return HttpResponse.json(
-      db.rooms.filter((room) => room.kind === "open").map(({ invite_code: _, ...room }) => room),
+      db.rooms
+        .filter((room) => room.kind === "open" && !db.myRoomIds.has(room.id))
+        .map(({ invite_code: _, ...room }) => room),
     );
   }),
 
@@ -129,6 +131,30 @@ export const handlers = [
     }
     db.myRoomIds.add(room.id);
     db.progress.set(room.id, db.progress.get(room.id) ?? 0);
+    return HttpResponse.json(room);
+  }),
+
+  http.patch("/api/v1/rooms/:id", async ({ params, request }) => {
+    const roomId = Number(params.id);
+    const room = db.rooms.find((r) => r.id === roomId);
+    if (!room) {
+      return error(404, "room not found");
+    }
+    if (room.creator_id !== db.me.id) {
+      return error(403, "room creator only");
+    }
+    const body = (await request.json()) as CreateRoomRequest;
+    const name = body.name.trim();
+    if (name.length < 1 || name.length > 64) {
+      return error(400, "invalid name");
+    }
+    Object.assign(room, {
+      name,
+      kind: body.kind,
+      goal_per_period: body.goal_per_period,
+      period_days: body.period_days,
+      votes_required: body.votes_required,
+    });
     return HttpResponse.json(room);
   }),
 

@@ -46,6 +46,19 @@
   text-decoration: none;
 }
 
+.settingsPill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--ghost-bg);
+  color: var(--text-secondary-2);
+  text-decoration: none;
+  flex: none;
+}
+
 .codePill {
   display: inline-flex;
   align-items: center;

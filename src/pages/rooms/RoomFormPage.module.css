@@ -1,10 +1,10 @@
-.block {
+.section {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.blockLabel {
+.sectionLabel {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -13,21 +13,44 @@
   color: var(--text-secondary-2);
 }
 
-.blockLabelIcon {
+.sectionIcon {
   flex: none;
   color: var(--accent-link);
 }
 
-.blockHint {
-  font-size: 12px;
+.accessCard {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.accessHint {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12.5px;
   font-weight: 500;
+  line-height: 1.4;
+  color: var(--text-secondary);
+}
+
+.accessHintIcon {
+  flex: none;
+  margin-top: 1px;
   color: var(--text-tertiary);
 }
 
-.steppers {
+.rules {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 0;
+}
+
+/* one divider between rows, so the three settings read as separate decisions */
+.rule + .rule {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--card-border);
 }
 
 .summary {

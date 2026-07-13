@@ -1,8 +1,10 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import type { Checkin } from "@/shared/api/types";
 import { I18nProvider } from "@/shared/i18n";
 import { en } from "@/shared/i18n/en";
 import { compressPhoto } from "@/shared/lib/photo";
+import { CameraCapture } from "./CameraCapture";
 import { CheckinPhoto, photoExpiryLabel } from "./CheckinPhoto";
 
 const NOW = new Date("2026-07-13T12:00:00Z").getTime();
@@ -86,4 +88,48 @@ test("a purged photo renders a placeholder and never requests the bytes", () => 
   expect(screen.getByText("Photo deleted")).toBeInTheDocument();
   expect(fetchSpy).not.toHaveBeenCalled();
   fetchSpy.mockRestore();
+});
+
+/* Multi-camera Androids expose tele and macro lenses as extra "back" devices; a plain
+   facingMode: environment can land on the telephoto, so the first back device wins. */
+test("flipping to the back camera opens the main lens, not the telephoto", async () => {
+  const track = { stop: vi.fn(), getSettings: () => ({ facingMode: "environment" }) };
+  const stream = { getTracks: () => [track], getVideoTracks: () => [track] };
+  const getUserMedia = vi.fn(async () => stream as unknown as MediaStream);
+  vi.spyOn(HTMLMediaElement.prototype, "play").mockResolvedValue(undefined);
+  /* jsdom has no srcObject and no MediaStream */
+  Object.defineProperty(HTMLMediaElement.prototype, "srcObject", {
+    configurable: true,
+    writable: true,
+    value: null,
+  });
+
+  vi.stubGlobal("navigator", {
+    ...navigator,
+    mediaDevices: {
+      getUserMedia,
+      enumerateDevices: vi.fn(async () => [
+        { kind: "videoinput", deviceId: "front", label: "camera2 1, facing front" },
+        { kind: "videoinput", deviceId: "main", label: "camera2 0, facing back" },
+        { kind: "videoinput", deviceId: "tele", label: "camera2 3, facing back" },
+      ]),
+    },
+  });
+
+  render(
+    <I18nProvider>
+      <CameraCapture onCapture={vi.fn()} onPickGallery={vi.fn()} onClose={vi.fn()} />
+    </I18nProvider>,
+  );
+
+  await userEvent.click(await screen.findByRole("button", { name: "Flip camera" }));
+
+  await waitFor(() =>
+    expect(getUserMedia).toHaveBeenLastCalledWith({
+      video: { deviceId: { exact: "main" } },
+      audio: false,
+    }),
+  );
+
+  vi.unstubAllGlobals();
 });

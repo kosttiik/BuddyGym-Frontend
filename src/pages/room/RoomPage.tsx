@@ -8,7 +8,14 @@ import { CheckinSheet } from "@/features/checkin/CheckinSheet";
 import { ApiError } from "@/shared/api/client";
 import type { Checkin, CheckinStatus, Member } from "@/shared/api/types";
 import { useI18n } from "@/shared/i18n";
-import { IconCloudOff, IconDumbbell, IconKey, IconLockKeyhole, IconShare } from "@/shared/icons";
+import {
+  IconCloudOff,
+  IconDumbbell,
+  IconKey,
+  IconLockKeyhole,
+  IconShare,
+  IconSliders,
+} from "@/shared/icons";
 import { PulseDots } from "@/shared/icons/animated";
 import { hapticSelection } from "@/shared/lib/haptics";
 import { spring, stagger } from "@/shared/lib/motion";
@@ -154,7 +161,11 @@ export function RoomPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={spring.soft}
           >
-            <RoomHeaderCard detail={room.data} onShare={() => setShareOpen(true)} />
+            <RoomHeaderCard
+              detail={room.data}
+              isCreator={room.data.room.creator_id === me.data?.user.id}
+              onShare={() => setShareOpen(true)}
+            />
           </motion.div>
         )}
 
@@ -340,9 +351,11 @@ function formatCount(value: number): string {
 
 function RoomHeaderCard({
   detail,
+  isCreator,
   onShare,
 }: {
   detail: { room: import("@/shared/api/types").Room; members: Member[] };
+  isCreator: boolean;
   onShare: () => void;
 }) {
   const { t } = useI18n();
@@ -375,6 +388,16 @@ function RoomHeaderCard({
           />
         </Link>
         <div className={styles.headerActions}>
+          {isCreator && (
+            <Link
+              to="/rooms/$roomId/edit"
+              params={{ roomId: String(room.id) }}
+              className={styles.settingsPill}
+              aria-label={t.room.settings}
+            >
+              <IconSliders size={16} />
+            </Link>
+          )}
           {room.invite_code && (
             <motion.button
               type="button"
