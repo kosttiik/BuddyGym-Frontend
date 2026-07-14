@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useRef, useState } from "react";
 import { useCreateCheckin } from "@/entities/checkin";
 import { useRooms } from "@/entities/room";
-import type { Checkin, Room } from "@/shared/api/types";
+import type { Checkin, Member, Room } from "@/shared/api/types";
 import { useI18n } from "@/shared/i18n";
 import { IconCamera, IconClock, IconGeoPinFilled, IconImage } from "@/shared/icons";
 import { hapticNotify } from "@/shared/lib/haptics";
@@ -21,11 +21,13 @@ export type CheckinSheetProps = {
   open: boolean;
   onClose: () => void;
   room: Room;
+  /* everyone else in the room: the people who could have trained with you */
+  members: Member[];
   /* my workouts this period, for the celebration progress card */
   myProgress: number;
 };
 
-export function CheckinSheet({ open, onClose, room, myProgress }: CheckinSheetProps) {
+export function CheckinSheet({ open, onClose, room, members, myProgress }: CheckinSheetProps) {
   const { t } = useI18n();
   const showToast = useToast();
   const showApiError = useApiErrorToast();
@@ -37,6 +39,7 @@ export function CheckinSheet({ open, onClose, room, myProgress }: CheckinSheetPr
   const [processing, setProcessing] = useState<string | null>(null);
   const [photo, setPhoto] = useState<CompressedPhoto | null>(null);
   const [selected, setSelected] = useState<number[]>([room.id]);
+  const [buddies, setBuddies] = useState<number[]>([]);
   const [progress, setProgress] = useState(0);
   const [celebrated, setCelebrated] = useState<Checkin | null>(null);
 
@@ -51,6 +54,12 @@ export function CheckinSheet({ open, onClose, room, myProgress }: CheckinSheetPr
   const toggleRoom = (roomId: number) => {
     setSelected((current) =>
       current.includes(roomId) ? current.filter((id) => id !== roomId) : [...current, roomId],
+    );
+  };
+
+  const toggleBuddy = (userId: number) => {
+    setBuddies((current) =>
+      current.includes(userId) ? current.filter((id) => id !== userId) : [...current, userId],
     );
   };
 
@@ -90,11 +99,12 @@ export function CheckinSheet({ open, onClose, room, myProgress }: CheckinSheetPr
     }
     setProgress(0);
     createCheckin.mutate(
-      { photo: photo.file, roomIds: selected, onProgress: setProgress },
+      { photo: photo.file, roomIds: selected, buddyIds: buddies, onProgress: setProgress },
       {
         onSuccess: (checkins) => {
           hapticNotify("success");
           setPhoto(null);
+          setBuddies([]);
           onClose();
           const mine = checkins.find((c) => c.room_id === room.id) ?? checkins[0];
           setCelebrated(mine ?? null);
@@ -205,6 +215,9 @@ export function CheckinSheet({ open, onClose, room, myProgress }: CheckinSheetPr
             rooms={myRooms}
             selected={selected}
             onToggleRoom={toggleRoom}
+            buddyCandidates={members}
+            selectedBuddies={buddies}
+            onToggleBuddy={toggleBuddy}
             pending={createCheckin.isPending}
             progress={progress}
             onRetake={takePhoto}

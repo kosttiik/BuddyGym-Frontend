@@ -7,7 +7,7 @@ import { IconCheck, IconClock, IconCross, IconGeoPinFilled } from "@/shared/icon
 import { cx } from "@/shared/lib/cx";
 import { hapticNotify } from "@/shared/lib/haptics";
 import { getMyVote } from "@/shared/lib/myVotes";
-import { Avatar, Badge, Button, GlassCard } from "@/shared/ui";
+import { Avatar, AvatarStack, Badge, Button, GlassCard } from "@/shared/ui";
 import styles from "./CheckinCard.module.css";
 import { formatCheckinTime, hoursLeft } from "./time";
 
@@ -33,6 +33,7 @@ export function CheckinCard({
   const myVote = getMyVote(checkin.id);
   const expired = checkin.status === "expired";
   const name = author?.first_name ?? "—";
+  const buddies = checkin.buddies ?? [];
 
   const castVote = (approve: boolean) => {
     vote.mutate(
@@ -59,7 +60,27 @@ export function CheckinCard({
         >
           <Avatar name={name} hasAvatar={author?.has_avatar} seed={checkin.user_id} size={38} />
           <div className={styles.who}>
-            <span className={styles.name}>{name}</span>
+            <span className={styles.nameRow}>
+              <span className={styles.name}>{name}</span>
+              {buddies.length > 0 && (
+                <>
+                  <AvatarStack
+                    size={20}
+                    max={3}
+                    people={buddies.map((b) => ({
+                      id: b.id,
+                      name: b.first_name,
+                      hasAvatar: b.has_avatar,
+                    }))}
+                  />
+                  <span className={styles.withBuddies}>
+                    {buddies.length === 1
+                      ? t.buddies.withOne(buddies[0]?.first_name ?? "")
+                      : t.buddies.withMany(buddies[0]?.first_name ?? "", buddies.length - 1)}
+                  </span>
+                </>
+              )}
+            </span>
             <span className={styles.meta}>{meta.join(" · ")}</span>
           </div>
         </Link>

@@ -253,6 +253,7 @@ export const handlers = [
     let geo: GeoPoint | undefined;
     let hasPhoto = false;
     let roomIds: number[] = [];
+    let buddyIds: number[] = [];
 
     if (contentType.includes("multipart/form-data")) {
       const form = await request.formData();
@@ -265,13 +266,19 @@ export const handlers = [
       }
       hasPhoto = true;
       roomIds = form.getAll("room_ids").map((value) => Number(value));
+      buddyIds = form.getAll("buddy_ids").map((value) => Number(value));
     } else {
-      const body = (await request.json()) as { geo?: GeoPoint; room_ids?: number[] };
+      const body = (await request.json()) as {
+        geo?: GeoPoint;
+        room_ids?: number[];
+        buddy_ids?: number[];
+      };
       if (!body.geo) {
         return error(400, "geo required");
       }
       geo = body.geo;
       roomIds = body.room_ids ?? [];
+      buddyIds = body.buddy_ids ?? [];
     }
 
     if (roomIds.length === 0) {
@@ -302,6 +309,7 @@ export const handlers = [
           ? new Date(Date.now() + 14 * 24 * 3_600_000).toISOString()
           : undefined,
         geo,
+        buddies: (db.members.get(room.id) ?? []).filter((m) => buddyIds.includes(m.id)),
         votes_approve: 0,
         votes_reject: 0,
         votes_required: room.votes_required,
