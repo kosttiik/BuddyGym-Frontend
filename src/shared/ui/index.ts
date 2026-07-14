@@ -17,5 +17,6 @@ export { SegmentedControl } from "./SegmentedControl";
 export { Skeleton } from "./Skeleton";
 export { Spinner } from "./Spinner";
 export { Stepper } from "./Stepper";
+export { StreakFlame } from "./StreakFlame";
 export { TextField } from "./TextField";
 export { type ToastInput, ToastProvider, useToast } from "./Toast";

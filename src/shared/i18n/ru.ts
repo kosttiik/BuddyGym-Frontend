@@ -109,6 +109,10 @@ export const ru = {
     you: "ВЫ",
     since: (date: string) => `в комнате с ${date}`,
     leave: "Покинуть комнату",
+    leaveConfirm: "Покинуть",
+    leaveConfirmTitle: "Покинуть комнату?",
+    leaveConfirmText:
+      "Прогресс в этой комнате не сохранится, а стрик сгорит. Если вы последний участник, комната будет удалена.",
     leaveNote: "Прогресс в этой комнате не сохранится",
     statusBeast: "Легенда",
     statusRegular: "Атлет",

@@ -110,6 +110,10 @@ export const en: typeof ru = {
     you: "YOU",
     since: (date: string) => `in the room since ${date}`,
     leave: "Leave room",
+    leaveConfirm: "Leave",
+    leaveConfirmTitle: "Leave the room?",
+    leaveConfirmText:
+      "Your progress in this room will not be kept and the streak burns. If you are the last member, the room is deleted.",
     leaveNote: "Your progress in this room will not be kept",
     statusBeast: "Legend",
     statusRegular: "Athlete",

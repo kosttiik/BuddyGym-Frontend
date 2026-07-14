@@ -7,6 +7,7 @@ import { useI18n } from "@/shared/i18n";
 import { IconDumbbell, IconKey, IconPlus, IconUsers } from "@/shared/icons";
 import { popItem, riseItem, stagger, tapSubtle } from "@/shared/lib/motion";
 import { useFirstReveal } from "@/shared/lib/playOnce";
+import { isStreakAtRisk } from "@/shared/lib/streak";
 import { getStartParam } from "@/shared/lib/telegram";
 import {
   AppHeader,
@@ -19,6 +20,7 @@ import {
   PullToRefresh,
   SegmentedProgress,
   Skeleton,
+  StreakFlame,
   sanitizeCode,
 } from "@/shared/ui";
 import styles from "./RoomsPage.module.css";
@@ -126,9 +128,20 @@ function RoomCard({ room }: { room: RoomWithProgress }) {
       />
       <div className={styles.cardTop}>
         <span className={styles.roomName}>{room.name}</span>
-        <Badge tone={room.kind === "open" ? "green" : "purple"}>
-          {room.kind === "open" ? t.rooms.openBadge : t.rooms.inviteBadge}
-        </Badge>
+        <span className={styles.cardTags}>
+          <StreakFlame
+            streak={room.streak}
+            atRisk={isStreakAtRisk({
+              streak: room.streak,
+              workouts: room.workouts_count,
+              goal: room.goal_per_period,
+              periodEndsAt: room.period_ends_at,
+            })}
+          />
+          <Badge tone={room.kind === "open" ? "green" : "purple"}>
+            {room.kind === "open" ? t.rooms.openBadge : t.rooms.inviteBadge}
+          </Badge>
+        </span>
       </div>
       <p className={styles.roomMeta}>
         {t.rooms.members(room.members_count)} ·{" "}

@@ -41,7 +41,11 @@ export function UserProfilePage() {
             initial="hidden"
             animate="visible"
           >
-            <ProfileBody user={user.data.user} achievements={user.data.achievements} />
+            <ProfileBody
+              user={user.data.user}
+              achievements={user.data.achievements}
+              bestStreak={user.data.best_streak}
+            />
           </motion.div>
         )}
       </Page>

@@ -46,7 +46,11 @@ export function ProfilePage() {
           initial={firstReveal ? "hidden" : false}
           animate="visible"
         >
-          <ProfileBody user={me.data.user} achievements={me.data.achievements} />
+          <ProfileBody
+            user={me.data.user}
+            achievements={me.data.achievements}
+            bestStreak={me.data.best_streak}
+          />
 
           <motion.h2 className={styles.sectionTitle} variants={riseItem}>
             {t.profile.theme}

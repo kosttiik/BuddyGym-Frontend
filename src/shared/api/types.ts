@@ -44,11 +44,16 @@ export type Room = {
 export type RoomWithProgress = Room & {
   workouts_count: number;
   members_count: number;
+  streak: number;
+  /* when the current period closes and the streak burns unless the goal is met */
+  period_ends_at: string;
 };
 
 export type Member = User & {
   workouts_count: number;
   joined_at: string;
+  streak: number;
+  period_ends_at: string;
 };
 
 export type RoomDetailResponse = {
@@ -82,6 +87,8 @@ export type Checkin = {
 export type MeResponse = {
   user: User;
   achievements: Achievement[];
+  /* the highest streak across the user rooms */
+  best_streak: number;
 };
 
 export type UserProfileResponse = MeResponse;

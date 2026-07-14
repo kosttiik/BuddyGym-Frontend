@@ -12,6 +12,15 @@ const MAX_PHOTO_BYTES = 10 << 20;
 
 export let db = createDb();
 
+function bestStreak(userId = db.me.id): number {
+  let best = 0;
+  for (const members of db.members.values()) {
+    const found = members.find((m) => m.id === userId);
+    best = Math.max(best, found?.streak ?? 0);
+  }
+  return best;
+}
+
 export function resetDb(): void {
   db = createDb();
 }
@@ -62,7 +71,9 @@ export const handlers = [
     return HttpResponse.json({ token: "mock-token", user: db.me });
   }),
 
-  http.get("/api/v1/me", () => HttpResponse.json({ user: db.me, achievements: db.achievements })),
+  http.get("/api/v1/me", () =>
+    HttpResponse.json({ user: db.me, achievements: db.achievements, best_streak: bestStreak() }),
+  ),
 
   http.patch("/api/v1/me", async ({ request }) => {
     const { theme } = (await request.json()) as { theme: Theme };
@@ -80,7 +91,11 @@ export const handlers = [
     if (!user) {
       return error(404, "user not found");
     }
-    return HttpResponse.json({ user, achievements: db.userAchievements.get(id) ?? [] });
+    return HttpResponse.json({
+      user,
+      achievements: db.userAchievements.get(id) ?? [],
+      best_streak: bestStreak(id),
+    });
   }),
 
   http.get("/api/v1/rooms", async () => {
@@ -118,7 +133,15 @@ export const handlers = [
     db.rooms.push(room);
     db.myRoomIds.add(room.id);
     db.progress.set(room.id, 0);
-    db.members.set(room.id, [{ ...db.me, workouts_count: 0, joined_at: new Date().toISOString() }]);
+    db.members.set(room.id, [
+      {
+        ...db.me,
+        workouts_count: 0,
+        joined_at: new Date().toISOString(),
+        streak: 0,
+        period_ends_at: new Date(Date.now() + room.period_days * 86400_000).toISOString(),
+      },
+    ]);
     return HttpResponse.json(room, { status: 201 });
   }),
 

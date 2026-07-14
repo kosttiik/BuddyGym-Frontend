@@ -1,0 +1,32 @@
+.flame {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px 3px 6px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.lit {
+  background: var(--flame-lit-tint);
+  color: var(--flame-lit-text);
+}
+
+.risk {
+  background: var(--flame-risk-tint);
+  color: var(--flame-risk-text);
+}
+
+.cold {
+  background: var(--flame-cold-tint);
+  color: var(--flame-cold-text);
+}
+
+.icon {
+  display: block;
+  transform-origin: 50% 85%;
+  will-change: transform;
+}

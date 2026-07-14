@@ -15,7 +15,15 @@ import {
 import { cx } from "@/shared/lib/cx";
 import { riseItem } from "@/shared/lib/motion";
 import { useAvatar } from "@/shared/lib/useAvatar";
-import { Avatar, AvatarViewer, Badge, GlassCard, ProgressBar, ProgressCounter } from "@/shared/ui";
+import {
+  Avatar,
+  AvatarViewer,
+  Badge,
+  GlassCard,
+  ProgressBar,
+  ProgressCounter,
+  StreakFlame,
+} from "@/shared/ui";
 import styles from "./ProfilePage.module.css";
 
 const ALL_ACHIEVEMENTS: AchievementKey[] = [
@@ -63,7 +71,15 @@ export function StatusBadge({ status, label }: { status: UserStatus; label: stri
 
 /* Public profile: identity, status progress and achievements. Rendered for
    both the current user and other members, inside a stagger container. */
-export function ProfileBody({ user, achievements }: { user: User; achievements: Achievement[] }) {
+export function ProfileBody({
+  user,
+  achievements,
+  bestStreak,
+}: {
+  user: User;
+  achievements: Achievement[];
+  bestStreak: number;
+}) {
   const [avatarOpen, setAvatarOpen] = useState(false);
   const { t } = useI18n();
   const avatarUrl = useAvatar(user.id, user.has_avatar);
@@ -93,7 +109,10 @@ export function ProfileBody({ user, achievements }: { user: User; achievements: 
           <Avatar name={user.first_name} seed={user.id} size={84} />
         )}
         <h1 className={styles.name}>{user.first_name}</h1>
-        <StatusBadge status={user.status} label={statusLabel[user.status]} />
+        <span className={styles.headTags}>
+          <StatusBadge status={user.status} label={statusLabel[user.status]} />
+          {bestStreak > 0 && <StreakFlame streak={bestStreak} />}
+        </span>
       </motion.div>
 
       {nextGoal !== null && (

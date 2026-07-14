@@ -219,3 +219,9 @@
   border-radius: 50%;
   line-height: 0;
 }
+
+.headTags {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
