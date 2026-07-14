@@ -33,7 +33,7 @@ export const ru = {
     subtitle: "Собери друзей в комнату и подтверждайте тренировки друг друга",
     step1: "Создай комнату или войди по коду",
     step2: "Отмечай тренировки фото или гео-меткой",
-    step3: "Участники подтверждают чек-ины голосами",
+    step3: "Участники подтверждают отметки голосами",
   },
   createRoom: {
     title: "Создать комнату",
@@ -91,7 +91,7 @@ export const ru = {
     yesterday: "вчера",
     settings: "Настройки комнаты",
     codeCopied: "Код скопирован",
-    emptyFeed: "Пока нет чек-инов",
+    emptyFeed: "Пока нет отметок",
     emptyFeedHint: "Отметьте первую тренировку",
   },
   share: {
@@ -219,7 +219,7 @@ export const ru = {
   },
   celebration: {
     title: "Тренировка зачтена",
-    sentTitle: "Чек-ин отправлен",
+    sentTitle: "Отметка отправлена",
     subtitle: "Осталось дождаться голосов участников",
     geoSubtitle: "Гео-метка зачтена мгновенно",
     newAchievement: "НОВОЕ ДОСТИЖЕНИЕ",
@@ -256,7 +256,7 @@ export const ru = {
     photoUnreadable: "Не удалось прочитать это изображение",
     tooOften: "Слишком часто",
     tooOftenDesc: "Подождите минуту",
-    checkinsUnavailable: "Чек-ины временно недоступны",
+    checkinsUnavailable: "Отметки временно недоступны",
     checkinsUnavailableDesc: "Комнаты и лента работают. Попробуйте отметиться позже",
     checkinAlreadyExists: "Тренировка уже отмечена",
     checkinAlreadyExistsDesc: "В каждой комнате можно отметить одну тренировку в день",
