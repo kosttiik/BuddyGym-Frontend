@@ -42,8 +42,11 @@
   flex: none;
 }
 
+/* tucked into the bottom right corner, overlapping the face a little */
 .statusBadge {
   position: absolute;
-  right: -2px;
-  bottom: -2px;
+  right: -3px;
+  bottom: -3px;
+  display: inline-flex;
+  z-index: 1;
 }

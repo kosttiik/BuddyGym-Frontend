@@ -69,6 +69,9 @@
   --tooltip-bg: rgba(20, 35, 27, 0.94);
   --tooltip-text: #f3f8f5;
 
+  --status-badge-bg: #f2f6f4;
+  --status-badge-ring: #ffffff;
+
   --flame-lit: linear-gradient(180deg, #ffb02e, #f0620c);
   --flame-risk: linear-gradient(180deg, #ff8a3d, #d92b2b);
   --flame-cold: rgba(20, 35, 27, 0.22);
@@ -150,6 +153,9 @@
 
   --tooltip-bg: rgba(236, 243, 239, 0.96);
   --tooltip-text: #14231b;
+
+  --status-badge-bg: #2a322d;
+  --status-badge-ring: #171d1a;
 
   --flame-cold: rgba(238, 244, 240, 0.24);
   --flame-lit-text: #ffb95e;

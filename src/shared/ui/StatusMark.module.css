@@ -1,12 +1,13 @@
+/* an opaque ring so the badge reads as sitting on top of the face, not blending into it */
 .mark {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 18px;
+  width: 19px;
+  height: 19px;
   border-radius: 50%;
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
+  background: var(--status-badge-bg);
+  border: 2px solid var(--status-badge-ring);
   font-size: 10px;
   line-height: 1;
   flex: none;
