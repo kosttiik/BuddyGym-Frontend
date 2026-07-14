@@ -25,7 +25,7 @@ function iso(offsetMs: number): string {
   return new Date(Date.now() + offsetMs).toISOString();
 }
 
-function user(id: number, firstName: string, status: User["status"]): User {
+function user(id: number, firstName: string, rank: User["rank"]): User {
   return {
     id,
     username: "",
@@ -33,7 +33,9 @@ function user(id: number, firstName: string, status: User["status"]): User {
     photo_url: "",
     has_avatar: false,
     theme: "default",
-    status,
+    rank,
+    status_emoji: "",
+    status_text: "",
     created_at: iso(-90 * DAY),
   };
 }

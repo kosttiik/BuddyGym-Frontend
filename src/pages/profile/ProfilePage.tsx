@@ -1,4 +1,5 @@
 import { motion } from "motion/react";
+import { useState } from "react";
 import { useMe, useUpdateTheme } from "@/entities/user";
 import { type Locale, useI18n } from "@/shared/i18n";
 import { IconCheck, IconLock } from "@/shared/icons";
@@ -9,6 +10,7 @@ import { type UiTheme, useTheme } from "@/shared/theme/ThemeProvider";
 import { AppHeader, Page, SegmentedControl, Skeleton } from "@/shared/ui";
 import { ProfileBody } from "./ProfileBody";
 import styles from "./ProfilePage.module.css";
+import { StatusSheet } from "./StatusSheet";
 
 export function ProfilePage() {
   const { t, locale, setLocale } = useI18n();
@@ -16,6 +18,7 @@ export function ProfilePage() {
   const me = useMe();
   const updateTheme = useUpdateTheme();
   const firstReveal = useFirstReveal("profile");
+  const [statusOpen, setStatusOpen] = useState(false);
 
   const applyTheme = (next: UiTheme) => {
     setTheme(next);
@@ -50,6 +53,8 @@ export function ProfilePage() {
             user={me.data.user}
             achievements={me.data.achievements}
             bestStreak={me.data.best_streak}
+            editable
+            onEditStatus={() => setStatusOpen(true)}
           />
 
           <motion.h2 className={styles.sectionTitle} variants={riseItem}>
@@ -84,6 +89,8 @@ export function ProfilePage() {
           </motion.div>
         </motion.div>
       </Page>
+
+      <StatusSheet user={me.data.user} open={statusOpen} onClose={() => setStatusOpen(false)} />
     </>
   );
 }

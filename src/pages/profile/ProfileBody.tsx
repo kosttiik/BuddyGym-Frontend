@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
-import type { Achievement, AchievementKey, User, UserStatus } from "@/shared/api/types";
+import type { Achievement, AchievementKey, User, UserRank } from "@/shared/api/types";
 import { useI18n } from "@/shared/i18n";
 import {
   IconCheckBold,
@@ -51,15 +51,15 @@ function inferWorkouts(earned: Set<AchievementKey>): number {
   return 0;
 }
 
-export function StatusBadge({ status, label }: { status: UserStatus; label: string }) {
-  if (status === "beast") {
+export function RankBadge({ rank, label }: { rank: UserRank; label: string }) {
+  if (rank === "beast") {
     return (
       <Badge tone="orange" icon={<IconStar size={11} />}>
         {label}
       </Badge>
     );
   }
-  if (status === "regular") {
+  if (rank === "regular") {
     return (
       <Badge tone="green" icon={<IconLightning size={11} />}>
         {label}
@@ -69,29 +69,87 @@ export function StatusBadge({ status, label }: { status: UserStatus; label: stri
   return <Badge tone="neutral">{label}</Badge>;
 }
 
+/* The emoji here is user content, like the avatar, so it is the one place in the app that
+   renders an emoji at all: the no-emoji rule is about the interface, not about what people
+   write about themselves. */
+function StatusLine({
+  user,
+  editable,
+  onEdit,
+}: {
+  user: User;
+  editable?: boolean;
+  onEdit?: () => void;
+}) {
+  const { t } = useI18n();
+  const has = Boolean(user.status_emoji || user.status_text);
+
+  if (!has && !editable) {
+    return null;
+  }
+  if (!has) {
+    return (
+      <button type="button" className={styles.statusAdd} onClick={onEdit}>
+        <IconPlus size={13} />
+        {t.status.add}
+      </button>
+    );
+  }
+
+  const chip = (
+    <>
+      {user.status_emoji && (
+        <span className={styles.statusEmoji} aria-hidden="true">
+          {user.status_emoji}
+        </span>
+      )}
+      <span className={styles.statusText}>{user.status_text}</span>
+    </>
+  );
+
+  if (!editable) {
+    return <span className={styles.statusChip}>{chip}</span>;
+  }
+  return (
+    <button
+      type="button"
+      className={cx(styles.statusChip, styles.statusChipButton)}
+      onClick={onEdit}
+      aria-label={t.status.edit}
+    >
+      {chip}
+    </button>
+  );
+}
+
 /* Public profile: identity, status progress and achievements. Rendered for
    both the current user and other members, inside a stagger container. */
 export function ProfileBody({
   user,
   achievements,
   bestStreak,
+  editable,
+  onEditStatus,
 }: {
   user: User;
   achievements: Achievement[];
   bestStreak: number;
+  /* only your own profile offers to write a status */
+  editable?: boolean;
+  onEditStatus?: () => void;
 }) {
   const [avatarOpen, setAvatarOpen] = useState(false);
   const { t } = useI18n();
   const avatarUrl = useAvatar(user.id, user.has_avatar);
   const earned = new Set(achievements.map((a) => a.key));
-  const statusLabel: Record<UserStatus, string> = {
+  const rankLabel: Record<UserRank, string> = {
     novice: t.members.statusNovice,
     regular: t.members.statusRegular,
     beast: t.members.statusBeast,
   };
   const workouts = inferWorkouts(earned);
-  const nextGoal = user.status === "novice" ? 10 : user.status === "regular" ? 50 : null;
-  const nextStatus = user.status === "novice" ? t.members.statusRegular : t.members.statusBeast;
+  const nextGoal = user.rank === "novice" ? 10 : user.rank === "regular" ? 50 : null;
+  const nextRank = user.rank === "novice" ? t.members.statusRegular : t.members.statusBeast;
 
   return (
     <>
@@ -110,16 +168,17 @@ export function ProfileBody({
         )}
         <h1 className={styles.name}>{user.first_name}</h1>
         <span className={styles.headTags}>
-          <StatusBadge status={user.status} label={statusLabel[user.status]} />
+          <RankBadge rank={user.rank} label={rankLabel[user.rank]} />
           {bestStreak > 0 && <StreakFlame streak={bestStreak} />}
         </span>
+        <StatusLine user={user} editable={editable} onEdit={onEditStatus} />
       </motion.div>
 
       {nextGoal !== null && (
         <motion.div variants={riseItem}>
           <GlassCard>
             <div className={styles.statusTop}>
-              <span className={styles.statusTitle}>{t.profile.toStatus(nextStatus)}</span>
+              <span className={styles.statusTitle}>{t.profile.toStatus(nextRank)}</span>
               <ProgressCounter value={workouts} goal={nextGoal} trackId="profile" />
             </div>
             <ProgressBar
