@@ -33,6 +33,7 @@ export function BuddiesSheet({
               name={person.first_name}
               seed={person.id}
               hasAvatar={person.has_avatar}
+              status={person}
               size={42}
             />
             <div className={styles.info}>

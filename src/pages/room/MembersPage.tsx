@@ -18,7 +18,6 @@ import {
   Page,
   ProgressCounter,
   Skeleton,
-  StatusMark,
   StreakFlame,
   sheetItemVariants,
 } from "@/shared/ui";
@@ -159,20 +158,20 @@ function MemberRow({
           aria-label={member.first_name}
         />
       )}
-      <Avatar name={member.first_name} hasAvatar={member.has_avatar} seed={member.id} size={40} />
+      <Avatar
+        name={member.first_name}
+        hasAvatar={member.has_avatar}
+        seed={member.id}
+        status={member}
+        size={40}
+      />
       <div className={styles.info}>
         <span className={styles.nameRow}>
           <span className={styles.name}>{member.first_name}</span>
           <MemberRankBadge rank={member.rank} />
           {isMe && <Badge tone="neutral">{t.members.you}</Badge>}
         </span>
-        {member.status_emoji || member.status_text ? (
-          <StatusMark user={member} withText />
-        ) : (
-          <span className={styles.meta}>
-            {t.members.since(formatDay(member.joined_at, locale))}
-          </span>
-        )}
+        <span className={styles.meta}>{t.members.since(formatDay(member.joined_at, locale))}</span>
       </div>
       <StreakFlame
         streak={member.streak}

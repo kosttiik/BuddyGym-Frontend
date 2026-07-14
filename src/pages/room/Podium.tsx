@@ -2,7 +2,7 @@ import { motion, useReducedMotion } from "motion/react";
 import type { Member } from "@/shared/api/types";
 import { useI18n } from "@/shared/i18n";
 import { cx } from "@/shared/lib/cx";
-import { Avatar, StatusMark, StreakFlame } from "@/shared/ui";
+import { Avatar, StreakFlame } from "@/shared/ui";
 import styles from "./Podium.module.css";
 
 export type PodiumTone = "honor" | "shame";
@@ -80,6 +80,7 @@ export function Podium({
                         name={member.first_name}
                         seed={member.id}
                         hasAvatar={member.has_avatar}
+                        status={member}
                         size={place === 1 ? 64 : 52}
                         className={honor ? undefined : styles.shameAvatar}
                       />
@@ -120,7 +121,6 @@ export function Podium({
                 transition={{ duration: 0.32, delay: delay + 0.4 }}
               >
                 {member.first_name}
-                <StatusMark user={member} className={styles.status} />
               </motion.span>
 
               <motion.span

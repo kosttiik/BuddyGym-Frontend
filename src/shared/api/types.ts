@@ -11,7 +11,15 @@ export type AchievementKey =
   | "workouts_10"
   | "workouts_50"
   | "workouts_100"
-  | "streak_7";
+  | "workouts_250"
+  | "streak_7"
+  | "streak_14"
+  | "streak_30"
+  | "rooms_3"
+  | "buddies_5"
+  | "comments_10"
+  | "early_bird_10"
+  | "night_owl_10";
 
 export type User = {
   id: number;
@@ -27,9 +35,22 @@ export type User = {
   created_at: string;
 };
 
+/* The whole catalog comes back, earned or not: a locked one carries its progress. */
 export type Achievement = {
   key: AchievementKey;
-  granted_at: string;
+  current: number;
+  target: number;
+  granted_at?: string;
+};
+
+export type Stats = {
+  total_workouts: number;
+  best_streak: number;
+  rooms: number;
+  buddies: number;
+  comments: number;
+  early_workouts: number;
+  late_workouts: number;
 };
 
 export type Room = {
@@ -95,6 +116,7 @@ export type Checkin = {
 export type MeResponse = {
   user: User;
   achievements: Achievement[];
+  stats: Stats;
   /* the highest streak across the user rooms */
   best_streak: number;
 };

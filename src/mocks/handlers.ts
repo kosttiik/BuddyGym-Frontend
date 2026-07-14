@@ -1,10 +1,12 @@
 import { delay, HttpResponse, http } from "msw";
 import type {
+  Achievement,
   Checkin,
   CheckinStatus,
   Comment,
   CreateRoomRequest,
   GeoPoint,
+  Stats,
   Theme,
 } from "@/shared/api/types";
 import { createDb, PLACEHOLDER_PHOTO, roomWithProgress } from "./db";
@@ -12,6 +14,20 @@ import { createDb, PLACEHOLDER_PHOTO, roomWithProgress } from "./db";
 const MAX_PHOTO_BYTES = 10 << 20;
 
 export let db = createDb();
+
+/* The server derives the stats and folds the catalog against them; the mock walks it back. */
+function statsOf(achievements: Achievement[]): Stats {
+  const of = (key: string) => achievements.find((a) => a.key === key)?.current ?? 0;
+  return {
+    total_workouts: of("workouts_250"),
+    best_streak: of("streak_30"),
+    rooms: of("rooms_3"),
+    buddies: of("buddies_5"),
+    comments: of("comments_10"),
+    early_workouts: of("early_bird_10"),
+    late_workouts: of("night_owl_10"),
+  };
+}
 
 function bestStreak(userId = db.me.id): number {
   let best = 0;
@@ -86,7 +102,12 @@ export const handlers = [
   }),
 
   http.get("/api/v1/me", () =>
-    HttpResponse.json({ user: db.me, achievements: db.achievements, best_streak: bestStreak() }),
+    HttpResponse.json({
+      user: db.me,
+      achievements: db.achievements,
+      stats: statsOf(db.achievements),
+      best_streak: bestStreak(),
+    }),
   ),
 
   http.patch("/api/v1/me", async ({ request }) => {
@@ -179,9 +200,11 @@ export const handlers = [
     if (!user) {
       return error(404, "user not found");
     }
+    const achievements = db.userAchievements.get(id) ?? [];
     return HttpResponse.json({
       user,
-      achievements: db.userAchievements.get(id) ?? [],
+      achievements,
+      stats: statsOf(achievements),
       best_streak: bestStreak(id),
     });
   }),

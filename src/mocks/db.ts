@@ -74,8 +74,44 @@ function member(u: User, workouts: number, joinedDaysAgo: number, streak = worko
   };
 }
 
+/* Mirrors domain.Catalog on the server: every key comes back, locked ones carrying progress. */
+const CATALOG: Array<[AchievementKey, number]> = [
+  ["first_checkin", 1],
+  ["workouts_10", 10],
+  ["workouts_50", 50],
+  ["workouts_100", 100],
+  ["workouts_250", 250],
+  ["streak_7", 7],
+  ["streak_14", 14],
+  ["streak_30", 30],
+  ["rooms_3", 3],
+  ["buddies_5", 5],
+  ["comments_10", 10],
+  ["early_bird_10", 10],
+  ["night_owl_10", 10],
+];
+
+export function catalog(progress: Partial<Record<AchievementKey, number>>): Achievement[] {
+  return CATALOG.map(([key, target]) => {
+    const current = Math.min(progress[key] ?? 0, target);
+    return {
+      key,
+      current,
+      target,
+      granted_at: current >= target ? iso(-30 * DAY) : undefined,
+    };
+  });
+}
+
 function achs(...keys: AchievementKey[]): Achievement[] {
-  return keys.map((key, i) => ({ key, granted_at: iso(-(70 - i * 8) * DAY) }));
+  const progress: Partial<Record<AchievementKey, number>> = {};
+  for (const key of keys) {
+    const spec = CATALOG.find(([k]) => k === key);
+    if (spec) {
+      progress[key] = spec[1];
+    }
+  }
+  return catalog(progress);
 }
 
 export function createDb(): MockDb {
@@ -246,11 +282,21 @@ export function createDb(): MockDb {
     },
   ];
 
-  const meAchievements: Achievement[] = [
-    { key: "first_checkin", granted_at: iso(-80 * DAY) },
-    { key: "workouts_10", granted_at: iso(-30 * DAY) },
-    { key: "streak_7", granted_at: iso(-7 * DAY) },
-  ];
+  const meAchievements: Achievement[] = catalog({
+    first_checkin: 1,
+    workouts_10: 10,
+    workouts_50: 23,
+    workouts_100: 23,
+    workouts_250: 23,
+    streak_7: 7,
+    streak_14: 9,
+    streak_30: 9,
+    rooms_3: 2,
+    buddies_5: 3,
+    comments_10: 4,
+    early_bird_10: 6,
+    night_owl_10: 1,
+  });
 
   const allUsers = [me, marina, dima, lera, pasha, ...extra];
   const users = new Map<number, User>(allUsers.map((u) => [u.id, u]));

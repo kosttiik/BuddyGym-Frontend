@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { App } from "@/app/App";
 import { resetDb } from "@/mocks/handlers";
@@ -38,4 +38,18 @@ test("a member with no status is offered to write one, and a preset saves it", a
 test("the derived rank still shows next to the name", async () => {
   openProfile();
   expect(await screen.findByText("Athlete", {}, { timeout: 4000 })).toBeInTheDocument();
+});
+
+/* A locked tile showing 23/50 beats a dead grey square: the whole catalog comes back with its
+   progress, not just what is already earned. */
+test("locked achievements show real progress, earned ones read as done", async () => {
+  openProfile();
+
+  expect(await screen.findByText("Fifty strong", {}, { timeout: 4000 })).toBeInTheDocument();
+  expect(screen.getByText("23/50")).toBeInTheDocument();
+
+  await userEvent.click(screen.getByText("Fifty strong"));
+  const sheet = await screen.findByRole("dialog", { name: "Fifty strong" });
+  expect(within(sheet).getByText("Log 50 workouts")).toBeInTheDocument();
+  expect(within(sheet).getByText("23 / 50")).toBeInTheDocument();
 });

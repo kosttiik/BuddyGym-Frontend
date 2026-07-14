@@ -9,7 +9,7 @@ import { IconCheck, IconClock, IconComment, IconCross, IconGeoPinFilled } from "
 import { cx } from "@/shared/lib/cx";
 import { hapticNotify } from "@/shared/lib/haptics";
 import { getMyVote } from "@/shared/lib/myVotes";
-import { Avatar, AvatarStack, Badge, Button, GlassCard, StatusMark } from "@/shared/ui";
+import { Avatar, AvatarStack, Badge, Button, GlassCard } from "@/shared/ui";
 import styles from "./CheckinCard.module.css";
 import { formatCheckinTime, hoursLeft } from "./time";
 
@@ -62,11 +62,16 @@ export function CheckinCard({
           params={{ userId: String(checkin.user_id) }}
           className={styles.author}
         >
-          <Avatar name={name} hasAvatar={author?.has_avatar} seed={checkin.user_id} size={38} />
+          <Avatar
+            name={name}
+            hasAvatar={author?.has_avatar}
+            seed={checkin.user_id}
+            status={author}
+            size={38}
+          />
           <div className={styles.who}>
             <span className={styles.nameRow}>
               <span className={styles.name}>{name}</span>
-              {author && <StatusMark user={author} />}
               {buddies.length > 0 && (
                 <button
                   type="button"
