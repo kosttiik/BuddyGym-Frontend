@@ -116,11 +116,8 @@ export function PhotoViewer({
 
       {/* the thread lives in a sheet: only the most liked line sits under the photo, so it
           never covers the shot and never lands on top of the plate */}
-      <motion.div
+      <div
         className={cx(styles.commentsBar, checkin.status !== "pending" && styles.commentsBarLast)}
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ ...spring.soft, delay: 0.15 }}
       >
         <button
           type="button"
@@ -129,19 +126,14 @@ export function PhotoViewer({
         >
           {top ? (
             <>
-              <motion.span
-                className={styles.topAvatar}
-                initial={{ scale: 0.4, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ ...spring.bouncy, delay: 0.22 }}
-              >
+              <span className={styles.topAvatar}>
                 <Avatar
                   name={top.author.first_name}
                   seed={top.author.id}
                   hasAvatar={top.author.has_avatar}
                   size={24}
                 />
-              </motion.span>
+              </span>
               <span className={styles.topAuthor}>{top.author.first_name}</span>
               <span className={styles.topBody}>{top.body || t.comments.photoOnly}</span>
               {top.likes > 0 && (
@@ -167,15 +159,10 @@ export function PhotoViewer({
           <IconComment size={16} />
           {total > 0 && <span className={styles.count}>{total}</span>}
         </motion.button>
-      </motion.div>
+      </div>
 
       {checkin.status === "pending" && (
-        <motion.div
-          className={styles.plate}
-          initial={{ y: 40, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
-        >
+        <div className={styles.plate}>
           {expiry && <span className={styles.expiry}>{expiry}</span>}
           <div className={styles.votes}>
             <span className={styles.segments}>
@@ -223,7 +210,7 @@ export function PhotoViewer({
               </Button>
             </div>
           )}
-        </motion.div>
+        </div>
       )}
 
       <BuddiesSheet

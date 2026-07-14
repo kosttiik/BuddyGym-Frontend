@@ -45,7 +45,6 @@ export function JoinPage() {
         <p className={styles.subtitle}>{t.joinByCode.subtitle}</p>
 
         <CodeInput value={code} onChange={setCode} shakeKey={shakeKey} />
-        <p className={styles.hint}>{t.joinByCode.hint}</p>
 
         <div className={styles.deepLink}>
           <IconLink size={15} className={styles.deepLinkIcon} />

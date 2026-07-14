@@ -1,4 +1,3 @@
-import { motion } from "motion/react";
 import { useCheckinPhoto } from "@/entities/checkin";
 import type { Checkin } from "@/shared/api/types";
 import { useI18n } from "@/shared/i18n";
@@ -8,11 +7,9 @@ import styles from "./CheckinPhoto.module.css";
 export type CheckinPhotoProps = {
   checkin: Checkin;
   className?: string;
-  /* shares the layout animation with the full-screen viewer */
-  layout?: boolean;
 };
 
-export function CheckinPhoto({ checkin, className, layout = true }: CheckinPhotoProps) {
+export function CheckinPhoto({ checkin, className }: CheckinPhotoProps) {
   const { t } = useI18n();
   const url = useCheckinPhoto(checkin);
 
@@ -29,15 +26,7 @@ export function CheckinPhoto({ checkin, className, layout = true }: CheckinPhoto
     return <span className={`${styles.skeleton} ${className ?? ""}`} />;
   }
 
-  return (
-    <motion.img
-      layoutId={layout ? `checkin-photo-${checkin.id}` : undefined}
-      src={url}
-      alt=""
-      className={className}
-      decoding="async"
-    />
-  );
+  return <img src={url} alt="" className={className} decoding="async" />;
 }
 
 /* Photos are purged on a schedule, so the feed says when a given one goes away. */

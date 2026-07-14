@@ -66,7 +66,6 @@ export const en: typeof ru = {
   joinByCode: {
     title: "Join by code",
     subtitle: "Enter the 8-character invite code",
-    hint: "Codes never contain look-alike characters 0/O and 1/I",
     deepLink: "An invite link from a chat opens the room right away",
     submit: "Join",
     fillAll: "Enter all 8 characters",
@@ -207,7 +206,6 @@ export const en: typeof ru = {
     retake: "Retake",
     sendTo: "Send to rooms",
     votesNeeded: (n: number) => `${n} ${pluralEn(n, "vote", "votes")}`,
-    oneShotMany: (n: number) => `One photo, ${n} rooms. It is stored once, not copied`,
     sending: "Sending",
     submit: "Send for confirmation",
   },

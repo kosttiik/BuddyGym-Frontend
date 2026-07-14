@@ -117,10 +117,6 @@ export function PhotoPreview({
           onToggle={onToggleBuddy}
         />
 
-        {selected.length > 1 && (
-          <p className={styles.info}>{t.photoPreview.oneShotMany(selected.length)}</p>
-        )}
-
         <Button block disabled={pending || selected.length === 0} onClick={onSubmit}>
           {pending ? t.photoPreview.sending : t.photoPreview.submit}
         </Button>
