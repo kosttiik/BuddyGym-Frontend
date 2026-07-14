@@ -1,12 +1,20 @@
-import { motion } from "motion/react";
-import { useEffect } from "react";
+import { AnimatePresence, motion } from "motion/react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useVote } from "@/entities/checkin";
 import { CheckinPhoto, photoExpiryLabel } from "@/features/checkin/CheckinPhoto";
+import { CommentsSheet } from "@/features/comments/CommentsSheet";
 import type { Checkin, Member } from "@/shared/api/types";
 import { useI18n } from "@/shared/i18n";
-import { IconCheck, IconChevronLeft, IconCross } from "@/shared/icons";
+import {
+  IconCheck,
+  IconChevronLeft,
+  IconComment,
+  IconCross,
+  IconHeartFilled,
+} from "@/shared/icons";
 import { hapticNotify } from "@/shared/lib/haptics";
+import { spring } from "@/shared/lib/motion";
 import { getMyVote } from "@/shared/lib/myVotes";
 import { showBackButton } from "@/shared/lib/telegram";
 import { Avatar, AvatarStack, Button } from "@/shared/ui";
@@ -18,11 +26,25 @@ export type PhotoViewerProps = {
   author?: Member;
   isMine: boolean;
   roomId: number;
+  myId?: number;
+  canModerate: boolean;
   onClose: () => void;
 };
 
-export function PhotoViewer({ checkin, author, isMine, roomId, onClose }: PhotoViewerProps) {
+export function PhotoViewer({
+  checkin,
+  author,
+  isMine,
+  roomId,
+  myId,
+  canModerate,
+  onClose,
+}: PhotoViewerProps) {
   const { t, locale } = useI18n();
+  const [commentsOpen, setCommentsOpen] = useState(false);
+  const [zoomed, setZoomed] = useState<string | null>(null);
+  const top = checkin.top_comment;
+  const total = checkin.comments_count ?? 0;
   const vote = useVote(roomId);
   const myVote = getMyVote(checkin.id);
   const name = author?.first_name ?? "—";
@@ -87,6 +109,52 @@ export function PhotoViewer({ checkin, author, isMine, roomId, onClose }: PhotoV
 
       <div className={styles.photoWrap}>
         <CheckinPhoto checkin={checkin} className={styles.photo} />
+
+        {/* the thread lives in a sheet: only the most liked line rides on the photo, and it
+            sits under it rather than over the subject */}
+        <motion.div
+          className={styles.commentsBar}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ ...spring.soft, delay: 0.15 }}
+        >
+          {top ? (
+            <button
+              type="button"
+              className={styles.topComment}
+              onClick={() => setCommentsOpen(true)}
+            >
+              <span className={styles.topAuthor}>{top.author.first_name}</span>
+              <span className={styles.topBody}>{top.body || t.comments.photoOnly}</span>
+              {top.likes > 0 && (
+                <span className={styles.topLikes}>
+                  <IconHeartFilled size={11} />
+                  {top.likes}
+                </span>
+              )}
+            </button>
+          ) : (
+            <button
+              type="button"
+              className={styles.topComment}
+              onClick={() => setCommentsOpen(true)}
+            >
+              <span className={styles.topBody}>{t.comments.beFirst}</span>
+            </button>
+          )}
+
+          <motion.button
+            type="button"
+            className={styles.allComments}
+            aria-label={t.comments.title}
+            whileTap={{ scale: 0.92 }}
+            transition={spring.snappy}
+            onClick={() => setCommentsOpen(true)}
+          >
+            <IconComment size={16} />
+            {total > 0 && <span className={styles.count}>{total}</span>}
+          </motion.button>
+        </motion.div>
       </div>
 
       {checkin.status === "pending" && (
@@ -145,6 +213,39 @@ export function PhotoViewer({ checkin, author, isMine, roomId, onClose }: PhotoV
           )}
         </motion.div>
       )}
+
+      <CommentsSheet
+        checkinId={checkin.id}
+        roomId={roomId}
+        open={commentsOpen}
+        onClose={() => setCommentsOpen(false)}
+        myId={myId}
+        canModerate={canModerate}
+        onOpenPhoto={setZoomed}
+      />
+
+      <AnimatePresence>
+        {zoomed && (
+          <motion.button
+            type="button"
+            className={styles.zoom}
+            aria-label={t.common.close}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setZoomed(null)}
+          >
+            <motion.img
+              src={zoomed}
+              alt=""
+              className={styles.zoomPhoto}
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              transition={spring.soft}
+            />
+          </motion.button>
+        )}
+      </AnimatePresence>
     </motion.div>,
     document.body,
   );

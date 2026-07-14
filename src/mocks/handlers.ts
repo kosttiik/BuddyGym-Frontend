@@ -2,6 +2,7 @@ import { delay, HttpResponse, http } from "msw";
 import type {
   Checkin,
   CheckinStatus,
+  Comment,
   CreateRoomRequest,
   GeoPoint,
   Theme,
@@ -19,6 +20,19 @@ function bestStreak(userId = db.me.id): number {
     best = Math.max(best, found?.streak ?? 0);
   }
   return best;
+}
+
+function likeComment(checkinId: string, id: number, on: boolean) {
+  const list = db.comments.get(checkinId) ?? [];
+  const comment = list.find((c) => c.id === id);
+  if (!comment) {
+    return error(404, "comment not found");
+  }
+  if (comment.liked_by_me !== on) {
+    comment.liked_by_me = on;
+    comment.likes += on ? 1 : -1;
+  }
+  return HttpResponse.json(comment);
 }
 
 export function resetDb(): void {
@@ -99,6 +113,63 @@ export const handlers = [
       };
     }
     return HttpResponse.json(db.me);
+  }),
+
+  http.get("/api/v1/checkins/:id/comments", ({ params }) => {
+    return HttpResponse.json(db.comments.get(String(params.id)) ?? []);
+  }),
+
+  http.post("/api/v1/checkins/:id/comments", async ({ params, request }) => {
+    const checkinId = String(params.id);
+    let body = "";
+    let hasPhoto = false;
+
+    if ((request.headers.get("content-type") ?? "").includes("multipart/form-data")) {
+      const form = await request.formData();
+      body = String(form.get("body") ?? "");
+      hasPhoto = form.get("photo") instanceof File;
+    } else {
+      body = ((await request.json()) as { body?: string }).body ?? "";
+    }
+    body = body.trim();
+    if (!body && !hasPhoto) {
+      return error(400, "comment must not be empty");
+    }
+    if (body.length > 500) {
+      return error(400, "comment too long");
+    }
+
+    const comment: Comment = {
+      id: db.nextCommentId++,
+      checkin_id: checkinId,
+      user_id: db.me.id,
+      author: db.me,
+      body,
+      has_photo: hasPhoto,
+      likes: 0,
+      liked_by_me: false,
+      created_at: new Date().toISOString(),
+    };
+    db.comments.set(checkinId, [...(db.comments.get(checkinId) ?? []), comment]);
+    return HttpResponse.json(comment, { status: 201 });
+  }),
+
+  http.delete("/api/v1/checkins/:id/comments/:commentId", ({ params }) => {
+    const checkinId = String(params.id);
+    const id = Number(params.commentId);
+    db.comments.set(
+      checkinId,
+      (db.comments.get(checkinId) ?? []).filter((c) => c.id !== id),
+    );
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  http.post("/api/v1/checkins/:id/comments/:commentId/like", ({ params }) => {
+    return likeComment(String(params.id), Number(params.commentId), true);
+  }),
+
+  http.delete("/api/v1/checkins/:id/comments/:commentId/like", ({ params }) => {
+    return likeComment(String(params.id), Number(params.commentId), false);
   }),
 
   http.get("/api/v1/users/:id", async ({ params }) => {
@@ -241,7 +312,12 @@ export const handlers = [
     const status = new URL(request.url).searchParams.get("status") as CheckinStatus | null;
     const list = db.checkins
       .filter((c) => c.room_id === res.room.id && (!status || c.status === status))
-      .sort((a, b) => b.created_at.localeCompare(a.created_at));
+      .sort((a, b) => b.created_at.localeCompare(a.created_at))
+      .map((c) => {
+        const thread = db.comments.get(c.id) ?? [];
+        const top = [...thread].sort((a, b) => b.likes - a.likes)[0];
+        return { ...c, comments_count: thread.length, top_comment: top };
+      });
     return HttpResponse.json(list);
   }),
 

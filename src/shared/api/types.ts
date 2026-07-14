@@ -82,6 +82,9 @@ export type Checkin = {
   geo?: GeoPoint;
   /* members the author tagged as training with them */
   buddies?: User[];
+  comments_count?: number;
+  /* the most liked comment: shown over the photo without loading the thread */
+  top_comment?: Comment;
   votes_approve: number;
   votes_reject: number;
   votes_required: number;
@@ -109,4 +112,17 @@ export type CreateRoomRequest = {
   goal_per_period: number;
   period_days: number;
   votes_required: number;
+};
+
+export type Comment = {
+  id: number;
+  checkin_id: string;
+  user_id: number;
+  author: User;
+  body: string;
+  /* bytes come from GET /checkins/{id}/comments/{commentId}/photo */
+  has_photo: boolean;
+  likes: number;
+  liked_by_me: boolean;
+  created_at: string;
 };

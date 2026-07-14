@@ -1,0 +1,119 @@
+.sheet {
+  display: flex;
+  flex-direction: column;
+  max-height: 78vh;
+}
+
+.list {
+  flex: 1;
+  min-height: 120px;
+  max-height: 52vh;
+  overflow-y: auto;
+  padding-bottom: 8px;
+}
+
+.skeletons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.rowWrap {
+  padding: 6px 0;
+}
+
+.empty {
+  margin: 26px 0;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
+
+.composer {
+  padding-top: 10px;
+  border-top: 1px solid var(--card-border);
+}
+
+.attachment {
+  position: relative;
+  overflow: hidden;
+  width: fit-content;
+  margin-bottom: 8px;
+}
+
+.attachmentPhoto {
+  display: block;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-tile);
+  object-fit: cover;
+}
+
+.attachmentDrop {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  cursor: pointer;
+}
+
+.inputRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 6px;
+}
+
+.attachButton,
+.send {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex: none;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.attachButton {
+  background: var(--ghost-bg);
+  color: var(--text-secondary-2);
+}
+
+.send {
+  background: var(--accent-gradient);
+  color: #fff;
+}
+
+.send:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-pill);
+  background: var(--card-bg);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--accent-border);
+}
