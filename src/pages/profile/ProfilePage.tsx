@@ -52,6 +52,7 @@ export function ProfilePage() {
           <ProfileBody
             user={me.data.user}
             achievements={me.data.achievements}
+            stats={me.data.stats}
             bestStreak={me.data.best_streak}
             editable
             onEditStatus={() => setStatusOpen(true)}

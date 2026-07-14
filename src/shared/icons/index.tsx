@@ -373,3 +373,15 @@ export const IconTrash = icon(
 export const IconSend = icon(
   <path d="M4.5 12L20 4.5l-4 15.5-4.5-5.5-7-2.5z" {...stroke} strokeWidth="1.9" />,
 );
+
+export const IconSunrise = icon(
+  <>
+    <path d="M12 4.5v3M5.5 8.5l2 2M18.5 8.5l-2 2" {...stroke} strokeWidth="1.9" />
+    <path d="M7.5 17a4.5 4.5 0 0 1 9 0" {...stroke} strokeWidth="1.9" />
+    <path d="M3.5 17h17" {...stroke} strokeWidth="1.9" />
+  </>,
+);
+
+export const IconMoon = icon(
+  <path d="M20 14.5A8.2 8.2 0 0 1 9.5 4a8.3 8.3 0 1 0 10.5 10.5z" {...stroke} strokeWidth="1.9" />,
+);

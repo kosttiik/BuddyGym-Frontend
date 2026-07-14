@@ -1,17 +1,8 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
-import type { Achievement, AchievementKey, User, UserRank } from "@/shared/api/types";
+import type { Achievement, Stats, User, UserRank } from "@/shared/api/types";
 import { useI18n } from "@/shared/i18n";
-import {
-  IconCheckBold,
-  IconDumbbell,
-  IconFire,
-  IconLightning,
-  IconMedal,
-  IconPlus,
-  IconStar,
-  IconTrophy,
-} from "@/shared/icons";
+import { IconLightning, IconPlus, IconStar } from "@/shared/icons";
 import { cx } from "@/shared/lib/cx";
 import { riseItem } from "@/shared/lib/motion";
 import { useAvatar } from "@/shared/lib/useAvatar";
@@ -24,32 +15,8 @@ import {
   ProgressCounter,
   StreakFlame,
 } from "@/shared/ui";
+import { Achievements } from "./Achievements";
 import styles from "./ProfilePage.module.css";
-
-const ALL_ACHIEVEMENTS: AchievementKey[] = [
-  "first_checkin",
-  "workouts_10",
-  "workouts_50",
-  "workouts_100",
-  "streak_7",
-];
-
-const ACHIEVEMENT_ICONS: Record<AchievementKey, typeof IconCheckBold> = {
-  first_checkin: IconCheckBold,
-  workouts_10: IconDumbbell,
-  workouts_50: IconMedal,
-  workouts_100: IconTrophy,
-  streak_7: IconFire,
-};
-
-/* /me has no total workout counter, so the lower bound comes from milestones */
-function inferWorkouts(earned: Set<AchievementKey>): number {
-  if (earned.has("workouts_100")) return 100;
-  if (earned.has("workouts_50")) return 50;
-  if (earned.has("workouts_10")) return 10;
-  if (earned.has("first_checkin")) return 1;
-  return 0;
-}
 
 export function RankBadge({ rank, label }: { rank: UserRank; label: string }) {
   if (rank === "beast") {
@@ -127,12 +94,14 @@ function StatusLine({
 export function ProfileBody({
   user,
   achievements,
+  stats,
   bestStreak,
   editable,
   onEditStatus,
 }: {
   user: User;
   achievements: Achievement[];
+  stats: Stats;
   bestStreak: number;
   /* only your own profile offers to write a status */
   editable?: boolean;
@@ -141,13 +110,12 @@ export function ProfileBody({
   const [avatarOpen, setAvatarOpen] = useState(false);
   const { t } = useI18n();
   const avatarUrl = useAvatar(user.id, user.has_avatar);
-  const earned = new Set(achievements.map((a) => a.key));
   const rankLabel: Record<UserRank, string> = {
     novice: t.members.statusNovice,
     regular: t.members.statusRegular,
     beast: t.members.statusBeast,
   };
-  const workouts = inferWorkouts(earned);
+  const workouts = stats.total_workouts;
   const nextGoal = user.rank === "novice" ? 10 : user.rank === "regular" ? 50 : null;
   const nextRank = user.rank === "novice" ? t.members.statusRegular : t.members.statusBeast;
 
@@ -192,32 +160,7 @@ export function ProfileBody({
         </motion.div>
       )}
 
-      <motion.div className={styles.sectionHead} variants={riseItem}>
-        <h2 className={styles.sectionTitle}>{t.profile.achievements}</h2>
-        <span className={styles.sectionCounter}>
-          {t.profile.achievementsCount(earned.size, ALL_ACHIEVEMENTS.length)}
-        </span>
-      </motion.div>
-      <motion.div className={styles.grid} variants={riseItem}>
-        {ALL_ACHIEVEMENTS.map((key) => {
-          const Icon = ACHIEVEMENT_ICONS[key];
-          const isEarned = earned.has(key);
-          return (
-            <div key={key} className={cx(styles.tile, isEarned ? styles.earned : styles.locked)}>
-              <span className={cx(styles.tileIcon, isEarned && styles.tileIconEarned)}>
-                <Icon size={20} />
-              </span>
-              <span className={styles.tileLabel}>{t.achievements[key]}</span>
-            </div>
-          );
-        })}
-        <div className={cx(styles.tile, styles.locked, styles.soon)}>
-          <span className={styles.soonPlus}>
-            <IconPlus size={15} />
-          </span>
-          <span className={styles.tileLabel}>{t.profile.soonMore}</span>
-        </div>
-      </motion.div>
+      <Achievements achievements={achievements} />
 
       <AnimatePresence>
         {avatarOpen && avatarUrl && (

@@ -44,6 +44,7 @@ export function UserProfilePage() {
             <ProfileBody
               user={user.data.user}
               achievements={user.data.achievements}
+              stats={user.data.stats}
               bestStreak={user.data.best_streak}
             />
           </motion.div>

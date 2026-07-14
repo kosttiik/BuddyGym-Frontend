@@ -16,7 +16,6 @@ import {
   Page,
   SegmentedControl,
   Skeleton,
-  StatusMark,
   StreakFlame,
 } from "@/shared/ui";
 import styles from "./BoardPage.module.css";
@@ -168,6 +167,7 @@ function Shame({ members, goal, myId }: { members: Member[]; goal: number; myId?
                   name={member.first_name}
                   seed={member.id}
                   hasAvatar={member.has_avatar}
+                  status={member}
                   size={40}
                   className={styles.shameAvatar}
                 />
@@ -210,11 +210,16 @@ function Row({
     <GlassCard className={styles.row}>
       <MemberLink member={member} isMe={isMe} className={styles.rowLink} />
       <span className={styles.rank}>{place}</span>
-      <Avatar name={member.first_name} seed={member.id} hasAvatar={member.has_avatar} size={40} />
+      <Avatar
+        name={member.first_name}
+        seed={member.id}
+        hasAvatar={member.has_avatar}
+        status={member}
+        size={40}
+      />
       <div className={styles.info}>
         <span className={styles.nameRow}>
           <span className={styles.name}>{member.first_name}</span>
-          <StatusMark user={member} />
           {isMe && <Badge tone="neutral">{t.members.you}</Badge>}
         </span>
         <StreakFlame streak={member.streak} />

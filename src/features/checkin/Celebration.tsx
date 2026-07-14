@@ -42,7 +42,11 @@ export function Celebration({ checkin, room, myProgress, onClose }: CelebrationP
 
   const freshAchievement = useMemo(() => {
     const list = me.data?.achievements ?? [];
-    return list.find((a) => Date.now() - new Date(a.granted_at).getTime() < FRESH_ACHIEVEMENT_MS);
+    return list.find(
+      (a) =>
+        a.granted_at !== undefined &&
+        Date.now() - new Date(a.granted_at).getTime() < FRESH_ACHIEVEMENT_MS,
+    );
   }, [me.data]);
 
   return createPortal(

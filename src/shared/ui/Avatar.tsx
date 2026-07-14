@@ -1,6 +1,8 @@
+import type { User } from "@/shared/api/types";
 import { cx } from "@/shared/lib/cx";
 import { useAvatar } from "@/shared/lib/useAvatar";
 import styles from "./Avatar.module.css";
+import { StatusMark } from "./StatusMark";
 
 const PALETTE = ["var(--avatar-1)", "var(--avatar-2)", "var(--avatar-3)", "var(--avatar-4)"];
 
@@ -9,11 +11,13 @@ export type AvatarProps = {
   /* the user id: drives both the mirrored avatar lookup and the placeholder color */
   seed: number;
   hasAvatar?: boolean;
+  /* the status rides on the avatar itself, so it follows the person everywhere they appear */
+  status?: Pick<User, "status_emoji" | "status_text">;
   size?: number;
   className?: string;
 };
 
-export function Avatar({ name, seed, hasAvatar, size = 38, className }: AvatarProps) {
+export function Avatar({ name, seed, hasAvatar, status, size = 38, className }: AvatarProps) {
   const photoUrl = useAvatar(seed, hasAvatar);
   const style = {
     width: size,
@@ -21,13 +25,24 @@ export function Avatar({ name, seed, hasAvatar, size = 38, className }: AvatarPr
     fontSize: size * 0.42,
     background: photoUrl ? undefined : PALETTE[Math.abs(seed) % PALETTE.length],
   };
-  return (
-    <span className={cx(styles.avatar, className)} style={style}>
+
+  const face = (
+    <span className={cx(styles.avatar, !status && className)} style={style}>
       {photoUrl ? (
         <img src={photoUrl} alt="" className={styles.photo} decoding="async" />
       ) : (
         (name.trim().charAt(0) || "•").toUpperCase()
       )}
+    </span>
+  );
+
+  if (!status || (!status.status_emoji && !status.status_text)) {
+    return face;
+  }
+  return (
+    <span className={cx(styles.withStatus, className)}>
+      {face}
+      <StatusMark user={status} className={styles.statusBadge} />
     </span>
   );
 }
