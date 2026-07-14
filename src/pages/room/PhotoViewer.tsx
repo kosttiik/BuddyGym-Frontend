@@ -9,7 +9,7 @@ import { IconCheck, IconChevronLeft, IconCross } from "@/shared/icons";
 import { hapticNotify } from "@/shared/lib/haptics";
 import { getMyVote } from "@/shared/lib/myVotes";
 import { showBackButton } from "@/shared/lib/telegram";
-import { Avatar, Button } from "@/shared/ui";
+import { Avatar, AvatarStack, Button } from "@/shared/ui";
 import styles from "./PhotoViewer.module.css";
 import { formatCheckinTime, hoursLeft } from "./time";
 
@@ -26,6 +26,7 @@ export function PhotoViewer({ checkin, author, isMine, roomId, onClose }: PhotoV
   const vote = useVote(roomId);
   const myVote = getMyVote(checkin.id);
   const name = author?.first_name ?? "—";
+  const buddies = checkin.buddies ?? [];
   const expiry = photoExpiryLabel(checkin, t);
 
   useEffect(() => showBackButton(onClose), [onClose]);
@@ -64,6 +65,24 @@ export function PhotoViewer({ checkin, author, isMine, roomId, onClose }: PhotoV
               : formatCheckinTime(checkin.created_at, t, locale)}
           </span>
         </div>
+        {buddies.length > 0 && (
+          <div className={styles.buddies}>
+            <AvatarStack
+              size={26}
+              max={3}
+              people={buddies.map((b) => ({
+                id: b.id,
+                name: b.first_name,
+                hasAvatar: b.has_avatar,
+              }))}
+            />
+            <span className={styles.buddiesLabel}>
+              {buddies.length === 1
+                ? t.buddies.withOne(buddies[0]?.first_name ?? "")
+                : t.buddies.withMany(buddies[0]?.first_name ?? "", buddies.length - 1)}
+            </span>
+          </div>
+        )}
       </header>
 
       <div className={styles.photoWrap}>
