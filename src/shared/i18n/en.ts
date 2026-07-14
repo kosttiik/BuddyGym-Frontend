@@ -140,6 +140,7 @@ export const en: typeof ru = {
   },
   board: {
     title: "Boards",
+    open: "Hall of fame and shame",
     honor: "Hall of fame",
     shame: "Hall of shame",
     workouts: (n: number, goal: number) => `${n}/${goal}`,

@@ -12,11 +12,14 @@
   flex: none;
 }
 
+/* hugs its text: as a flex child it would otherwise stretch across the whole row */
 .chip {
   display: inline-flex;
   align-items: center;
+  align-self: flex-start;
   gap: 4px;
-  min-width: 0;
+  max-width: 100%;
+  width: fit-content;
   padding: 2px 8px;
   border-radius: var(--radius-pill);
   background: var(--ghost-bg);
@@ -32,6 +35,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  max-width: 22ch;
   font-size: 11px;
   font-weight: 600;
   color: var(--text-secondary);

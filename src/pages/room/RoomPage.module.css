@@ -264,3 +264,24 @@
   background: var(--progress-fill);
   color: #fff;
 }
+
+/* a full width row rather than a mystery icon: the boards are a place you go, not a toggle */
+.boardsLink {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 11px 14px;
+  border: 1px solid var(--orange-tint);
+  border-radius: var(--radius-tile);
+  background: var(--orange-tint);
+  color: var(--orange-text-strong);
+  font-size: 13px;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.boardsChevron {
+  margin-left: auto;
+  opacity: 0.6;
+}
