@@ -1,7 +1,10 @@
 .flame {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 4px;
+  /* two digits fit without the pill resizing, so a row of them lines up */
+  min-width: 46px;
   padding: 3px 8px 3px 6px;
   border-radius: var(--radius-pill);
   font-size: 12px;

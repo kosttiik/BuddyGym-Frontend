@@ -139,6 +139,7 @@ export const ru = {
   },
   board: {
     title: "Доски",
+    open: "Доска почёта и позора",
     honor: "Доска почёта",
     shame: "Доска позора",
     workouts: (n: number, goal: number) => `${n}/${goal}`,

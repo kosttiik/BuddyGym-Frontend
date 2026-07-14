@@ -148,7 +148,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 16px 0;
+  padding: 12px 16px 16px;
 }
 
 .topComment {
@@ -226,7 +226,8 @@
 .zoom {
   position: fixed;
   inset: 0;
-  z-index: 40;
+  /* over the comments sheet it was opened from */
+  z-index: 85;
   display: flex;
   align-items: center;
   justify-content: center;

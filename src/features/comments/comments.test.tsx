@@ -66,3 +66,14 @@ test("the heart toggles the like and the count follows", async () => {
   await userEvent.click(like);
   expect(like).toHaveAttribute("aria-pressed", "false");
 });
+
+/* The sheet is a portal and the viewer is another one: the sheet stacked below the photo once
+   and swallowed every tap. */
+test("the comments sheet opens above the full screen photo", async () => {
+  await openPhoto();
+  await userEvent.click(await screen.findByText("Leave a comment"));
+
+  const sheet = await screen.findByRole("dialog", { name: "Comments" });
+  expect(sheet).toBeVisible();
+  expect(screen.getByPlaceholderText("Write something...")).toBeVisible();
+});

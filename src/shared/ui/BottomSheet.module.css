@@ -1,7 +1,8 @@
 .layer {
   position: fixed;
   inset: 0;
-  z-index: 60;
+  /* above the full screen photo viewer (70), below the toasts (90) */
+  z-index: 80;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
