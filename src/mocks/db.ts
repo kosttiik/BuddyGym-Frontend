@@ -2,6 +2,7 @@ import type {
   Achievement,
   AchievementKey,
   Checkin,
+  Comment,
   Member,
   Room,
   RoomWithProgress,
@@ -54,6 +55,8 @@ export type MockDb = {
   flags: { checkinsDown: boolean };
   nextRoomId: number;
   nextCheckinId: number;
+  comments: Map<string, Comment[]>;
+  nextCommentId: number;
 };
 
 function member(u: User, workouts: number, joinedDaysAgo: number, streak = workouts): Member {
@@ -290,6 +293,8 @@ export function createDb(): MockDb {
     flags: { checkinsDown: false },
     nextRoomId: 100,
     nextCheckinId: 10,
+    comments: new Map(),
+    nextCommentId: 1,
   };
 }
 

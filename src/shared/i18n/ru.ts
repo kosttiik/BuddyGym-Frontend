@@ -104,6 +104,17 @@ export const ru = {
     linkCopied: "Ссылка скопирована",
     inviteText: (room: string) => `Присоединяйся к комнате «${room}» в BuddyGym`,
   },
+  comments: {
+    title: "Комментарии",
+    empty: "Пока тихо. Скажи что-нибудь",
+    beFirst: "Оставить комментарий",
+    placeholder: "Написать...",
+    photoOnly: "Прислал картинку",
+    send: "Отправить",
+    attach: "Прикрепить картинку",
+    like: "Нравится",
+    delete: "Удалить",
+  },
   buddies: {
     who: "Кто был с тобой?",
     withOne: (name: string) => `с ${name}`,

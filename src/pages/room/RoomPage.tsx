@@ -296,6 +296,8 @@ export function RoomPage() {
             author={members.get(viewer.user_id)}
             isMine={viewer.user_id === me.data?.user.id}
             roomId={id}
+            myId={me.data?.user.id}
+            canModerate={room.data?.room.creator_id === me.data?.user.id}
             onClose={() => setViewer(null)}
           />
         )}

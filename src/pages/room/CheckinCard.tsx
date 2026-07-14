@@ -3,7 +3,7 @@ import { useVote } from "@/entities/checkin";
 import { CheckinPhoto } from "@/features/checkin/CheckinPhoto";
 import type { Checkin, Member } from "@/shared/api/types";
 import { useI18n } from "@/shared/i18n";
-import { IconCheck, IconClock, IconCross, IconGeoPinFilled } from "@/shared/icons";
+import { IconCheck, IconClock, IconComment, IconCross, IconGeoPinFilled } from "@/shared/icons";
 import { cx } from "@/shared/lib/cx";
 import { hapticNotify } from "@/shared/lib/haptics";
 import { getMyVote } from "@/shared/lib/myVotes";
@@ -34,6 +34,7 @@ export function CheckinCard({
   const expired = checkin.status === "expired";
   const name = author?.first_name ?? "—";
   const buddies = checkin.buddies ?? [];
+  const comments = checkin.comments_count ?? 0;
 
   const castVote = (approve: boolean) => {
     vote.mutate(
@@ -108,6 +109,17 @@ export function CheckinCard({
           <Badge tone="neutral" icon={<IconClock size={11} />}>
             {t.room.expiredBadge}
           </Badge>
+        )}
+        {checkin.has_photo && (
+          <button
+            type="button"
+            className={styles.commentsPill}
+            aria-label={t.comments.title}
+            onClick={onOpenPhoto}
+          >
+            <IconComment size={13} />
+            {comments > 0 && <span>{comments}</span>}
+          </button>
         )}
       </div>
 

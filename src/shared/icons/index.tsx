@@ -339,3 +339,37 @@ export const IconSliders = icon(
     <circle cx="19" cy="16" r="2.4" {...stroke} strokeWidth="2" />
   </>,
 );
+
+export const IconHeart = icon(
+  <path
+    d="M12 20.2s-7.5-4.5-7.5-9.7a4.3 4.3 0 0 1 7.5-2.9 4.3 4.3 0 0 1 7.5 2.9c0 5.2-7.5 9.7-7.5 9.7z"
+    {...stroke}
+    strokeWidth="1.9"
+  />,
+);
+
+export const IconHeartFilled = icon(
+  <path
+    d="M12 20.2s-7.5-4.5-7.5-9.7a4.3 4.3 0 0 1 7.5-2.9 4.3 4.3 0 0 1 7.5 2.9c0 5.2-7.5 9.7-7.5 9.7z"
+    fill="currentColor"
+  />,
+);
+
+export const IconComment = icon(
+  <path
+    d="M20.5 11.8c0 4-3.8 7.2-8.5 7.2-1 0-2-.15-2.9-.4L4 20l1.4-3.6A6.9 6.9 0 0 1 3.5 11.8c0-4 3.8-7.2 8.5-7.2s8.5 3.2 8.5 7.2z"
+    {...stroke}
+    strokeWidth="1.9"
+  />,
+);
+
+export const IconTrash = icon(
+  <>
+    <path d="M4 6.5h16M9.5 6.5V4.8h5v1.7" {...stroke} strokeWidth="1.9" />
+    <path d="M6.5 6.5l1 12.2h9l1-12.2" {...stroke} strokeWidth="1.9" />
+  </>,
+);
+
+export const IconSend = icon(
+  <path d="M4.5 12L20 4.5l-4 15.5-4.5-5.5-7-2.5z" {...stroke} strokeWidth="1.9" />,
+);

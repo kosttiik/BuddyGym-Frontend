@@ -139,4 +139,7 @@ export const api = {
       body: JSON.stringify(json),
     });
   },
+  del(path: string): Promise<void> {
+    return request<void>(path, { method: "DELETE" });
+  },
 };
