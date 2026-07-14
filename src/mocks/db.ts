@@ -54,8 +54,14 @@ export type MockDb = {
   nextCheckinId: number;
 };
 
-function member(u: User, workouts: number, joinedDaysAgo: number): Member {
-  return { ...u, workouts_count: workouts, joined_at: iso(-joinedDaysAgo * DAY) };
+function member(u: User, workouts: number, joinedDaysAgo: number, streak = workouts): Member {
+  return {
+    ...u,
+    workouts_count: workouts,
+    joined_at: iso(-joinedDaysAgo * DAY),
+    streak,
+    period_ends_at: iso(2 * DAY),
+  };
 }
 
 function achs(...keys: AchievementKey[]): Achievement[] {
@@ -286,9 +292,12 @@ export function createDb(): MockDb {
 }
 
 export function roomWithProgress(db: MockDb, room: Room): RoomWithProgress {
+  const me = db.members.get(room.id)?.find((m) => m.id === db.me.id);
   return {
     ...room,
     workouts_count: db.progress.get(room.id) ?? 0,
     members_count: db.members.get(room.id)?.length ?? 0,
+    streak: me?.streak ?? 0,
+    period_ends_at: me?.period_ends_at ?? iso(2 * DAY),
   };
 }

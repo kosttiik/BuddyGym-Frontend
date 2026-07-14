@@ -1,21 +1,25 @@
 import { Link, useNavigate, useParams } from "@tanstack/react-router";
 import { motion } from "motion/react";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useLeaveRoom, useRoom } from "@/entities/room";
 import { useMe } from "@/entities/user";
 import type { Member, UserStatus } from "@/shared/api/types";
 import { formatDay, useI18n } from "@/shared/i18n";
 import { IconLeave, IconLightning, IconStar } from "@/shared/icons";
-import { hapticNotify } from "@/shared/lib/haptics";
+import { hapticNotify, hapticTap } from "@/shared/lib/haptics";
+import { isStreakAtRisk } from "@/shared/lib/streak";
 import {
   AppHeader,
   Avatar,
   Badge,
+  BottomSheet,
   Button,
   GlassCard,
   Page,
   ProgressCounter,
   Skeleton,
+  StreakFlame,
+  sheetItemVariants,
 } from "@/shared/ui";
 import styles from "./MembersPage.module.css";
 
@@ -42,6 +46,8 @@ export function MembersPage() {
     const members = [...(room.data?.members ?? [])];
     return members.sort((a, b) => a.joined_at.localeCompare(b.joined_at));
   }, [room.data]);
+
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const leave = () => {
     leaveRoom.mutate(id, {
@@ -89,13 +95,41 @@ export function MembersPage() {
             className={styles.leaveButton}
             icon={<IconLeave size={15} />}
             disabled={leaveRoom.isPending}
-            onClick={leave}
+            onClick={() => {
+              hapticTap();
+              setConfirmOpen(true);
+            }}
           >
             {t.members.leave}
           </Button>
           <span className={styles.leaveNote}>{t.members.leaveNote}</span>
         </div>
       </Page>
+
+      {/* leaving is not undoable: the progress is dropped and the last member out kills the room */}
+      <BottomSheet
+        open={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        title={t.members.leaveConfirmTitle}
+      >
+        <motion.p className={styles.confirmText} variants={sheetItemVariants}>
+          {t.members.leaveConfirmText}
+        </motion.p>
+        <motion.div className={styles.confirmActions} variants={sheetItemVariants}>
+          <Button variant="secondary" block onClick={() => setConfirmOpen(false)}>
+            {t.common.cancel}
+          </Button>
+          <Button
+            variant="ghost"
+            block
+            className={styles.leaveButton}
+            disabled={leaveRoom.isPending}
+            onClick={leave}
+          >
+            {t.members.leaveConfirm}
+          </Button>
+        </motion.div>
+      </BottomSheet>
     </>
   );
 }
@@ -133,6 +167,15 @@ function MemberRow({
         </span>
         <span className={styles.meta}>{t.members.since(formatDay(member.joined_at, locale))}</span>
       </div>
+      <StreakFlame
+        streak={member.streak}
+        atRisk={isStreakAtRisk({
+          streak: member.streak,
+          workouts: member.workouts_count,
+          goal,
+          periodEndsAt: member.period_ends_at,
+        })}
+      />
       <ProgressCounter value={member.workouts_count} goal={goal} trackId={`member:${member.id}`} />
     </GlassCard>
   );

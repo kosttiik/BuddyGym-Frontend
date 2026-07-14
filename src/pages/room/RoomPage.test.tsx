@@ -76,11 +76,18 @@ test("the room code opens the share sheet and copies an invite link", async () =
   expect(await screen.findByText("Link copied")).toBeInTheDocument();
 });
 
-test("leaving from the members screen returns to my rooms", async () => {
+/* Leaving drops the progress, burns the streak and can delete the room, so it takes a
+   confirmation: the button alone must not walk the user out. */
+test("leaving from the members screen asks for confirmation, then returns to my rooms", async () => {
   openRoom("/rooms/2/members");
   await userEvent.click(
     await screen.findByRole("button", { name: /Leave room/ }, { timeout: 4000 }),
   );
+
+  expect(await screen.findByRole("dialog", { name: "Leave the room?" })).toBeInTheDocument();
+  expect(screen.queryByRole("heading", { name: "My rooms" })).not.toBeInTheDocument();
+
+  await userEvent.click(screen.getByRole("button", { name: "Leave" }));
 
   expect(await screen.findByRole("heading", { name: "My rooms" })).toBeInTheDocument();
 });

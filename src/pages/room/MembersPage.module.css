@@ -65,3 +65,16 @@
   color: var(--text-tertiary);
   text-align: center;
 }
+
+.confirmText {
+  margin: 0 0 18px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.confirmActions {
+  display: flex;
+  gap: 10px;
+  padding-bottom: 6px;
+}
