@@ -7,7 +7,7 @@ import type { Member } from "@/shared/api/types";
 import { useI18n } from "@/shared/i18n";
 import { IconFire, IconTrophy } from "@/shared/icons";
 import { cx } from "@/shared/lib/cx";
-import { riseItem, spring, stagger } from "@/shared/lib/motion";
+import { riseItem, stagger } from "@/shared/lib/motion";
 import {
   AppHeader,
   Avatar,
@@ -20,6 +20,7 @@ import {
   StreakFlame,
 } from "@/shared/ui";
 import styles from "./BoardPage.module.css";
+import { Podium, taunt } from "./Podium";
 
 type BoardKey = "honor" | "shame";
 
@@ -32,13 +33,6 @@ function rank(members: Member[]): Member[] {
       b.streak - a.streak ||
       a.joined_at.localeCompare(b.joined_at),
   );
-}
-
-/* A taunt is picked from the member id and the period, so it holds still while you look at
-   it and rotates once the period turns over. */
-function taunt(taunts: readonly string[], member: Member): string {
-  const seed = member.id + Date.parse(member.period_ends_at) / 86_400_000;
-  return taunts[Math.abs(Math.trunc(seed)) % taunts.length] as string;
 }
 
 export function BoardPage() {
@@ -83,74 +77,6 @@ export function BoardPage() {
   );
 }
 
-/* Podium order on screen is 2-1-3: the middle slot is the tallest step. */
-const PODIUM_ORDER = [1, 0, 2];
-
-/* One podium, two readings: on the honour board the middle step is the best in the room, on
-   the shame board it is the worst. The medals carry the difference. */
-function Podium({
-  members,
-  goal,
-  myId,
-  tone,
-}: {
-  members: Member[];
-  goal: number;
-  myId?: number;
-  tone: "honor" | "shame";
-}) {
-  const { t } = useI18n();
-  const podium = members.slice(0, 3);
-
-  return (
-    <div className={styles.podium} data-testid="podium">
-      {PODIUM_ORDER.map((slot) => {
-        const member = podium[slot];
-        if (!member) {
-          return null;
-        }
-        const place = slot + 1;
-        return (
-          <motion.div
-            key={member.id}
-            className={styles.step}
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ ...spring.bouncy, delay: 0.06 * slot }}
-          >
-            <MemberLink member={member} isMe={member.id === myId}>
-              <span className={cx(styles.rim, styles[`${tone}Rim${place}`])}>
-                <Avatar
-                  name={member.first_name}
-                  seed={member.id}
-                  hasAvatar={member.has_avatar}
-                  size={place === 1 ? 64 : 52}
-                  className={tone === "shame" ? styles.shameAvatar : undefined}
-                />
-                <span className={cx(styles.medal, styles[`${tone}Medal${place}`])}>{place}</span>
-              </span>
-            </MemberLink>
-            <span className={styles.podiumName} data-testid="podium-name">
-              {member.first_name}
-              <StatusMark user={member} className={styles.podiumStatus} />
-            </span>
-            {tone === "honor" ? (
-              <StreakFlame streak={member.streak} />
-            ) : (
-              <span className={styles.podiumTaunt}>{taunt(t.board.taunts, member)}</span>
-            )}
-            <div className={cx(styles.block, styles[`block${place}`], styles[`${tone}Block`])}>
-              <span className={cx(styles.count, tone === "shame" && styles.shameCount)}>
-                {t.board.workouts(member.workouts_count, goal)}
-              </span>
-            </div>
-          </motion.div>
-        );
-      })}
-    </div>
-  );
-}
-
 function Honor({ members, goal, myId }: { members: Member[]; goal: number; myId?: number }) {
   const { t } = useI18n();
   const rest = members.slice(3);
@@ -168,7 +94,16 @@ function Honor({ members, goal, myId }: { members: Member[]; goal: number; myId?
   return (
     <>
       <p className={styles.lede}>{t.board.honorLede}</p>
-      <Podium members={members} goal={goal} myId={myId} tone="honor" />
+      <Podium
+        members={members}
+        goal={goal}
+        tone="honor"
+        renderLink={(member, children) => (
+          <MemberLink member={member} isMe={member.id === myId}>
+            {children}
+          </MemberLink>
+        )}
+      />
 
       {rest.length > 0 && (
         <motion.div
@@ -205,7 +140,16 @@ function Shame({ members, goal, myId }: { members: Member[]; goal: number; myId?
   return (
     <>
       <p className={cx(styles.lede, styles.shameLede)}>{t.board.shameLede}</p>
-      <Podium members={members} goal={goal} myId={myId} tone="shame" />
+      <Podium
+        members={members}
+        goal={goal}
+        tone="shame"
+        renderLink={(member, children) => (
+          <MemberLink member={member} isMe={member.id === myId}>
+            {children}
+          </MemberLink>
+        )}
+      />
 
       {rest.length > 0 && (
         <motion.div
