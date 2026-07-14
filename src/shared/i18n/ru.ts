@@ -104,6 +104,11 @@ export const ru = {
     linkCopied: "Ссылка скопирована",
     inviteText: (room: string) => `Присоединяйся к комнате «${room}» в BuddyGym`,
   },
+  buddies: {
+    who: "Кто был с тобой?",
+    withOne: (name: string) => `с ${name}`,
+    withMany: (name: string, rest: number) => `с ${name} и ещё ${rest}`,
+  },
   status: {
     title: "Статус",
     add: "Добавить статус",

@@ -105,6 +105,11 @@ export const en: typeof ru = {
     linkCopied: "Link copied",
     inviteText: (room: string) => `Join the "${room}" room on BuddyGym`,
   },
+  buddies: {
+    who: "Who was with you?",
+    withOne: (name: string) => `with ${name}`,
+    withMany: (name: string, rest: number) => `with ${name} and ${rest} more`,
+  },
   status: {
     title: "Status",
     add: "Add a status",

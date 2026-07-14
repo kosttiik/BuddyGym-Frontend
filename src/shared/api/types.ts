@@ -80,6 +80,8 @@ export type Checkin = {
   photo_purged: boolean;
   photo_expires_at?: string;
   geo?: GeoPoint;
+  /* members the author tagged as training with them */
+  buddies?: User[];
   votes_approve: number;
   votes_reject: number;
   votes_required: number;

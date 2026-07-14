@@ -1,13 +1,14 @@
 import { motion } from "motion/react";
 import { useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
-import type { RoomWithProgress } from "@/shared/api/types";
+import type { Member, RoomWithProgress } from "@/shared/api/types";
 import { useI18n } from "@/shared/i18n";
 import { IconCamera, IconCheck } from "@/shared/icons";
 import { hapticSelection } from "@/shared/lib/haptics";
 import type { CompressedPhoto } from "@/shared/lib/photo";
 import { showBackButton } from "@/shared/lib/telegram";
 import { Button } from "@/shared/ui";
+import { BuddyPicker } from "./BuddyPicker";
 import styles from "./PhotoPreview.module.css";
 import { UploadProgress } from "./UploadProgress";
 
@@ -16,6 +17,9 @@ export type PhotoPreviewProps = {
   rooms: RoomWithProgress[];
   selected: number[];
   onToggleRoom: (roomId: number) => void;
+  buddyCandidates: Member[];
+  selectedBuddies: number[];
+  onToggleBuddy: (userId: number) => void;
   pending: boolean;
   /* 0..1 */
   progress: number;
@@ -29,6 +33,9 @@ export function PhotoPreview({
   rooms,
   selected,
   onToggleRoom,
+  buddyCandidates,
+  selectedBuddies,
+  onToggleBuddy,
   pending,
   progress,
   onRetake,
@@ -102,6 +109,13 @@ export function PhotoPreview({
             );
           })}
         </ul>
+
+        <BuddyPicker
+          className={styles.buddies}
+          members={buddyCandidates}
+          selected={selectedBuddies}
+          onToggle={onToggleBuddy}
+        />
 
         {selected.length > 1 && (
           <p className={styles.info}>{t.photoPreview.oneShotMany(selected.length)}</p>

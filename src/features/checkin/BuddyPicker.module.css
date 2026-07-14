@@ -1,0 +1,79 @@
+.picker {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.title {
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--text-tertiary);
+}
+
+.row {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+
+.row::-webkit-scrollbar {
+  display: none;
+}
+
+.buddy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  flex: none;
+  width: 52px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.ring {
+  position: relative;
+  display: inline-flex;
+  padding: 2px;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  opacity: 0.65;
+  transition: opacity 0.15s ease;
+}
+
+.ringOn {
+  border-color: var(--accent-link);
+  opacity: 1;
+}
+
+.check {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: var(--accent-gradient);
+  color: #fff;
+}
+
+.name {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+}
+
+.nameOn {
+  color: var(--accent-on-tint);
+}

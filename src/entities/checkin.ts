@@ -1,7 +1,7 @@
 import { queryOptions, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { ApiError, api } from "@/shared/api/client";
-import type { Checkin, CheckinStatus, GeoPoint } from "@/shared/api/types";
+import type { Checkin, CheckinStatus, GeoPoint, User } from "@/shared/api/types";
 import { rememberMyVote } from "@/shared/lib/myVotes";
 import { roomsKey } from "./room";
 
@@ -34,6 +34,8 @@ export function useRoomCheckins(roomId: number, status?: CheckinStatus) {
 export type CreateCheckinInput = {
   /* one proof, many rooms: the photo is uploaded once and shared by every checkin */
   roomIds: number[];
+  /* members who trained with you: they get the workout once the room approves the checkin */
+  buddyIds?: number[];
   onProgress?: (fraction: number) => void;
 } & ({ photo: File } | { geo: GeoPoint });
 
@@ -47,9 +49,16 @@ export function useCreateCheckin(roomId: number) {
         for (const id of input.roomIds) {
           form.append("room_ids", String(id));
         }
+        for (const id of input.buddyIds ?? []) {
+          form.append("buddy_ids", String(id));
+        }
         return api.upload<Checkin[]>("/checkins", form, input.onProgress);
       }
-      return api.post<Checkin[]>("/checkins", { room_ids: input.roomIds, geo: input.geo });
+      return api.post<Checkin[]>("/checkins", {
+        room_ids: input.roomIds,
+        buddy_ids: input.buddyIds ?? [],
+        geo: input.geo,
+      });
     },
     onSuccess: (_checkins, input) => {
       for (const id of input.roomIds) {
@@ -150,6 +159,17 @@ export function useVote(roomId: number) {
     },
     onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: ["checkins", roomId] });
+    },
+  });
+}
+
+export function useTagBuddies() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ checkinId, userIds }: { checkinId: string; userIds: number[] }) =>
+      api.post<User[]>(`/checkins/${checkinId}/buddies`, { user_ids: userIds }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["checkins"] });
     },
   });
 }
