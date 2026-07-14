@@ -42,7 +42,11 @@ export function Avatar({ name, seed, hasAvatar, status, size = 38, className }: 
   return (
     <span className={cx(styles.withStatus, className)}>
       {face}
-      <StatusMark user={status} className={styles.statusBadge} />
+      {/* its own layer: relying on overriding StatusMark's position would depend on which
+          css module the bundler happens to emit last */}
+      <span className={styles.statusBadge}>
+        <StatusMark user={status} />
+      </span>
     </span>
   );
 }
