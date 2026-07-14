@@ -1,5 +1,7 @@
 import { Link } from "@tanstack/react-router";
+import { useState } from "react";
 import { useVote } from "@/entities/checkin";
+import { BuddiesSheet } from "@/features/checkin/BuddiesSheet";
 import { CheckinPhoto } from "@/features/checkin/CheckinPhoto";
 import type { Checkin, Member } from "@/shared/api/types";
 import { useI18n } from "@/shared/i18n";
@@ -35,6 +37,7 @@ export function CheckinCard({
   const name = author?.first_name ?? "—";
   const buddies = checkin.buddies ?? [];
   const comments = checkin.comments_count ?? 0;
+  const [buddiesOpen, setBuddiesOpen] = useState(false);
 
   const castVote = (approve: boolean) => {
     vote.mutate(
@@ -65,7 +68,14 @@ export function CheckinCard({
               <span className={styles.name}>{name}</span>
               {author && <StatusMark user={author} />}
               {buddies.length > 0 && (
-                <>
+                <button
+                  type="button"
+                  className={styles.buddiesButton}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    setBuddiesOpen(true);
+                  }}
+                >
                   <AvatarStack
                     size={20}
                     max={3}
@@ -80,7 +90,7 @@ export function CheckinCard({
                       ? t.buddies.withOne(buddies[0]?.first_name ?? "")
                       : t.buddies.withMany(buddies[0]?.first_name ?? "", buddies.length - 1)}
                   </span>
-                </>
+                </button>
               )}
             </span>
             <span className={styles.meta}>{meta.join(" · ")}</span>
@@ -190,6 +200,12 @@ export function CheckinCard({
           )}
         </>
       )}
+      <BuddiesSheet
+        buddies={buddies}
+        author={author}
+        open={buddiesOpen}
+        onClose={() => setBuddiesOpen(false)}
+      />
     </GlassCard>
   );
 }

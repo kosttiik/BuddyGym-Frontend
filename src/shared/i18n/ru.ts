@@ -117,6 +117,8 @@ export const ru = {
   },
   buddies: {
     who: "Кто был с тобой?",
+    trainedTogether: "Тренировались вместе",
+    author: "автор",
     withOne: (name: string) => `с ${name}`,
     withMany: (name: string, rest: number) => `с ${name} и ещё ${rest}`,
   },

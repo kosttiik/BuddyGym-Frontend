@@ -66,6 +66,9 @@
   --btn-vote-shadow: 0 4px 12px rgba(11, 15, 13, 0.12);
   --ghost-bg: rgba(20, 35, 27, 0.06);
 
+  --tooltip-bg: rgba(20, 35, 27, 0.94);
+  --tooltip-text: #f3f8f5;
+
   --flame-lit: linear-gradient(180deg, #ffb02e, #f0620c);
   --flame-risk: linear-gradient(180deg, #ff8a3d, #d92b2b);
   --flame-cold: rgba(20, 35, 27, 0.22);
@@ -144,6 +147,9 @@
   --progress-glow: none;
 
   --ghost-bg: rgba(238, 244, 240, 0.07);
+
+  --tooltip-bg: rgba(236, 243, 239, 0.96);
+  --tooltip-text: #14231b;
 
   --flame-cold: rgba(238, 244, 240, 0.24);
   --flame-lit-text: #ffb95e;

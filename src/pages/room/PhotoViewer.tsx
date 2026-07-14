@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useVote } from "@/entities/checkin";
+import { BuddiesSheet } from "@/features/checkin/BuddiesSheet";
 import { CheckinPhoto, photoExpiryLabel } from "@/features/checkin/CheckinPhoto";
 import { CommentsSheet } from "@/features/comments/CommentsSheet";
 import type { Checkin, Member } from "@/shared/api/types";
@@ -44,6 +45,7 @@ export function PhotoViewer({
   const { t, locale } = useI18n();
   const [commentsOpen, setCommentsOpen] = useState(false);
   const [zoomed, setZoomed] = useState<string | null>(null);
+  const [buddiesOpen, setBuddiesOpen] = useState(false);
   const top = checkin.top_comment;
   const total = checkin.comments_count ?? 0;
   const vote = useVote(roomId);
@@ -89,7 +91,7 @@ export function PhotoViewer({
           </span>
         </div>
         {buddies.length > 0 && (
-          <div className={styles.buddies}>
+          <button type="button" className={styles.buddies} onClick={() => setBuddiesOpen(true)}>
             <AvatarStack
               size={26}
               max={3}
@@ -104,7 +106,7 @@ export function PhotoViewer({
                 ? t.buddies.withOne(buddies[0]?.first_name ?? "")
                 : t.buddies.withMany(buddies[0]?.first_name ?? "", buddies.length - 1)}
             </span>
-          </div>
+          </button>
         )}
       </header>
 
@@ -223,6 +225,13 @@ export function PhotoViewer({
           )}
         </motion.div>
       )}
+
+      <BuddiesSheet
+        buddies={buddies}
+        author={author}
+        open={buddiesOpen}
+        onClose={() => setBuddiesOpen(false)}
+      />
 
       <CommentsSheet
         checkinId={checkin.id}

@@ -118,6 +118,8 @@ export const en: typeof ru = {
   },
   buddies: {
     who: "Who was with you?",
+    trainedTogether: "Trained together",
+    author: "author",
     withOne: (name: string) => `with ${name}`,
     withMany: (name: string, rest: number) => `with ${name} and ${rest} more`,
   },
