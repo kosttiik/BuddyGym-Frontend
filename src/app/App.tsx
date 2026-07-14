@@ -25,12 +25,13 @@ const RANKS: Array<[RegExp, number]> = [
   [/^\/rooms\/new\/?$/, 20],
   [/^\/join\/?$/, 20],
   [/^\/rooms\/[^/]+\/members\/?$/, 40],
+  [/^\/rooms\/[^/]+\/board\/?$/, 40],
   [/^\/rooms\/[^/]+\/edit\/?$/, 40],
   [/^\/rooms\/[^/]+\/?$/, 30],
   [/^\/users\/[^/]+\/?$/, 50],
 ];
 
-function rankOf(pathname: string): number {
+export function rankOf(pathname: string): number {
   for (const [re, rank] of RANKS) {
     if (re.test(pathname)) {
       return rank;
