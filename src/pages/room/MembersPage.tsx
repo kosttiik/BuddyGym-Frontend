@@ -3,7 +3,7 @@ import { motion } from "motion/react";
 import { useMemo, useState } from "react";
 import { useLeaveRoom, useRoom } from "@/entities/room";
 import { useMe } from "@/entities/user";
-import type { Member, UserStatus } from "@/shared/api/types";
+import type { Member, UserRank } from "@/shared/api/types";
 import { formatDay, useI18n } from "@/shared/i18n";
 import { IconLeave, IconLightning, IconStar } from "@/shared/icons";
 import { hapticNotify, hapticTap } from "@/shared/lib/haptics";
@@ -162,7 +162,7 @@ function MemberRow({
       <div className={styles.info}>
         <span className={styles.nameRow}>
           <span className={styles.name}>{member.first_name}</span>
-          <MemberStatusBadge status={member.status} />
+          <MemberRankBadge rank={member.rank} />
           {isMe && <Badge tone="neutral">{t.members.you}</Badge>}
         </span>
         <span className={styles.meta}>{t.members.since(formatDay(member.joined_at, locale))}</span>
@@ -181,16 +181,16 @@ function MemberRow({
   );
 }
 
-function MemberStatusBadge({ status }: { status: UserStatus }) {
+function MemberRankBadge({ rank }: { rank: UserRank }) {
   const { t } = useI18n();
-  if (status === "beast") {
+  if (rank === "beast") {
     return (
       <Badge tone="orange" icon={<IconStar size={10} />}>
         {t.members.statusBeast}
       </Badge>
     );
   }
-  if (status === "regular") {
+  if (rank === "regular") {
     return (
       <Badge tone="green" icon={<IconLightning size={10} />}>
         {t.members.statusRegular}

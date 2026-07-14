@@ -76,11 +76,28 @@ export const handlers = [
   ),
 
   http.patch("/api/v1/me", async ({ request }) => {
-    const { theme } = (await request.json()) as { theme: Theme };
-    if (!["default", "dark", "neon"].includes(theme)) {
-      return error(400, "unknown theme");
+    const body = (await request.json()) as {
+      theme?: Theme;
+      status_emoji?: string;
+      status_text?: string;
+    };
+    if (body.theme !== undefined) {
+      if (!["default", "dark", "neon"].includes(body.theme)) {
+        return error(400, "unknown theme");
+      }
+      db.me = { ...db.me, theme: body.theme };
     }
-    db.me = { ...db.me, theme };
+    if (body.status_emoji !== undefined || body.status_text !== undefined) {
+      const text = (body.status_text ?? db.me.status_text).trim();
+      if (text.length > 60) {
+        return error(400, "status text must be at most 60 characters");
+      }
+      db.me = {
+        ...db.me,
+        status_emoji: body.status_emoji ?? db.me.status_emoji,
+        status_text: text,
+      };
+    }
     return HttpResponse.json(db.me);
   }),
 

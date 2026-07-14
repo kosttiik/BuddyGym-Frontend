@@ -31,3 +31,14 @@ export function useUpdateTheme() {
     },
   });
 }
+
+export function useUpdateStatus() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (status: { status_emoji: string; status_text: string }) =>
+      api.patch<User>("/me", status),
+    onSuccess: (user) => {
+      queryClient.setQueryData<MeResponse>(meKey, (prev) => (prev ? { ...prev, user } : undefined));
+    },
+  });
+}

@@ -104,6 +104,23 @@ export const ru = {
     linkCopied: "Ссылка скопирована",
     inviteText: (room: string) => `Присоединяйся к комнате «${room}» в BuddyGym`,
   },
+  status: {
+    title: "Статус",
+    add: "Добавить статус",
+    edit: "Изменить статус",
+    custom: "Свой статус",
+    placeholder: "Например: готовлюсь к лету",
+    save: "Сохранить",
+    clear: "Убрать",
+    presets: [
+      { emoji: "💪", text: "На массе" },
+      { emoji: "🔥", text: "На сушке" },
+      { emoji: "🏆", text: "Готовлюсь к соревнованиям" },
+      { emoji: "😴", text: "Отдыхаю" },
+      { emoji: "🤕", text: "Травма" },
+      { emoji: "⚡", text: "Набираю форму" },
+    ],
+  },
   board: {
     title: "Доски",
     honor: "Доска почёта",

@@ -105,6 +105,23 @@ export const en: typeof ru = {
     linkCopied: "Link copied",
     inviteText: (room: string) => `Join the "${room}" room on BuddyGym`,
   },
+  status: {
+    title: "Status",
+    add: "Add a status",
+    edit: "Edit status",
+    custom: "Your own",
+    placeholder: "For example: getting ready for summer",
+    save: "Save",
+    clear: "Clear",
+    presets: [
+      { emoji: "💪", text: "Bulking" },
+      { emoji: "🔥", text: "Cutting" },
+      { emoji: "🏆", text: "Training for a meet" },
+      { emoji: "😴", text: "Resting" },
+      { emoji: "🤕", text: "Injured" },
+      { emoji: "⚡", text: "Getting back in shape" },
+    ],
+  },
   board: {
     title: "Boards",
     honor: "Hall of fame",

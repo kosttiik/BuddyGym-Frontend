@@ -1,7 +1,8 @@
 /* Mirrors core-service swagger (/api/v1). Do not invent fields. */
 
 export type Theme = "default" | "dark" | "neon";
-export type UserStatus = "novice" | "regular" | "beast";
+/* Derived from the workout total. What the member writes themselves is status_emoji + status_text. */
+export type UserRank = "novice" | "regular" | "beast";
 export type RoomKind = "open" | "invite";
 export type CheckinStatus = "pending" | "approved" | "rejected" | "expired";
 
@@ -20,7 +21,9 @@ export type User = {
   photo_url: string;
   has_avatar: boolean;
   theme: Theme;
-  status: UserStatus;
+  rank: UserRank;
+  status_emoji: string;
+  status_text: string;
   created_at: string;
 };
 
