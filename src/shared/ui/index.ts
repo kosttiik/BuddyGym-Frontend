@@ -16,6 +16,7 @@ export { PullToRefresh } from "./PullToRefresh";
 export { SegmentedControl } from "./SegmentedControl";
 export { Skeleton } from "./Skeleton";
 export { Spinner } from "./Spinner";
+export { StatusMark } from "./StatusMark";
 export { Stepper } from "./Stepper";
 export { StreakFlame } from "./StreakFlame";
 export { TextField } from "./TextField";

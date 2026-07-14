@@ -36,20 +36,20 @@ test("the hall of fame puts the leader on the middle step of the podium", async 
   expect(names[2]).toHaveTextContent("Дима");
 });
 
-/* The whole point of the shame board is that meeting the goal keeps you off it. */
-test("the hall of shame lists everyone below the goal, worst first, and taunts them", async () => {
+/* The worst now take the podium, so the shame board reads like the honour one, inverted. */
+test("the hall of shame puts the worst on the podium and keeps the goal-hitter off it", async () => {
   openBoard();
 
   await userEvent.click(
     await screen.findByRole("radio", { name: "Hall of shame" }, { timeout: 4000 }),
   );
 
-  const list = await screen.findByTestId("shame-list");
-  const names = within(list)
-    .getAllByTestId("shame-name")
-    .map((n) => n.textContent);
+  const podium = await screen.findByTestId("podium");
+  const names = within(podium).getAllByTestId("podium-name");
 
-  // Лера hit the goal, so the board has nothing on her
-  expect(names).toEqual(["Паша", "Дима", "Костя"]);
-  expect(within(list).getAllByTestId("taunt")).toHaveLength(3);
+  // Лера hit the goal of 3, so the board has nothing on her
+  expect(podium).not.toHaveTextContent("Лера");
+  // laid out 2-1-3, so the worst stands in the middle
+  expect(names[1]).toHaveTextContent("Паша");
+  expect(within(podium).getAllByText(/0\/3|1\/3|2\/3/).length).toBeGreaterThan(0);
 });

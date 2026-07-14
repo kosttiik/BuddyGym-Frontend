@@ -142,31 +142,33 @@
   color: rgba(255, 255, 255, 0.7);
 }
 
-/* the bar hugs the bottom of the photo, so the subject of the shot stays visible */
+/* the bar sits in the flow under the photo: absolute over the wrap would land on the plate
+   and swallow its taps */
 .commentsBar {
-  position: absolute;
-  left: 12px;
-  right: 12px;
-  bottom: 12px;
   display: flex;
   align-items: center;
   gap: 8px;
+  padding: 10px 16px 0;
 }
 
 .topComment {
   flex: 1;
   min-width: 0;
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 6px;
-  padding: 9px 13px;
-  border: none;
+  height: 40px;
+  padding: 0 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: var(--radius-pill);
-  background: rgba(18, 24, 20, 0.55);
-  backdrop-filter: blur(14px);
+  background: rgba(255, 255, 255, 0.07);
   color: #fff;
   text-align: left;
   cursor: pointer;
+}
+
+.topEmpty {
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .topAuthor {
@@ -181,6 +183,10 @@
   white-space: nowrap;
   font-size: 13px;
   color: rgba(255, 255, 255, 0.86);
+}
+
+.topEmpty .topBody {
+  color: inherit;
 }
 
 .topLikes {
@@ -198,14 +204,15 @@
 .allComments {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 4px;
   flex: none;
-  height: 36px;
+  min-width: 40px;
+  height: 40px;
   padding: 0 12px;
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: var(--radius-pill);
-  background: rgba(18, 24, 20, 0.55);
-  backdrop-filter: blur(14px);
+  background: rgba(255, 255, 255, 0.07);
   color: #fff;
   cursor: pointer;
 }

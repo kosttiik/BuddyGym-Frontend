@@ -2,6 +2,18 @@
   margin-bottom: 18px;
 }
 
+.lede {
+  margin: 0 0 16px;
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--text-secondary);
+}
+
+.shameLede {
+  color: var(--red-text);
+}
+
 .podium {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -19,21 +31,81 @@
 }
 
 .rim {
+  position: relative;
   display: inline-flex;
   padding: 3px;
   border-radius: 50%;
 }
 
-.rim1 {
-  background: linear-gradient(135deg, #ffd76e, #e0a017);
+/* gold, silver, bronze */
+.honorRim1 {
+  background: linear-gradient(135deg, #ffe082, #d99a12);
 }
 
-.rim2 {
-  background: linear-gradient(135deg, #dfe6ea, #a6b3bb);
+.honorRim2 {
+  background: linear-gradient(135deg, #eef2f4, #9aa7ae);
 }
 
-.rim3 {
-  background: linear-gradient(135deg, #e8b489, #b7794a);
+.honorRim3 {
+  background: linear-gradient(135deg, #edb98c, #a56234);
+}
+
+/* the shame board wears the same medals, drained of their shine */
+.shameRim1 {
+  background: linear-gradient(135deg, #d5645c, #8e2c26);
+}
+
+.shameRim2 {
+  background: linear-gradient(135deg, #a08d8b, #6d5654);
+}
+
+.shameRim3 {
+  background: linear-gradient(135deg, #8d7f7d, #58494700);
+}
+
+.medal {
+  position: absolute;
+  right: -3px;
+  bottom: -3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--bg-medal-ring, rgba(20, 35, 27, 0.9));
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  color: #1b1410;
+}
+
+.honorMedal1 {
+  background: linear-gradient(135deg, #ffe082, #d99a12);
+}
+
+.honorMedal2 {
+  background: linear-gradient(135deg, #eef2f4, #9aa7ae);
+}
+
+.honorMedal3 {
+  background: linear-gradient(135deg, #edb98c, #a56234);
+}
+
+.shameMedal1 {
+  background: linear-gradient(135deg, #d5645c, #8e2c26);
+  color: #fff;
+}
+
+.shameMedal2 {
+  background: linear-gradient(135deg, #a08d8b, #6d5654);
+  color: #fff;
+}
+
+.shameMedal3 {
+  background: linear-gradient(135deg, #8d7f7d, #584947);
+  color: #fff;
 }
 
 .podiumName {
@@ -41,17 +113,25 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-family: var(--font-display);
   font-size: 13px;
   font-weight: 650;
   color: var(--text-heading);
 }
 
+.podiumTaunt {
+  max-width: 100%;
+  min-height: 26px;
+  text-align: center;
+  font-size: 10px;
+  line-height: 1.25;
+  color: var(--red-text);
+}
+
 .block {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
   width: 100%;
   border-radius: var(--radius-tile) var(--radius-tile) 0 0;
   background: var(--card-bg);
@@ -59,31 +139,22 @@
   border-bottom: none;
 }
 
-/* the winner stands on the tallest step */
+.shameBlock {
+  background: var(--red-tint);
+  border-color: var(--red-border);
+}
+
+/* the middle step is the tallest: on the honour board it is the best, on the shame board the worst */
 .block1 {
-  height: 76px;
+  height: 68px;
 }
 
 .block2 {
-  height: 58px;
+  height: 52px;
 }
 
 .block3 {
-  height: 46px;
-}
-
-.place {
-  font-family: var(--font-display);
-  font-size: 20px;
-  font-weight: 700;
-  line-height: 1;
-  color: var(--text-heading);
-}
-
-.podiumCount {
-  font-size: 11px;
-  color: var(--text-tertiary);
-  font-variant-numeric: tabular-nums;
+  height: 42px;
 }
 
 .list {
@@ -197,4 +268,9 @@
   font-size: 13px;
   line-height: 1.45;
   color: var(--text-secondary);
+}
+
+.podiumStatus {
+  margin-left: 4px;
+  vertical-align: middle;
 }

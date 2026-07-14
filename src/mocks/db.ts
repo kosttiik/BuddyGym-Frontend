@@ -26,7 +26,12 @@ function iso(offsetMs: number): string {
   return new Date(Date.now() + offsetMs).toISOString();
 }
 
-function user(id: number, firstName: string, rank: User["rank"]): User {
+function user(
+  id: number,
+  firstName: string,
+  rank: User["rank"],
+  status?: { emoji: string; text: string },
+): User {
   return {
     id,
     username: "",
@@ -35,8 +40,8 @@ function user(id: number, firstName: string, rank: User["rank"]): User {
     has_avatar: false,
     theme: "default",
     rank,
-    status_emoji: "",
-    status_text: "",
+    status_emoji: status?.emoji ?? "",
+    status_text: status?.text ?? "",
     created_at: iso(-90 * DAY),
   };
 }
@@ -75,10 +80,10 @@ function achs(...keys: AchievementKey[]): Achievement[] {
 
 export function createDb(): MockDb {
   const me = user(1, "Костя", "regular");
-  const marina = user(2, "Марина", "beast");
-  const dima = user(3, "Дима", "regular");
+  const marina = user(2, "Марина", "beast", { emoji: "🔥", text: "На сушке" });
+  const dima = user(3, "Дима", "regular", { emoji: "🤕", text: "Травма" });
   const lera = user(4, "Лера", "novice");
-  const pasha = user(5, "Паша", "novice");
+  const pasha = user(5, "Паша", "novice", { emoji: "😴", text: "Отдыхаю" });
   const extra = Array.from({ length: 8 }, (_, i) => user(10 + i, `Гость ${i + 1}`, "novice"));
 
   const rooms: Room[] = [

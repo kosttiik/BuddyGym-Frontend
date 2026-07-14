@@ -7,7 +7,7 @@ import { IconCheck, IconClock, IconComment, IconCross, IconGeoPinFilled } from "
 import { cx } from "@/shared/lib/cx";
 import { hapticNotify } from "@/shared/lib/haptics";
 import { getMyVote } from "@/shared/lib/myVotes";
-import { Avatar, AvatarStack, Badge, Button, GlassCard } from "@/shared/ui";
+import { Avatar, AvatarStack, Badge, Button, GlassCard, StatusMark } from "@/shared/ui";
 import styles from "./CheckinCard.module.css";
 import { formatCheckinTime, hoursLeft } from "./time";
 
@@ -63,6 +63,7 @@ export function CheckinCard({
           <div className={styles.who}>
             <span className={styles.nameRow}>
               <span className={styles.name}>{name}</span>
+              {author && <StatusMark user={author} />}
               {buddies.length > 0 && (
                 <>
                   <AvatarStack

@@ -143,6 +143,8 @@ export const en: typeof ru = {
     honor: "Hall of fame",
     shame: "Hall of shame",
     workouts: (n: number, goal: number) => `${n}/${goal}`,
+    honorLede: "Who trained the most this period",
+    shameLede: "Who has not hit the goal this period. The worst take the podium",
     honorEmpty: "Nothing here yet",
     honorEmptyHint:
       "Nobody logged a workout this period. Take first place before someone else does",
