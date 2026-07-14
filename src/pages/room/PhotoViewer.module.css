@@ -159,9 +159,9 @@
   min-width: 0;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   height: 40px;
-  padding: 0 14px;
+  padding: 0 14px 0 6px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: var(--radius-pill);
   background: rgba(255, 255, 255, 0.07);
@@ -171,7 +171,16 @@
 }
 
 .topEmpty {
+  padding-left: 14px;
   color: rgba(255, 255, 255, 0.5);
+}
+
+/* the author rides on the pill, like a story reply */
+.topAvatar {
+  display: inline-flex;
+  flex: none;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
 }
 
 .topAuthor {

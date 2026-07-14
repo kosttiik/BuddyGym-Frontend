@@ -127,6 +127,19 @@ export function PhotoViewer({
         >
           {top ? (
             <>
+              <motion.span
+                className={styles.topAvatar}
+                initial={{ scale: 0.4, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ ...spring.bouncy, delay: 0.22 }}
+              >
+                <Avatar
+                  name={top.author.first_name}
+                  seed={top.author.id}
+                  hasAvatar={top.author.has_avatar}
+                  size={24}
+                />
+              </motion.span>
               <span className={styles.topAuthor}>{top.author.first_name}</span>
               <span className={styles.topBody}>{top.body || t.comments.photoOnly}</span>
               {top.likes > 0 && (
