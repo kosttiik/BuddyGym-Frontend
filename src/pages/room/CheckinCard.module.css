@@ -116,18 +116,25 @@
   color: var(--text-tertiary);
 }
 
+/* sits with the other round controls on the card rather than floating as a stray chip */
 .commentsPill {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  margin-left: auto;
-  padding: 4px 9px;
-  border: none;
+  justify-content: center;
+  gap: 5px;
+  min-width: 34px;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--card-border);
   border-radius: var(--radius-pill);
   background: var(--ghost-bg);
   color: var(--text-secondary-2);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 650;
   font-variant-numeric: tabular-nums;
   cursor: pointer;
+}
+
+.commentsPill:active {
+  transform: scale(0.94);
 }

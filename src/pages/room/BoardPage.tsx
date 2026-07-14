@@ -16,6 +16,7 @@ import {
   Page,
   SegmentedControl,
   Skeleton,
+  StatusMark,
   StreakFlame,
 } from "@/shared/ui";
 import styles from "./BoardPage.module.css";
@@ -82,12 +83,76 @@ export function BoardPage() {
   );
 }
 
-/* Podium order on screen is 2-1-3: the winner stands in the middle, on the tallest step. */
+/* Podium order on screen is 2-1-3: the middle slot is the tallest step. */
 const PODIUM_ORDER = [1, 0, 2];
+
+/* One podium, two readings: on the honour board the middle step is the best in the room, on
+   the shame board it is the worst. The medals carry the difference. */
+function Podium({
+  members,
+  goal,
+  myId,
+  tone,
+}: {
+  members: Member[];
+  goal: number;
+  myId?: number;
+  tone: "honor" | "shame";
+}) {
+  const { t } = useI18n();
+  const podium = members.slice(0, 3);
+
+  return (
+    <div className={styles.podium} data-testid="podium">
+      {PODIUM_ORDER.map((slot) => {
+        const member = podium[slot];
+        if (!member) {
+          return null;
+        }
+        const place = slot + 1;
+        return (
+          <motion.div
+            key={member.id}
+            className={styles.step}
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ ...spring.bouncy, delay: 0.06 * slot }}
+          >
+            <MemberLink member={member} isMe={member.id === myId}>
+              <span className={cx(styles.rim, styles[`${tone}Rim${place}`])}>
+                <Avatar
+                  name={member.first_name}
+                  seed={member.id}
+                  hasAvatar={member.has_avatar}
+                  size={place === 1 ? 64 : 52}
+                  className={tone === "shame" ? styles.shameAvatar : undefined}
+                />
+                <span className={cx(styles.medal, styles[`${tone}Medal${place}`])}>{place}</span>
+              </span>
+            </MemberLink>
+            <span className={styles.podiumName} data-testid="podium-name">
+              {member.first_name}
+              <StatusMark user={member} className={styles.podiumStatus} />
+            </span>
+            {tone === "honor" ? (
+              <StreakFlame streak={member.streak} />
+            ) : (
+              <span className={styles.podiumTaunt}>{taunt(t.board.taunts, member)}</span>
+            )}
+            <div className={cx(styles.block, styles[`block${place}`], styles[`${tone}Block`])}>
+              <span className={cx(styles.count, tone === "shame" && styles.shameCount)}>
+                {t.board.workouts(member.workouts_count, goal)}
+              </span>
+            </div>
+          </motion.div>
+        );
+      })}
+    </div>
+  );
+}
 
 function Honor({ members, goal, myId }: { members: Member[]; goal: number; myId?: number }) {
   const { t } = useI18n();
-  const podium = members.slice(0, 3);
   const rest = members.slice(3);
 
   if (members.every((m) => m.workouts_count === 0)) {
@@ -102,45 +167,8 @@ function Honor({ members, goal, myId }: { members: Member[]; goal: number; myId?
 
   return (
     <>
-      <div className={styles.podium} data-testid="podium">
-        {PODIUM_ORDER.map((slot) => {
-          const member = podium[slot];
-          if (!member) {
-            return null;
-          }
-          const place = slot + 1;
-          return (
-            <motion.div
-              key={member.id}
-              className={cx(styles.step, styles[`place${place}`])}
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ ...spring.bouncy, delay: 0.06 * slot }}
-            >
-              <MemberLink member={member} isMe={member.id === myId}>
-                <span className={cx(styles.rim, styles[`rim${place}`])}>
-                  <Avatar
-                    name={member.first_name}
-                    seed={member.id}
-                    hasAvatar={member.has_avatar}
-                    size={place === 1 ? 64 : 52}
-                  />
-                </span>
-              </MemberLink>
-              <span className={styles.podiumName} data-testid="podium-name">
-                {member.first_name}
-              </span>
-              <StreakFlame streak={member.streak} />
-              <div className={cx(styles.block, styles[`block${place}`])}>
-                <span className={styles.place}>{place}</span>
-                <span className={styles.podiumCount}>
-                  {t.board.workouts(member.workouts_count, goal)}
-                </span>
-              </div>
-            </motion.div>
-          );
-        })}
-      </div>
+      <p className={styles.lede}>{t.board.honorLede}</p>
+      <Podium members={members} goal={goal} myId={myId} tone="honor" />
 
       {rest.length > 0 && (
         <motion.div
@@ -162,6 +190,7 @@ function Honor({ members, goal, myId }: { members: Member[]; goal: number; myId?
 
 function Shame({ members, goal, myId }: { members: Member[]; goal: number; myId?: number }) {
   const { t } = useI18n();
+  const rest = members.slice(3);
 
   if (members.length === 0) {
     return (
@@ -174,42 +203,50 @@ function Shame({ members, goal, myId }: { members: Member[]; goal: number; myId?
   }
 
   return (
-    <motion.div
-      className={styles.list}
-      data-testid="shame-list"
-      variants={stagger(0.05)}
-      initial="hidden"
-      animate="visible"
-    >
-      {members.map((member) => (
-        <motion.div key={member.id} variants={riseItem}>
-          <GlassCard className={cx(styles.row, styles.shameRow)}>
-            <MemberLink member={member} isMe={member.id === myId} className={styles.rowLink} />
-            <Avatar
-              name={member.first_name}
-              seed={member.id}
-              hasAvatar={member.has_avatar}
-              size={40}
-              className={styles.shameAvatar}
-            />
-            <div className={styles.info}>
-              <span className={styles.nameRow}>
-                <span className={styles.name} data-testid="shame-name">
-                  {member.first_name}
+    <>
+      <p className={cx(styles.lede, styles.shameLede)}>{t.board.shameLede}</p>
+      <Podium members={members} goal={goal} myId={myId} tone="shame" />
+
+      {rest.length > 0 && (
+        <motion.div
+          className={styles.list}
+          data-testid="shame-list"
+          variants={stagger(0.05)}
+          initial="hidden"
+          animate="visible"
+        >
+          {rest.map((member, i) => (
+            <motion.div key={member.id} variants={riseItem}>
+              <GlassCard className={cx(styles.row, styles.shameRow)}>
+                <MemberLink member={member} isMe={member.id === myId} className={styles.rowLink} />
+                <span className={styles.rank}>{i + 4}</span>
+                <Avatar
+                  name={member.first_name}
+                  seed={member.id}
+                  hasAvatar={member.has_avatar}
+                  size={40}
+                  className={styles.shameAvatar}
+                />
+                <div className={styles.info}>
+                  <span className={styles.nameRow}>
+                    <span className={styles.name} data-testid="shame-name">
+                      {member.first_name}
+                    </span>
+                    {member.id === myId && <Badge tone="neutral">{t.members.you}</Badge>}
+                  </span>
+                  <span className={styles.taunt} data-testid="taunt">
+                    {taunt(t.board.taunts, member)}
+                  </span>
+                </div>
+                <span className={styles.shameCount}>
+                  {t.board.workouts(member.workouts_count, goal)}
                 </span>
-                {member.id === myId && <Badge tone="neutral">{t.members.you}</Badge>}
-              </span>
-              <span className={styles.taunt} data-testid="taunt">
-                {taunt(t.board.taunts, member)}
-              </span>
-            </div>
-            <span className={styles.shameCount}>
-              {t.board.workouts(member.workouts_count, goal)}
-            </span>
-          </GlassCard>
+              </GlassCard>
+            </motion.div>
+          ))}
         </motion.div>
-      ))}
-    </motion.div>
+      )}
+    </>
   );
 }
 
@@ -233,6 +270,7 @@ function Row({
       <div className={styles.info}>
         <span className={styles.nameRow}>
           <span className={styles.name}>{member.first_name}</span>
+          <StatusMark user={member} />
           {isMe && <Badge tone="neutral">{t.members.you}</Badge>}
         </span>
         <StreakFlame streak={member.streak} />

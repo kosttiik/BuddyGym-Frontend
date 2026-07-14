@@ -13,6 +13,7 @@ import {
   IconCross,
   IconHeartFilled,
 } from "@/shared/icons";
+import { cx } from "@/shared/lib/cx";
 import { hapticNotify } from "@/shared/lib/haptics";
 import { spring } from "@/shared/lib/motion";
 import { getMyVote } from "@/shared/lib/myVotes";
@@ -109,21 +110,23 @@ export function PhotoViewer({
 
       <div className={styles.photoWrap}>
         <CheckinPhoto checkin={checkin} className={styles.photo} />
+      </div>
 
-        {/* the thread lives in a sheet: only the most liked line rides on the photo, and it
-            sits under it rather than over the subject */}
-        <motion.div
-          className={styles.commentsBar}
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ ...spring.soft, delay: 0.15 }}
+      {/* the thread lives in a sheet: only the most liked line sits under the photo, so it
+          never covers the shot and never lands on top of the plate */}
+      <motion.div
+        className={styles.commentsBar}
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ ...spring.soft, delay: 0.15 }}
+      >
+        <button
+          type="button"
+          className={cx(styles.topComment, !top && styles.topEmpty)}
+          onClick={() => setCommentsOpen(true)}
         >
           {top ? (
-            <button
-              type="button"
-              className={styles.topComment}
-              onClick={() => setCommentsOpen(true)}
-            >
+            <>
               <span className={styles.topAuthor}>{top.author.first_name}</span>
               <span className={styles.topBody}>{top.body || t.comments.photoOnly}</span>
               {top.likes > 0 && (
@@ -132,30 +135,24 @@ export function PhotoViewer({
                   {top.likes}
                 </span>
               )}
-            </button>
+            </>
           ) : (
-            <button
-              type="button"
-              className={styles.topComment}
-              onClick={() => setCommentsOpen(true)}
-            >
-              <span className={styles.topBody}>{t.comments.beFirst}</span>
-            </button>
+            <span className={styles.topBody}>{t.comments.beFirst}</span>
           )}
+        </button>
 
-          <motion.button
-            type="button"
-            className={styles.allComments}
-            aria-label={t.comments.title}
-            whileTap={{ scale: 0.92 }}
-            transition={spring.snappy}
-            onClick={() => setCommentsOpen(true)}
-          >
-            <IconComment size={16} />
-            {total > 0 && <span className={styles.count}>{total}</span>}
-          </motion.button>
-        </motion.div>
-      </div>
+        <motion.button
+          type="button"
+          className={styles.allComments}
+          aria-label={t.comments.title}
+          whileTap={{ scale: 0.92 }}
+          transition={spring.snappy}
+          onClick={() => setCommentsOpen(true)}
+        >
+          <IconComment size={16} />
+          {total > 0 && <span className={styles.count}>{total}</span>}
+        </motion.button>
+      </motion.div>
 
       {checkin.status === "pending" && (
         <motion.div
