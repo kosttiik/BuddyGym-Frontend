@@ -125,3 +125,19 @@
   color: rgba(238, 244, 240, 0.6);
   text-align: center;
 }
+
+.buddies {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  min-width: 0;
+}
+
+.buddiesLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+}
