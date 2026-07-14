@@ -115,7 +115,7 @@ export function PhotoViewer({
       {/* the thread lives in a sheet: only the most liked line sits under the photo, so it
           never covers the shot and never lands on top of the plate */}
       <motion.div
-        className={styles.commentsBar}
+        className={cx(styles.commentsBar, checkin.status !== "pending" && styles.commentsBarLast)}
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ ...spring.soft, delay: 0.15 }}
