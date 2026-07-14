@@ -124,12 +124,7 @@ function MemberRow({
           aria-label={member.first_name}
         />
       )}
-      <Avatar
-        name={member.first_name}
-        photoUrl={member.photo_url || undefined}
-        seed={member.id}
-        size={40}
-      />
+      <Avatar name={member.first_name} hasAvatar={member.has_avatar} seed={member.id} size={40} />
       <div className={styles.info}>
         <span className={styles.nameRow}>
           <span className={styles.name}>{member.first_name}</span>

@@ -55,12 +55,7 @@ export function PhotoViewer({ checkin, author, isMine, roomId, onClose }: PhotoV
         <button type="button" className={styles.back} onClick={onClose} aria-label={t.common.back}>
           <IconChevronLeft size={18} />
         </button>
-        <Avatar
-          name={name}
-          photoUrl={author?.photo_url || undefined}
-          seed={checkin.user_id}
-          size={34}
-        />
+        <Avatar name={name} hasAvatar={author?.has_avatar} seed={checkin.user_id} size={34} />
         <div className={styles.who}>
           <span className={styles.name}>{name}</span>
           <span className={styles.meta}>

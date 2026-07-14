@@ -383,7 +383,7 @@ function RoomHeaderCard({
             people={members.map((m) => ({
               id: m.id,
               name: m.first_name,
-              photoUrl: m.photo_url || undefined,
+              hasAvatar: m.has_avatar,
             }))}
           />
         </Link>

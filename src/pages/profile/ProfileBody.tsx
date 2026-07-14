@@ -14,6 +14,7 @@ import {
 } from "@/shared/icons";
 import { cx } from "@/shared/lib/cx";
 import { riseItem } from "@/shared/lib/motion";
+import { useAvatar } from "@/shared/lib/useAvatar";
 import { Avatar, AvatarViewer, Badge, GlassCard, ProgressBar, ProgressCounter } from "@/shared/ui";
 import styles from "./ProfilePage.module.css";
 
@@ -65,6 +66,7 @@ export function StatusBadge({ status, label }: { status: UserStatus; label: stri
 export function ProfileBody({ user, achievements }: { user: User; achievements: Achievement[] }) {
   const [avatarOpen, setAvatarOpen] = useState(false);
   const { t } = useI18n();
+  const avatarUrl = useAvatar(user.id, user.has_avatar);
   const earned = new Set(achievements.map((a) => a.key));
   const statusLabel: Record<UserStatus, string> = {
     novice: t.members.statusNovice,
@@ -78,14 +80,14 @@ export function ProfileBody({ user, achievements }: { user: User; achievements: 
   return (
     <>
       <motion.div className={styles.head} variants={riseItem}>
-        {user.photo_url ? (
+        {avatarUrl ? (
           <button
             type="button"
             className={styles.avatarButton}
             onClick={() => setAvatarOpen(true)}
             aria-label={user.first_name}
           >
-            <Avatar name={user.first_name} photoUrl={user.photo_url} seed={user.id} size={84} />
+            <Avatar name={user.first_name} hasAvatar seed={user.id} size={84} />
           </button>
         ) : (
           <Avatar name={user.first_name} seed={user.id} size={84} />
@@ -140,8 +142,8 @@ export function ProfileBody({ user, achievements }: { user: User; achievements: 
       </motion.div>
 
       <AnimatePresence>
-        {avatarOpen && user.photo_url && (
-          <AvatarViewer photoUrl={user.photo_url} onClose={() => setAvatarOpen(false)} />
+        {avatarOpen && avatarUrl && (
+          <AvatarViewer photoUrl={avatarUrl} onClose={() => setAvatarOpen(false)} />
         )}
       </AnimatePresence>
     </>
