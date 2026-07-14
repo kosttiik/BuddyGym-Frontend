@@ -85,6 +85,8 @@ export function CheckinSheet({ open, onClose, room, members, myProgress }: Check
       setSelected([room.id]);
       setProgress(0);
       setCameraOpen(false);
+      // the preview is the next step: leaving the sheet under it stacks two screens
+      onClose();
     } catch {
       hapticNotify("error");
       showToast({ title: t.errors.photoUnreadable, tone: "error" });
