@@ -105,6 +105,27 @@ export const en: typeof ru = {
     linkCopied: "Link copied",
     inviteText: (room: string) => `Join the "${room}" room on BuddyGym`,
   },
+  board: {
+    title: "Boards",
+    honor: "Hall of fame",
+    shame: "Hall of shame",
+    workouts: (n: number, goal: number) => `${n}/${goal}`,
+    honorEmpty: "Nothing here yet",
+    honorEmptyHint:
+      "Nobody logged a workout this period. Take first place before someone else does",
+    shameEmpty: "Nobody to shame",
+    shameEmptyHint: "Everyone hit the goal this period. A rare sight",
+    taunts: [
+      "The gym pass is lonely",
+      "The barbell went cold",
+      "The couch won",
+      "The dumbbells gathered dust",
+      "Does stretching count? It does not",
+      "The gym will not find itself",
+      "Your muscles say hi",
+      "The kit is still clean",
+    ],
+  },
   members: {
     title: "Members",
     you: "YOU",

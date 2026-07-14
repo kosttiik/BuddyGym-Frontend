@@ -15,6 +15,7 @@ import {
   IconLockKeyhole,
   IconShare,
   IconSliders,
+  IconTrophy,
 } from "@/shared/icons";
 import { PulseDots } from "@/shared/icons/animated";
 import { hapticSelection } from "@/shared/lib/haptics";
@@ -388,6 +389,14 @@ function RoomHeaderCard({
           />
         </Link>
         <div className={styles.headerActions}>
+          <Link
+            to="/rooms/$roomId/board"
+            params={{ roomId: String(room.id) }}
+            className={styles.settingsPill}
+            aria-label={t.board.title}
+          >
+            <IconTrophy size={16} />
+          </Link>
           {isCreator && (
             <Link
               to="/rooms/$roomId/edit"
