@@ -1,18 +1,20 @@
 import { cx } from "@/shared/lib/cx";
+import { useAvatar } from "@/shared/lib/useAvatar";
 import styles from "./Avatar.module.css";
 
 const PALETTE = ["var(--avatar-1)", "var(--avatar-2)", "var(--avatar-3)", "var(--avatar-4)"];
 
 export type AvatarProps = {
   name: string;
-  photoUrl?: string;
-  /* stable id drives the placeholder color */
+  /* the user id: drives both the mirrored avatar lookup and the placeholder color */
   seed: number;
+  hasAvatar?: boolean;
   size?: number;
   className?: string;
 };
 
-export function Avatar({ name, photoUrl, seed, size = 38, className }: AvatarProps) {
+export function Avatar({ name, seed, hasAvatar, size = 38, className }: AvatarProps) {
+  const photoUrl = useAvatar(seed, hasAvatar);
   const style = {
     width: size,
     height: size,
@@ -22,7 +24,7 @@ export function Avatar({ name, photoUrl, seed, size = 38, className }: AvatarPro
   return (
     <span className={cx(styles.avatar, className)} style={style}>
       {photoUrl ? (
-        <img src={photoUrl} alt="" className={styles.photo} loading="lazy" decoding="async" />
+        <img src={photoUrl} alt="" className={styles.photo} decoding="async" />
       ) : (
         (name.trim().charAt(0) || "•").toUpperCase()
       )}
@@ -31,7 +33,7 @@ export function Avatar({ name, photoUrl, seed, size = 38, className }: AvatarPro
 }
 
 export type AvatarStackProps = {
-  people: Array<{ id: number; name: string; photoUrl?: string }>;
+  people: Array<{ id: number; name: string; hasAvatar?: boolean }>;
   max?: number;
   size?: number;
   className?: string;
@@ -46,8 +48,8 @@ export function AvatarStack({ people, max = 4, size = 30, className }: AvatarSta
         <Avatar
           key={p.id}
           name={p.name}
-          photoUrl={p.photoUrl}
           seed={p.id}
+          hasAvatar={p.hasAvatar}
           size={size}
           className={styles.stacked}
         />

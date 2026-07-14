@@ -31,6 +31,7 @@ function user(id: number, firstName: string, status: User["status"]): User {
     username: "",
     first_name: firstName,
     photo_url: "",
+    has_avatar: false,
     theme: "default",
     status,
     created_at: iso(-90 * DAY),

@@ -16,7 +16,9 @@ export type User = {
   id: number;
   username: string;
   first_name: string;
+  /* the telegram URL, unreachable for our users: the bytes come from GET /users/{id}/avatar */
   photo_url: string;
+  has_avatar: boolean;
   theme: Theme;
   status: UserStatus;
   created_at: string;
