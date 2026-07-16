@@ -52,4 +52,6 @@ test("the hall of shame puts the worst on the podium and keeps the goal-hitter o
   // laid out 2-1-3, so the worst stands in the middle
   expect(names[1]).toHaveTextContent("Паша");
   expect(within(podium).getAllByText(/0\/3|1\/3|2\/3/).length).toBeGreaterThan(0);
+  // the status rides the avatar here too, so the medal must not sit on the same corner
+  expect(within(podium).getByRole("button", { name: "Отдыхаю" })).toBeInTheDocument();
 });

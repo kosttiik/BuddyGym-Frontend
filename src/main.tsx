@@ -1,5 +1,5 @@
 import "@fontsource-variable/onest/index.css";
-import "@fontsource-variable/unbounded/index.css";
+import "@fontsource-variable/sora/index.css";
 import "@/shared/theme/tokens.css";
 import "@/shared/theme/global.css";
 import { StrictMode } from "react";

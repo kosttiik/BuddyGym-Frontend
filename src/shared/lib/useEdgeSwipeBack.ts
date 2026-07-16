@@ -1,4 +1,4 @@
-import { useRouter } from "@tanstack/react-router";
+import type { AnyRouter } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { hapticImpact } from "@/shared/lib/haptics";
 
@@ -6,10 +6,9 @@ const EDGE = 28;
 const DISTANCE = 72;
 const VELOCITY = 0.35;
 
-/* iOS-style pop: Telegram gives mini apps no back gesture of their own. */
-export function useEdgeSwipeBack(): void {
-  const router = useRouter();
-
+/* iOS-style pop: Telegram gives mini apps no back gesture of their own. The router comes in as
+   an argument: the gesture lives outside RouterProvider, where useRouter has no context. */
+export function useEdgeSwipeBack(router: AnyRouter): void {
   useEffect(() => {
     let startX = 0;
     let startY = 0;
