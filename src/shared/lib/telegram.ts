@@ -71,6 +71,20 @@ export function getStartParam(): string | undefined {
   }
 }
 
+/* iOS WKWebView honours <input capture> and opens the system camera, so the in-app camera
+   (written because Telegram's Android WebView ignores capture) is Android only. */
+export function isIos(): boolean {
+  try {
+    if (retrieveLaunchParams().tgWebAppPlatform === "ios") {
+      return true;
+    }
+  } catch {
+    /* outside Telegram: fall back to the user agent */
+  }
+  const ua = navigator.userAgent;
+  return /iPad|iPhone|iPod/.test(ua) || (ua.includes("Macintosh") && navigator.maxTouchPoints > 1);
+}
+
 export function getTelegramLanguage(): string | undefined {
   try {
     return retrieveLaunchParams().tgWebAppData?.user?.language_code;
