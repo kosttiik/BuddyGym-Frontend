@@ -1,6 +1,6 @@
 :root {
   --font-body: "Onest Variable", -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-display: "Unbounded Variable", var(--font-body);
+  --font-display: "Sora Variable", var(--font-body);
   --font-mono: ui-monospace, Menlo, "SF Mono", monospace;
 
   /* Telegram publishes these via viewport.bindCssVars(); 0 in a plain browser, where env() covers

@@ -2,6 +2,7 @@ import { motion, useReducedMotion } from "motion/react";
 import type { Member } from "@/shared/api/types";
 import { useI18n } from "@/shared/i18n";
 import { cx } from "@/shared/lib/cx";
+import { ease } from "@/shared/lib/motion";
 import { Avatar, StreakFlame } from "@/shared/ui";
 import styles from "./Podium.module.css";
 
@@ -11,16 +12,12 @@ export type PodiumTone = "honor" | "shame";
    worst on the shame board. */
 const SLOTS = [1, 0, 2];
 
-/* The ceremony reads bottom up: third place first, the winner last. Every step waits for its
-   own block to finish rising before anyone lands on it. */
-const ENTER_ORDER = [0.46, 0.24, 0] as const;
+/* The ceremony reads bottom up: third place first, the winner last. */
+const ENTER_ORDER = [0.22, 0.11, 0] as const;
 
-const spring = {
-  block: { type: "spring", stiffness: 220, damping: 24, mass: 1 },
-  land: { type: "spring", stiffness: 420, damping: 18, mass: 0.8 },
-  slump: { type: "spring", stiffness: 180, damping: 22, mass: 1.3 },
-  medal: { type: "spring", stiffness: 500, damping: 14, mass: 0.6 },
-} as const;
+/* One decelerating easing for the whole ceremony: springs made the medals whip and the
+   avatars bounce past each other. */
+const glide = { duration: 0.5, ease: ease.entry } as const;
 
 export function Podium({
   members,
@@ -52,16 +49,24 @@ export function Podium({
           <div key={member.id} className={styles.step}>
             <motion.div
               className={styles.stand}
-              initial={reduced ? false : { y: 26, opacity: 0 }}
+              initial={reduced ? false : { y: 12, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              transition={{ ...spring.land, delay: delay + 0.1 }}
+              transition={{ ...glide, delay: delay + 0.12 }}
             >
-              {/* the winner keeps breathing once the ceremony settles; the shamed just sag */}
+              {/* the winner keeps breathing once the ceremony settles */}
               <motion.div
                 animate={
                   reduced || !honor || place !== 1
                     ? undefined
-                    : { y: [0, -4, 0], transition: { duration: 3.4, repeat: Infinity, delay: 1.2 } }
+                    : {
+                        y: [0, -3, 0],
+                        transition: {
+                          duration: 4,
+                          repeat: Infinity,
+                          delay: 1.4,
+                          ease: ease.inOut,
+                        },
+                      }
                 }
               >
                 {renderLink(
@@ -69,12 +74,9 @@ export function Podium({
                   <span className={cx(styles.rim, styles[`${tone}Rim${place}`])}>
                     <motion.span
                       className={styles.avatarDrop}
-                      initial={reduced ? false : { y: -34, opacity: 0, rotate: honor ? -10 : 8 }}
-                      animate={{ y: 0, opacity: 1, rotate: 0 }}
-                      transition={{
-                        ...(honor ? spring.land : spring.slump),
-                        delay: delay + 0.16,
-                      }}
+                      initial={reduced ? false : { y: -10, opacity: 0, scale: 0.94 }}
+                      animate={{ y: 0, opacity: 1, scale: 1 }}
+                      transition={{ ...glide, delay: delay + 0.18 }}
                     >
                       <Avatar
                         name={member.first_name}
@@ -88,9 +90,9 @@ export function Podium({
 
                     <motion.span
                       className={cx(styles.medal, styles[`${tone}Medal${place}`])}
-                      initial={reduced ? false : { scale: 0, rotate: -140 }}
-                      animate={{ scale: 1, rotate: 0 }}
-                      transition={{ ...spring.medal, delay: delay + 0.34 }}
+                      initial={reduced ? false : { scale: 0.6, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ duration: 0.36, ease: ease.entry, delay: delay + 0.34 }}
                     >
                       {place}
                       {/* a highlight sweeps the gold, so first place is the only one that shines */}
@@ -100,11 +102,11 @@ export function Podium({
                           initial={{ x: "-160%" }}
                           animate={{ x: "160%" }}
                           transition={{
-                            duration: 1.1,
+                            duration: 1.6,
                             repeat: Infinity,
-                            repeatDelay: 2.6,
-                            delay: 1.1,
-                            ease: "easeInOut",
+                            repeatDelay: 3.6,
+                            delay: 1.6,
+                            ease: ease.inOut,
                           }}
                         />
                       )}
@@ -116,9 +118,9 @@ export function Podium({
               <motion.span
                 className={styles.name}
                 data-testid="podium-name"
-                initial={reduced ? false : { opacity: 0, y: 6 }}
+                initial={reduced ? false : { opacity: 0, y: 5 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.32, delay: delay + 0.4 }}
+                transition={{ duration: 0.4, ease: ease.entry, delay: delay + 0.4 }}
               >
                 {member.first_name}
               </motion.span>
@@ -126,7 +128,7 @@ export function Podium({
               <motion.span
                 initial={reduced ? false : { opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ duration: 0.3, delay: delay + 0.48 }}
+                transition={{ duration: 0.4, ease: ease.entry, delay: delay + 0.5 }}
               >
                 {honor ? (
                   <StreakFlame streak={member.streak} />
@@ -139,15 +141,16 @@ export function Podium({
             {/* the step itself grows out of the floor, and everyone above rides up with it */}
             <motion.div
               className={cx(styles.block, styles[`block${place}`], styles[`${tone}Block`])}
-              initial={reduced ? false : { scaleY: 0 }}
-              animate={{ scaleY: 1 }}
-              transition={{ ...spring.block, delay }}
+              initial={reduced ? false : { scaleY: 0.4, opacity: 0 }}
+              animate={{ scaleY: 1, opacity: 1 }}
+              transition={{ ...glide, delay }}
             >
+              {/* the block scales, so the label has to unscale to stay the right height */}
               <motion.span
                 className={cx(styles.count, !honor && styles.shameCount)}
-                initial={reduced ? false : { opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.28, delay: delay + 0.3 }}
+                initial={reduced ? false : { opacity: 0, scaleY: 2.5 }}
+                animate={{ opacity: 1, scaleY: 1 }}
+                transition={{ ...glide, delay }}
               >
                 {t.board.workouts(member.workouts_count, goal)}
               </motion.span>

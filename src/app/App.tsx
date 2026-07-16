@@ -83,7 +83,7 @@ declare module "@tanstack/react-router" {
 }
 
 function Shell() {
-  useEdgeSwipeBack();
+  useEdgeSwipeBack(router);
   return <RouterProvider router={router} />;
 }
 

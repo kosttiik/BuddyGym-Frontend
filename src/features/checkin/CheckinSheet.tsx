@@ -7,6 +7,7 @@ import { useI18n } from "@/shared/i18n";
 import { IconCamera, IconClock, IconGeoPinFilled, IconImage } from "@/shared/icons";
 import { hapticNotify } from "@/shared/lib/haptics";
 import { type CompressedPhoto, compressPhoto } from "@/shared/lib/photo";
+import { isIos } from "@/shared/lib/telegram";
 import { useApiErrorToast } from "@/shared/lib/useApiErrorToast";
 import { BottomSheet, Button, sheetItemVariants, useToast } from "@/shared/ui";
 import { CameraCapture } from "./CameraCapture";
@@ -34,6 +35,8 @@ export function CheckinSheet({ open, onClose, room, members, myProgress }: Check
   const createCheckin = useCreateCheckin(room.id);
   const rooms = useRooms();
   const galleryInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const systemCamera = useRef(isIos()).current;
 
   const [cameraOpen, setCameraOpen] = useState(false);
   const [processing, setProcessing] = useState<string | null>(null);
@@ -45,7 +48,13 @@ export function CheckinSheet({ open, onClose, room, members, myProgress }: Check
 
   const myRooms = rooms.data ?? [];
 
-  const takePhoto = () => setCameraOpen(true);
+  const takePhoto = () => {
+    if (systemCamera) {
+      cameraInputRef.current?.click();
+      return;
+    }
+    setCameraOpen(true);
+  };
   const pickFromGallery = () => {
     setCameraOpen(false);
     galleryInputRef.current?.click();
@@ -183,6 +192,18 @@ export function CheckinSheet({ open, onClose, room, members, myProgress }: Check
           </Button>
         </motion.div>
       </BottomSheet>
+
+      <input
+        ref={cameraInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        className={styles.fileInput}
+        onChange={(e) => {
+          void onFile(e.target.files?.[0]);
+          e.target.value = "";
+        }}
+      />
 
       <input
         ref={galleryInputRef}
