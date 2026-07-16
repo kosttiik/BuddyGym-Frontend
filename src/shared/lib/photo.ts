@@ -2,6 +2,7 @@
 
 const MAX_EDGE = 1600;
 const QUALITY = 0.82;
+const DECODE_TIMEOUT_MS = 20_000;
 
 export type CompressedPhoto = {
   file: File;
@@ -9,35 +10,11 @@ export type CompressedPhoto = {
   bytes: number;
 };
 
-/* Only Safari decodes HEIC. Anything the browser cannot open falls back to libheif,
-   which is wasm and therefore imported lazily. */
-async function toDecodable(file: File): Promise<File> {
-  if (await canDecodeNatively(file)) {
-    return file;
-  }
-  const { heicTo } = await import("heic-to/csp");
-  const blob = await heicTo({ blob: file, type: "image/jpeg", quality: 0.92 });
-  return new File([blob], `${file.name.replace(/\.[^.]+$/, "")}.jpg`, { type: "image/jpeg" });
-}
-
-async function canDecodeNatively(file: File): Promise<boolean> {
-  if (typeof createImageBitmap !== "function") {
-    return false;
-  }
-  try {
-    const bitmap = await createImageBitmap(file);
-    bitmap.close();
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-function loadBitmap(file: File): Promise<ImageBitmap | HTMLImageElement> {
-  if (typeof createImageBitmap === "function") {
-    /* honours the EXIF orientation flag, so a portrait shot does not come out sideways */
-    return createImageBitmap(file, { imageOrientation: "from-image" });
-  }
+/* A 12MP shot costs ~48MB decoded, so the file is decoded once and once only: probing
+   decodability with a throwaway createImageBitmap doubled that and stalled WebKit on 4GB
+   iPhones. <img> also honours the EXIF orientation flag on drawImage, so a portrait shot
+   does not come out sideways. */
+function loadImage(file: File): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const image = new Image();
     const url = URL.createObjectURL(file);
@@ -53,6 +30,18 @@ function loadBitmap(file: File): Promise<ImageBitmap | HTMLImageElement> {
   });
 }
 
+/* Only Safari decodes HEIC. Anything the browser cannot open falls back to libheif,
+   which is wasm and therefore imported lazily. */
+async function decode(file: File): Promise<HTMLImageElement> {
+  try {
+    return await loadImage(file);
+  } catch {
+    const { heicTo } = await import("heic-to/csp");
+    const blob = await heicTo({ blob: file, type: "image/jpeg", quality: 0.92 });
+    return loadImage(new File([blob], "photo.jpg", { type: "image/jpeg" }));
+  }
+}
+
 function scaledSize(width: number, height: number): [number, number] {
   const longest = Math.max(width, height);
   if (longest <= MAX_EDGE) {
@@ -62,10 +51,20 @@ function scaledSize(width: number, height: number): [number, number] {
   return [Math.round(width * ratio), Math.round(height * ratio)];
 }
 
-export async function compressPhoto(file: File): Promise<CompressedPhoto> {
-  const decodable = await toDecodable(file);
-  const bitmap = await loadBitmap(decodable);
-  const [width, height] = scaledSize(bitmap.width, bitmap.height);
+/* WebKit under memory pressure drops decode and encode callbacks on the floor instead of
+   failing, which leaves the caller waiting forever. A ceiling turns that into a retry. */
+function withTimeout<T>(work: Promise<T>): Promise<T> {
+  return Promise.race([
+    work,
+    new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error("photo processing timed out")), DECODE_TIMEOUT_MS);
+    }),
+  ]);
+}
+
+async function encode(file: File): Promise<CompressedPhoto> {
+  const image = await decode(file);
+  const [width, height] = scaledSize(image.naturalWidth, image.naturalHeight);
 
   const canvas = document.createElement("canvas");
   canvas.width = width;
@@ -74,10 +73,7 @@ export async function compressPhoto(file: File): Promise<CompressedPhoto> {
   if (!context) {
     throw new Error("canvas is unavailable");
   }
-  context.drawImage(bitmap, 0, 0, width, height);
-  if ("close" in bitmap) {
-    bitmap.close();
-  }
+  context.drawImage(image, 0, 0, width, height);
 
   const blob = await new Promise<Blob | null>((resolve) => {
     canvas.toBlob(resolve, "image/jpeg", QUALITY);
@@ -91,4 +87,8 @@ export async function compressPhoto(file: File): Promise<CompressedPhoto> {
     originalBytes: file.size,
     bytes: blob.size,
   };
+}
+
+export function compressPhoto(file: File): Promise<CompressedPhoto> {
+  return withTimeout(encode(file));
 }

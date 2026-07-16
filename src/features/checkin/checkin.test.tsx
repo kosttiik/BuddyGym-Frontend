@@ -46,16 +46,30 @@ test("a geo checkin has no photo countdown", () => {
   expect(photoExpiryLabel(geo, en, NOW)).toBeNull();
 });
 
-/* The camera hands us multi-megabyte JPEGs with EXIF GPS inside. Re-encoding through a
-   canvas is what both shrinks the file and drops the location tags. */
-test("compression re-encodes to jpeg and shrinks the file", async () => {
+/* A 12MP shot costs ~48MB decoded. Decoding it twice (once to probe the format, once for
+   real) stalled WebKit on 4GB iPhones and hung the checkin, so there is exactly one decode. */
+function stubImageDecode(): { decodes: number } {
+  const counter = { decodes: 0 };
+  class FakeImage {
+    naturalWidth = 4032;
+    naturalHeight = 3024;
+    onload: (() => void) | null = null;
+    onerror: (() => void) | null = null;
+    set src(_url: string) {
+      counter.decodes += 1;
+      setTimeout(() => this.onload?.());
+    }
+  }
+  vi.stubGlobal("Image", FakeImage);
+  vi.stubGlobal("URL", { ...URL, createObjectURL: () => "blob:x", revokeObjectURL: vi.fn() });
+  return counter;
+}
+
+test("compression re-encodes to jpeg and shrinks the file, decoding it once", async () => {
   const originalBytes = 4 * 1024 * 1024;
   const big = new File([new Uint8Array(originalBytes)], "IMG_0001.jpg", { type: "image/jpeg" });
 
-  vi.stubGlobal(
-    "createImageBitmap",
-    vi.fn(async () => ({ width: 4032, height: 3024, close: vi.fn() })),
-  );
+  const counter = stubImageDecode();
   const toBlob = vi.fn((cb: BlobCallback) => {
     cb(new Blob([new Uint8Array(300 * 1024)], { type: "image/jpeg" }));
   });
@@ -70,6 +84,7 @@ test("compression re-encodes to jpeg and shrinks the file", async () => {
   expect(result.originalBytes).toBe(originalBytes);
   expect(result.bytes).toBeLessThan(originalBytes);
   expect(toBlob).toHaveBeenCalledWith(expect.any(Function), "image/jpeg", 0.82);
+  expect(counter.decodes).toBe(1);
 
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
