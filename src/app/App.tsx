@@ -1,7 +1,10 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
+import { useState } from "react";
+import { Onboarding } from "@/features/onboarding/Onboarding";
 import { routeTree } from "@/routeTree.gen";
 import { I18nProvider } from "@/shared/i18n";
+import { hasSeenOnboarding } from "@/shared/lib/seenOnboarding";
 import { useEdgeSwipeBack } from "@/shared/lib/useEdgeSwipeBack";
 import { ThemeProvider } from "@/shared/theme/ThemeProvider";
 import { ToastProvider } from "@/shared/ui";
@@ -88,14 +91,22 @@ function Shell() {
 }
 
 export function App() {
+  const [splashDone, setSplashDone] = useState(false);
+  const [tourOpen, setTourOpen] = useState(() => !hasSeenOnboarding());
   return (
     <I18nProvider>
       <ThemeProvider>
         <QueryClientProvider client={queryClient}>
           <ToastProvider>
-            <AuthGate onReady={enableViewTransitions}>
+            <AuthGate
+              onReady={() => {
+                enableViewTransitions();
+                setSplashDone(true);
+              }}
+            >
               <Shell />
             </AuthGate>
+            <Onboarding open={splashDone && tourOpen} onClose={() => setTourOpen(false)} />
           </ToastProvider>
         </QueryClientProvider>
       </ThemeProvider>

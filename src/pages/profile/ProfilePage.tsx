@@ -1,13 +1,14 @@
 import { motion } from "motion/react";
 import { useState } from "react";
 import { useMe, useUpdateTheme } from "@/entities/user";
+import { Onboarding } from "@/features/onboarding/Onboarding";
 import { type Locale, useI18n } from "@/shared/i18n";
-import { IconCheck, IconLock } from "@/shared/icons";
+import { IconCheck, IconLock, IconSparkles } from "@/shared/icons";
 import { cx } from "@/shared/lib/cx";
 import { riseItem, stagger } from "@/shared/lib/motion";
 import { useFirstReveal } from "@/shared/lib/playOnce";
 import { type UiTheme, useTheme } from "@/shared/theme/ThemeProvider";
-import { AppHeader, Page, SegmentedControl, Skeleton } from "@/shared/ui";
+import { AppHeader, Button, Page, SegmentedControl, Skeleton } from "@/shared/ui";
 import { ProfileBody } from "./ProfileBody";
 import styles from "./ProfilePage.module.css";
 import { StatusSheet } from "./StatusSheet";
@@ -19,6 +20,7 @@ export function ProfilePage() {
   const updateTheme = useUpdateTheme();
   const firstReveal = useFirstReveal("profile");
   const [statusOpen, setStatusOpen] = useState(false);
+  const [tourOpen, setTourOpen] = useState(false);
 
   const applyTheme = (next: UiTheme) => {
     setTheme(next);
@@ -88,10 +90,23 @@ export function ProfilePage() {
               className={styles.language}
             />
           </motion.div>
+
+          <motion.div variants={riseItem}>
+            <Button
+              variant="secondary"
+              block
+              className={styles.tour}
+              icon={<IconSparkles size={15} />}
+              onClick={() => setTourOpen(true)}
+            >
+              {t.onboarding.replay}
+            </Button>
+          </motion.div>
         </motion.div>
       </Page>
 
       <StatusSheet user={me.data.user} open={statusOpen} onClose={() => setStatusOpen(false)} />
+      <Onboarding open={tourOpen} onClose={() => setTourOpen(false)} />
     </>
   );
 }

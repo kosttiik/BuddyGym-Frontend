@@ -40,6 +40,16 @@ test("the derived rank still shows next to the name", async () => {
   expect(await screen.findByText("Athlete", {}, { timeout: 4000 })).toBeInTheDocument();
 });
 
+test("the tour reopens from the profile", async () => {
+  openProfile();
+
+  await userEvent.click(
+    await screen.findByRole("button", { name: "Show the tour again" }, { timeout: 4000 }),
+  );
+
+  expect(await screen.findByText("Welcome to BuddyGym")).toBeInTheDocument();
+});
+
 /* A locked tile showing 23/50 beats a dead grey square: the whole catalog comes back with its
    progress, not just what is already earned. */
 test("locked achievements show real progress, earned ones read as done", async () => {

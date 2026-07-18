@@ -1,0 +1,387 @@
+.frame {
+  position: relative;
+  overflow: hidden;
+  margin: 0 auto;
+  border-radius: var(--radius-sheet);
+  border: 1px solid var(--card-border);
+  background: var(--bg-gradient);
+  box-shadow: var(--card-shadow);
+  pointer-events: none;
+}
+
+.screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 360px;
+  height: 590px;
+  transform-origin: top left;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-family: var(--font-body);
+  text-align: left;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 2px;
+}
+
+.mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  background: var(--accent-gradient);
+  color: #fff;
+  box-shadow: var(--btn-vote-shadow);
+}
+
+.wordmark {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  color: var(--text-heading);
+}
+
+.nestedTitle {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-heading);
+  letter-spacing: 0.3px;
+  text-align: center;
+  padding: 6px 0 2px;
+}
+
+.pageTitle {
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--text-heading);
+}
+
+.cardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.cardTags {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.roomName {
+  font-size: 16.5px;
+  font-weight: 700;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.roomMeta {
+  margin: 6px 0 0;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.progressRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.ctaRow {
+  margin-top: auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.ctaRow > * {
+  min-width: 0;
+}
+
+.ctaSpan {
+  grid-column: 1 / -1;
+}
+
+.nav {
+  display: flex;
+  justify-content: center;
+  margin-top: 2px;
+}
+
+.navPill {
+  display: flex;
+  gap: 4px;
+  padding: 5px;
+  border-radius: var(--radius-pill);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--card-shadow);
+}
+
+.navTab {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 20px;
+  border-radius: var(--radius-pill);
+  color: var(--text-secondary-2);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.navTabActive {
+  background: var(--nav-active-bg);
+  color: var(--nav-active-text);
+  font-weight: 800;
+}
+
+.checkinCard {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.checkinTop {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.who {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.checkinName {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.checkinMeta {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.thumb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 54px;
+  height: 54px;
+  border-radius: 13px;
+  background: var(--accent-tint);
+  color: var(--accent-on-tint);
+}
+
+.commentsPill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-width: 34px;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-pill);
+  background: var(--ghost-bg);
+  color: var(--text-secondary-2);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.votes {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.votesBar {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--progress-empty);
+  overflow: hidden;
+}
+
+.votesFill {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: var(--progress-fill);
+}
+
+.votesLabel {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.voteActions {
+  display: flex;
+  gap: 8px;
+}
+
+.voteAction {
+  flex: 1;
+}
+
+.profileHead {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding-top: 4px;
+}
+
+.profileName {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-heading);
+}
+
+.headTags {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.themeTitle {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-heading);
+  margin-top: 8px;
+}
+
+.themes {
+  display: flex;
+  gap: 10px;
+}
+
+.swatch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  flex: 1;
+}
+
+.swatchPreview {
+  position: relative;
+  width: 100%;
+  height: 54px;
+  border-radius: 14px;
+  border: 2.5px solid transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  overflow: hidden;
+}
+
+.swatchSelected {
+  border-color: #27b56d;
+}
+
+.previewLight {
+  background: linear-gradient(165deg, #f0f4f2, #e9f0e9);
+}
+
+.previewDark {
+  background: linear-gradient(165deg, #121917, #12190f);
+}
+
+.previewNeon {
+  background: linear-gradient(165deg, #10131c, #1a1030);
+}
+
+.previewStripe {
+  width: 60%;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(120, 140, 130, 0.35);
+}
+
+.previewButton {
+  width: 40%;
+  height: 9px;
+  border-radius: 5px;
+  background: linear-gradient(135deg, #22c877, #0ea55c);
+}
+
+.swatchLock {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  background: rgba(120, 130, 125, 0.15);
+}
+
+.swatchLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary-2);
+}
+
+.lockedSwatch {
+  opacity: 0.5;
+}
+
+.spotlight {
+  position: relative;
+  display: block;
+}
+
+.achSpot {
+  margin-top: 22px;
+}
+
+.achSpot > :first-child {
+  margin-top: 0;
+}
+
+.ring {
+  position: absolute;
+  inset: -7px;
+  border: 3px solid var(--red-text);
+  border-radius: var(--radius-card);
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+.spotArrow {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  right: 2px;
+  overflow: visible;
+  will-change: transform;
+}
