@@ -47,31 +47,33 @@ export function DeviceFrame({ width = 240, children }: { width?: number; childre
 export function Spotlight({
   pill,
   arrow,
+  active = true,
   className,
   children,
 }: {
   pill?: boolean;
   arrow?: boolean;
+  active?: boolean;
   className?: string;
   children: ReactNode;
 }) {
   const reduce = useReducedMotion();
+  const animated = active && !reduce;
   return (
     <span className={cx(styles.spotlight, className)}>
       {children}
       <motion.span
         className={styles.ring}
         style={pill ? { borderRadius: 999 } : undefined}
-        animate={reduce ? undefined : { scale: [1, 1.04, 1], opacity: [1, 0.55, 1] }}
+        animate={animated ? { scale: [1, 1.04, 1], opacity: [1, 0.55, 1] } : undefined}
         transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
       />
-      {arrow && <Arrow />}
+      {arrow && <Arrow animated={animated} />}
     </span>
   );
 }
 
-function Arrow() {
-  const reduce = useReducedMotion();
+function Arrow({ animated }: { animated: boolean }) {
   return (
     <motion.svg
       className={styles.spotArrow}
@@ -79,7 +81,7 @@ function Arrow() {
       width={48}
       height={48}
       fill="none"
-      animate={reduce ? undefined : { y: [0, -6, 0] }}
+      animate={animated ? { y: [0, -6, 0] } : undefined}
       transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
     >
       <path
@@ -120,7 +122,7 @@ function MockRoomCard({
 }) {
   const { t } = useI18n();
   return (
-    <GlassCard>
+    <GlassCard className={styles.noBlur}>
       <div className={styles.cardTop}>
         <span className={styles.roomName}>{name}</span>
         <span className={styles.cardTags}>
@@ -141,7 +143,7 @@ function MockRoomCard({
   );
 }
 
-export function MockRooms() {
+export function MockRooms({ active = true }: { active?: boolean }) {
   const { t } = useI18n();
   return (
     <DeviceFrame>
@@ -162,15 +164,15 @@ export function MockRooms() {
       />
       <MockRoomCard name={t.onboarding.mockRoomB} streak={5} members={3} workouts={2} goal={6} />
       <div className={styles.ctaRow}>
-        <Spotlight pill arrow className={styles.ctaSpan}>
+        <Spotlight pill arrow active={active} className={styles.ctaSpan}>
           <Button block icon={<IconPlus size={15} />}>
             {t.rooms.create}
           </Button>
         </Spotlight>
-        <Button variant="secondary" icon={<IconUsers size={15} />}>
+        <Button variant="secondary" className={styles.noBlur} icon={<IconUsers size={15} />}>
           {t.rooms.browseOpen}
         </Button>
-        <Button variant="secondary" icon={<IconKey size={15} />}>
+        <Button variant="secondary" className={styles.noBlur} icon={<IconKey size={15} />}>
           {t.rooms.byCode}
         </Button>
       </div>
@@ -197,14 +199,14 @@ function MockNav() {
   );
 }
 
-export function MockCheckin() {
+export function MockCheckin({ active = true }: { active?: boolean }) {
   const { t } = useI18n();
   const author = person(t, 1);
   const geoAuthor = person(t, 2);
   return (
     <DeviceFrame>
       <div className={styles.nestedTitle}>{t.onboarding.mockRoomA}</div>
-      <GlassCard className={styles.checkinCard}>
+      <GlassCard className={cx(styles.checkinCard, styles.noBlur)}>
         <div className={styles.checkinTop}>
           <Avatar name={author.name} seed={author.id} size={38} />
           <div className={styles.who}>
@@ -246,7 +248,7 @@ export function MockCheckin() {
           </Button>
         </div>
       </GlassCard>
-      <GlassCard className={styles.checkinCard}>
+      <GlassCard className={cx(styles.checkinCard, styles.noBlur)}>
         <div className={styles.checkinTop}>
           <Avatar name={geoAuthor.name} seed={geoAuthor.id} size={38} />
           <div className={styles.who}>
@@ -259,7 +261,7 @@ export function MockCheckin() {
         </div>
       </GlassCard>
       <div className={styles.ctaRow}>
-        <Spotlight pill arrow className={styles.ctaSpan}>
+        <Spotlight pill arrow active={active} className={styles.ctaSpan}>
           <Button block icon={<IconDumbbell size={17} />}>
             {t.room.checkinCta}
           </Button>
@@ -275,7 +277,7 @@ const FAKE_ACHIEVEMENTS: Achievement[] = [
   { key: "workouts_50", current: 23, target: 50 },
 ];
 
-export function MockProfile() {
+export function MockProfile({ active = true }: { active?: boolean }) {
   const { t } = useI18n();
   const me = person(t, 0);
   return (
@@ -288,7 +290,7 @@ export function MockProfile() {
           <StreakFlame streak={9} />
         </span>
       </div>
-      <Spotlight arrow className={styles.achSpot}>
+      <Spotlight arrow active={active} className={styles.achSpot}>
         <Achievements achievements={FAKE_ACHIEVEMENTS} />
       </Spotlight>
       <div className={styles.themeTitle}>{t.profile.theme}</div>

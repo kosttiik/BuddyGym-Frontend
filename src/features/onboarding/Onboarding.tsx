@@ -63,25 +63,25 @@ export function Onboarding({ open, onClose }: OnboardingProps) {
       key: "welcome",
       title: t.onboarding.welcomeTitle,
       body: t.onboarding.welcomeBody,
-      art: <WelcomeArt />,
+      art: <WelcomeArt active={index === 0} />,
     },
     {
       key: "rooms",
       title: t.onboarding.roomsTitle,
       body: t.onboarding.roomsBody,
-      art: <MockRooms />,
+      art: <MockRooms active={index === 1} />,
     },
     {
       key: "checkin",
       title: t.onboarding.checkinTitle,
       body: t.onboarding.checkinBody,
-      art: <MockCheckin />,
+      art: <MockCheckin active={index === 2} />,
     },
     {
       key: "profile",
       title: t.onboarding.profileTitle,
       body: t.onboarding.profileBody,
-      art: <MockProfile />,
+      art: <MockProfile active={index === 3} />,
     },
   ];
   const last = index === slides.length - 1;
@@ -205,18 +205,20 @@ function Floating({
   className,
   duration,
   delay = 0,
+  active,
   children,
 }: {
   className?: string;
   duration: number;
   delay?: number;
+  active: boolean;
   children: ReactNode;
 }) {
   const reduce = useReducedMotion();
   return (
     <motion.span
       className={className}
-      animate={reduce ? undefined : { y: [0, -7, 0] }}
+      animate={active && !reduce ? { y: [0, -7, 0] } : undefined}
       transition={{ duration, delay, repeat: Infinity, ease: "easeInOut" }}
     >
       {children}
@@ -224,16 +226,26 @@ function Floating({
   );
 }
 
-function WelcomeArt() {
+function WelcomeArt({ active }: { active: boolean }) {
   return (
     <div className={styles.welcomeArt} aria-hidden="true">
-      <Floating className={styles.welcomeTile} duration={3.4}>
+      <Floating className={styles.welcomeTile} duration={3.4} active={active}>
         <IconDumbbell size={52} />
       </Floating>
-      <Floating className={cx(styles.welcomeMini, styles.welcomeFire)} duration={2.8} delay={0.4}>
+      <Floating
+        className={cx(styles.welcomeMini, styles.welcomeFire)}
+        duration={2.8}
+        delay={0.4}
+        active={active}
+      >
         <IconFire size={22} />
       </Floating>
-      <Floating className={cx(styles.welcomeMini, styles.welcomeSpark)} duration={3.1} delay={0.9}>
+      <Floating
+        className={cx(styles.welcomeMini, styles.welcomeSpark)}
+        duration={3.1}
+        delay={0.9}
+        active={active}
+      >
         <IconSparkles size={22} />
       </Floating>
     </div>
