@@ -1,6 +1,6 @@
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, animate, motion, useMotionValue, useReducedMotion } from "motion/react";
 import type { ReactNode } from "react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useI18n } from "@/shared/i18n";
 import { IconDumbbell, IconFire, IconSparkles } from "@/shared/icons";
@@ -22,6 +22,9 @@ export function Onboarding({ open, onClose }: OnboardingProps) {
   const { t } = useI18n();
   const [index, setIndex] = useState(0);
   const seenUpTo = useRef(0);
+  const [viewportEl, setViewportEl] = useState<HTMLDivElement | null>(null);
+  const [width, setWidth] = useState(0);
+  const x = useMotionValue(0);
 
   useEffect(() => {
     if (open) {
@@ -31,6 +34,29 @@ export function Onboarding({ open, onClose }: OnboardingProps) {
   }, [open]);
 
   seenUpTo.current = Math.max(seenUpTo.current, index);
+
+  useLayoutEffect(() => {
+    if (!viewportEl) {
+      return;
+    }
+    setWidth(viewportEl.clientWidth);
+    const ro = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (entry) {
+        setWidth(entry.contentRect.width);
+      }
+    });
+    ro.observe(viewportEl);
+    return () => ro.disconnect();
+  }, [viewportEl]);
+
+  useEffect(() => {
+    if (!width) {
+      return;
+    }
+    const controls = animate(x, -index * width, reduce ? { duration: 0 } : spring.heavy);
+    return () => controls.stop();
+  }, [index, width, reduce, x]);
 
   const slides: Array<{ key: string; title: string; body: string; art: ReactNode }> = [
     {
@@ -97,23 +123,30 @@ export function Onboarding({ open, onClose }: OnboardingProps) {
             </button>
           </div>
 
-          <div className={styles.viewport}>
+          <div className={styles.viewport} ref={setViewportEl}>
             <motion.div
               className={styles.track}
-              drag="x"
-              dragConstraints={{ left: 0, right: 0 }}
-              dragElastic={0.18}
+              style={{ x }}
+              drag={reduce ? false : "x"}
+              dragConstraints={{ left: -(slides.length - 1) * width, right: 0 }}
+              dragElastic={0.08}
+              dragMomentum={false}
               onDragEnd={(_, info) => {
+                const base = -index * width;
+                const delta = x.get() - base;
                 const dir =
-                  info.offset.x < -60 || info.velocity.x < -400
+                  delta < -width * 0.2 || info.velocity.x < -500
                     ? 1
-                    : info.offset.x > 60 || info.velocity.x > 400
+                    : delta > width * 0.2 || info.velocity.x > 500
                       ? -1
                       : 0;
-                goTo(index + dir);
+                const nextIndex = Math.min(slides.length - 1, Math.max(0, index + dir));
+                if (nextIndex === index) {
+                  animate(x, base, spring.heavy);
+                } else {
+                  goTo(nextIndex);
+                }
               }}
-              animate={{ x: `${-index * 100}%` }}
-              transition={reduce ? { duration: 0 } : spring.heavy}
             >
               {slides.map((slide, i) => (
                 <motion.div
