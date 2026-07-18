@@ -294,6 +294,23 @@ export const en: typeof ru = {
   loading: {
     pullToRefresh: "pull down to refresh",
   },
+  onboarding: {
+    skip: "Skip",
+    next: "Next",
+    start: "Let's go",
+    replay: "Show the tour again",
+    welcomeTitle: "Welcome to BuddyGym",
+    welcomeBody: "Train with friends: confirm each other's workouts and keep the streak burning",
+    roomsTitle: "Rooms",
+    roomsBody: "Create your own room or join by code. The room sets the goal and the period",
+    checkinTitle: "Check-ins",
+    checkinBody: "Log a workout with a gym photo, and members confirm it by voting",
+    profileTitle: "Profile & achievements",
+    profileBody: "Collect achievements and switch themes. You can reopen this tour in the profile",
+    mockRoomA: "Iron buddies",
+    mockRoomB: "Morning workouts",
+    mockPeople: ["Alex", "Mia", "Sam", "Kate"],
+  },
 };
 
 function periodEn(days: number): string {
