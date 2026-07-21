@@ -1,4 +1,17 @@
+import { locationManager } from "@telegram-apps/sdk-react";
 import { getTelegramLocation, isIos } from "./telegram";
+
+vi.mock("@telegram-apps/sdk-react", () => ({
+  locationManager: {
+    mount: Object.assign(vi.fn(), { isAvailable: vi.fn(() => true) }),
+    isMounted: vi.fn(() => true),
+    isAvailable: vi.fn(() => true),
+    requestLocation: Object.assign(vi.fn(), { isAvailable: vi.fn(() => true) }),
+    openSettings: Object.assign(vi.fn(), { isAvailable: vi.fn(() => true) }),
+  },
+}));
+
+const manager = vi.mocked(locationManager, { deep: true });
 
 function withUserAgent(userAgent: string, maxTouchPoints = 0) {
   vi.stubGlobal("navigator", { ...navigator, userAgent, maxTouchPoints });
@@ -23,41 +36,37 @@ test("android and desktop keep the in-app camera", () => {
   expect(isIos()).toBe(false);
 });
 
-test("gets location only through Telegram LocationManager", async () => {
-  const manager = {
-    isInited: false,
-    isLocationAvailable: true,
-    init: vi.fn((callback?: () => void) => {
-      callback?.();
-      return manager;
-    }),
-    getLocation: vi.fn((callback: (location: object) => void) => {
-      callback({ latitude: 55.75, longitude: 37.61, horizontal_accuracy: 12 });
-      return manager;
-    }),
-  };
-  vi.stubGlobal("Telegram", { WebApp: { LocationManager: manager } });
-
-  await expect(getTelegramLocation()).resolves.toEqual({
-    lat: 55.75,
-    lon: 37.61,
+test("gets location through the Telegram location manager", async () => {
+  manager.requestLocation.mockResolvedValue({
+    latitude: 55.75,
+    longitude: 37.61,
     horizontal_accuracy: 12,
   });
-  expect(manager.init).toHaveBeenCalledOnce();
-  expect(manager.getLocation).toHaveBeenCalledOnce();
+
+  await expect(getTelegramLocation()).resolves.toEqual({
+    ok: true,
+    geo: { lat: 55.75, lon: 37.61, horizontal_accuracy: 12 },
+  });
 });
 
-test("rejects Telegram locations without horizontal accuracy", async () => {
-  const manager = {
-    isInited: true,
-    isLocationAvailable: true,
-    init: vi.fn(),
-    getLocation: vi.fn((callback: (location: object) => void) => {
-      callback({ latitude: 55.75, longitude: 37.61 });
-      return manager;
-    }),
-  };
-  vi.stubGlobal("Telegram", { WebApp: { LocationManager: manager } });
+test("tells apart the reasons a location cannot be used", async () => {
+  manager.requestLocation.mockRejectedValue(new Error("denied"));
+  await expect(getTelegramLocation()).resolves.toEqual({ ok: false, reason: "denied" });
 
-  await expect(getTelegramLocation()).rejects.toThrow("accuracy is unavailable");
+  /* a fix this coarse would be rejected by checkin-service anyway */
+  manager.requestLocation.mockResolvedValue({
+    latitude: 55.75,
+    longitude: 37.61,
+    horizontal_accuracy: 120,
+  });
+  await expect(getTelegramLocation()).resolves.toEqual({ ok: false, reason: "accuracy" });
+
+  manager.requestLocation.mockResolvedValue({ latitude: 55.75, longitude: 37.61 });
+  await expect(getTelegramLocation()).resolves.toEqual({ ok: false, reason: "accuracy" });
+
+  manager.isAvailable.mockReturnValueOnce(false);
+  await expect(getTelegramLocation()).resolves.toEqual({ ok: false, reason: "unavailable" });
+
+  manager.mount.isAvailable.mockReturnValueOnce(false);
+  await expect(getTelegramLocation()).resolves.toEqual({ ok: false, reason: "unsupported" });
 });

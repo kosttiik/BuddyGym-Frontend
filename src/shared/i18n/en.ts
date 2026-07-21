@@ -188,7 +188,10 @@ export const en: typeof ru = {
     geoTitle: "Geo tag",
     geoDesc: "Counts instantly, no voting",
     instant: "INSTANT",
-    geoDenied: "Could not get your location",
+    geoDenied: "Location access is not granted",
+    geoUnsupported: "Update Telegram: geo tags need version 8.0 or newer",
+    geoUnavailable: "Allow Telegram to use location in your phone settings",
+    geoAccuracy: "GPS accuracy is too low, try again at the gym entrance",
   },
   camera: {
     shoot: "Take photo",

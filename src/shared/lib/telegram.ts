@@ -1,6 +1,7 @@
 import {
   backButton,
   init,
+  locationManager,
   miniApp,
   retrieveLaunchParams,
   retrieveRawInitData,
@@ -12,22 +13,22 @@ import {
 
 let insideTelegram = false;
 
+/* checkin-service rejects anything worse than this, so fail before the round trip */
+const MAX_ACCURACY_METERS = 50;
+
 type TelegramLocation = {
   latitude: number;
   longitude: number;
-  horizontal_accuracy?: number;
+  horizontal_accuracy?: number | null;
 };
 
-type TelegramLocationManager = {
-  isInited: boolean;
-  isLocationAvailable: boolean;
-  init: (callback?: () => void) => TelegramLocationManager;
-  getLocation: (callback: (location: TelegramLocation | null) => void) => TelegramLocationManager;
-};
+export type GeoPoint = { lat: number; lon: number; horizontal_accuracy: number };
 
-type TelegramWebApp = {
-  LocationManager?: TelegramLocationManager;
-};
+/* unsupported: Telegram is too old; unavailable: Telegram itself has no OS location permission;
+   denied: the user rejected the bot's request; accuracy: GPS fix too coarse to be accepted */
+export type GeoResult =
+  | { ok: true; geo: GeoPoint }
+  | { ok: false; reason: "unsupported" | "unavailable" | "denied" | "accuracy" };
 
 export function isInsideTelegram(): boolean {
   return insideTelegram;
@@ -80,48 +81,53 @@ export function getRawInitData(): string | undefined {
   }
 }
 
-export function getTelegramLocation(): Promise<{
-  lat: number;
-  lon: number;
-  horizontal_accuracy: number;
-}> {
-  return new Promise((resolve, reject) => {
-    const webApp = (window as Window & { Telegram?: { WebApp?: TelegramWebApp } }).Telegram?.WebApp;
-    const manager = webApp?.LocationManager;
-    if (!manager) {
-      reject(new Error("Telegram location manager is unavailable"));
-      return;
+export async function getTelegramLocation(): Promise<GeoResult> {
+  if (!locationManager.mount.isAvailable()) {
+    return { ok: false, reason: "unsupported" };
+  }
+  try {
+    if (!locationManager.isMounted()) {
+      await locationManager.mount();
     }
+  } catch {
+    return { ok: false, reason: "unsupported" };
+  }
+  if (!locationManager.isAvailable() || !locationManager.requestLocation.isAvailable()) {
+    return { ok: false, reason: "unavailable" };
+  }
 
-    const readLocation = () => {
-      if (!manager.isLocationAvailable) {
-        reject(new Error("Telegram location is unavailable"));
-        return;
-      }
-      manager.getLocation((location) => {
-        const accuracy = location?.horizontal_accuracy;
-        if (!location || accuracy === undefined || !Number.isFinite(accuracy) || accuracy <= 0) {
-          reject(new Error("Telegram location accuracy is unavailable"));
-          return;
-        }
-        resolve({
-          lat: location.latitude,
-          lon: location.longitude,
-          horizontal_accuracy: accuracy,
-        });
-      });
-    };
+  let location: TelegramLocation | undefined;
+  try {
+    location = await locationManager.requestLocation();
+  } catch {
+    return { ok: false, reason: "denied" };
+  }
+  if (!location) {
+    return { ok: false, reason: "denied" };
+  }
 
-    try {
-      if (manager.isInited) {
-        readLocation();
-      } else {
-        manager.init(readLocation);
-      }
-    } catch (error) {
-      reject(error);
-    }
-  });
+  const accuracy = location.horizontal_accuracy;
+  if (
+    typeof accuracy !== "number" ||
+    !Number.isFinite(accuracy) ||
+    accuracy <= 0 ||
+    accuracy > MAX_ACCURACY_METERS
+  ) {
+    return { ok: false, reason: "accuracy" };
+  }
+  return {
+    ok: true,
+    geo: { lat: location.latitude, lon: location.longitude, horizontal_accuracy: accuracy },
+  };
+}
+
+/* Telegram's own per-bot location screen; the only way back after the user denied access */
+export function openTelegramLocationSettings(): boolean {
+  if (!locationManager.openSettings.isAvailable()) {
+    return false;
+  }
+  locationManager.openSettings();
+  return true;
 }
 
 export function getStartParam(): string | undefined {

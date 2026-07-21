@@ -7,7 +7,12 @@ import { useI18n } from "@/shared/i18n";
 import { IconCamera, IconClock, IconGeoPinFilled, IconImage } from "@/shared/icons";
 import { hapticNotify } from "@/shared/lib/haptics";
 import { type CompressedPhoto, compressPhoto } from "@/shared/lib/photo";
-import { getTelegramLocation, isIos } from "@/shared/lib/telegram";
+import {
+  type GeoResult,
+  getTelegramLocation,
+  isIos,
+  openTelegramLocationSettings,
+} from "@/shared/lib/telegram";
 import { useApiErrorToast } from "@/shared/lib/useApiErrorToast";
 import { BottomSheet, Button, sheetItemVariants, useToast } from "@/shared/ui";
 import { CameraCapture } from "./CameraCapture";
@@ -48,6 +53,19 @@ export function CheckinSheet({ open, onClose, room, members, myProgress }: Check
   const [celebrated, setCelebrated] = useState<Checkin | null>(null);
 
   const myRooms = rooms.data ?? [];
+
+  const geoErrorTitle = (reason: Extract<GeoResult, { ok: false }>["reason"]) => {
+    switch (reason) {
+      case "unsupported":
+        return t.checkinSheet.geoUnsupported;
+      case "unavailable":
+        return t.checkinSheet.geoUnavailable;
+      case "accuracy":
+        return t.checkinSheet.geoAccuracy;
+      default:
+        return t.checkinSheet.geoDenied;
+    }
+  };
 
   const takePhoto = () => {
     if (systemCamera) {
@@ -137,17 +155,22 @@ export function CheckinSheet({ open, onClose, room, members, myProgress }: Check
     }
     setGeoBusy(true);
     try {
-      const geo = await getTelegramLocation();
+      const result = await getTelegramLocation();
+      if (!result.ok) {
+        hapticNotify("error");
+        if (result.reason === "denied" && openTelegramLocationSettings()) {
+          return;
+        }
+        showToast({ title: geoErrorTitle(result.reason), tone: "error" });
+        return;
+      }
       createCheckin.mutate(
-        { geo, roomIds: [room.id] },
+        { geo: result.geo, roomIds: [room.id] },
         {
           onSuccess: onCreateSuccess,
           onError: showApiError,
         },
       );
-    } catch {
-      hapticNotify("error");
-      showToast({ title: t.checkinSheet.geoDenied, tone: "error" });
     } finally {
       setGeoBusy(false);
     }
