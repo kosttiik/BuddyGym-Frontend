@@ -7,7 +7,7 @@ import { useI18n } from "@/shared/i18n";
 import { IconCamera, IconClock, IconGeoPinFilled, IconImage } from "@/shared/icons";
 import { hapticNotify } from "@/shared/lib/haptics";
 import { type CompressedPhoto, compressPhoto } from "@/shared/lib/photo";
-import { isIos } from "@/shared/lib/telegram";
+import { getTelegramLocation, isIos } from "@/shared/lib/telegram";
 import { useApiErrorToast } from "@/shared/lib/useApiErrorToast";
 import { BottomSheet, Button, sheetItemVariants, useToast } from "@/shared/ui";
 import { CameraCapture } from "./CameraCapture";
@@ -40,6 +40,7 @@ export function CheckinSheet({ open, onClose, room, members, myProgress }: Check
 
   const [cameraOpen, setCameraOpen] = useState(false);
   const [processing, setProcessing] = useState<string | null>(null);
+  const [geoBusy, setGeoBusy] = useState(false);
   const [photo, setPhoto] = useState<CompressedPhoto | null>(null);
   const [selected, setSelected] = useState<number[]>([room.id]);
   const [buddies, setBuddies] = useState<number[]>([]);
@@ -104,6 +105,15 @@ export function CheckinSheet({ open, onClose, room, members, myProgress }: Check
     }
   };
 
+  const onCreateSuccess = (checkins: Checkin[]) => {
+    hapticNotify("success");
+    setPhoto(null);
+    setBuddies([]);
+    onClose();
+    const mine = checkins.find((c) => c.room_id === room.id) ?? checkins[0];
+    setCelebrated(mine ?? null);
+  };
+
   const sendPhoto = () => {
     if (!photo || selected.length === 0) {
       return;
@@ -112,20 +122,35 @@ export function CheckinSheet({ open, onClose, room, members, myProgress }: Check
     createCheckin.mutate(
       { photo: photo.file, roomIds: selected, buddyIds: buddies, onProgress: setProgress },
       {
-        onSuccess: (checkins) => {
-          hapticNotify("success");
-          setPhoto(null);
-          setBuddies([]);
-          onClose();
-          const mine = checkins.find((c) => c.room_id === room.id) ?? checkins[0];
-          setCelebrated(mine ?? null);
-        },
+        onSuccess: onCreateSuccess,
         onError: (error) => {
           setProgress(0);
           showApiError(error);
         },
       },
     );
+  };
+
+  const sendGeo = async () => {
+    if (createCheckin.isPending || geoBusy) {
+      return;
+    }
+    setGeoBusy(true);
+    try {
+      const geo = await getTelegramLocation();
+      createCheckin.mutate(
+        { geo, roomIds: [room.id] },
+        {
+          onSuccess: onCreateSuccess,
+          onError: showApiError,
+        },
+      );
+    } catch {
+      hapticNotify("error");
+      showToast({ title: t.checkinSheet.geoDenied, tone: "error" });
+    } finally {
+      setGeoBusy(false);
+    }
   };
 
   return (
@@ -170,21 +195,22 @@ export function CheckinSheet({ open, onClose, room, members, myProgress }: Check
           {t.checkinSheet.fromGallery}
         </motion.button>
 
-        <motion.div
+        <motion.button
+          type="button"
           className={styles.geoCard}
-          data-soon="true"
           variants={sheetItemVariants}
-          aria-disabled="true"
+          whileTap={{ scale: 0.98 }}
+          onClick={() => void sendGeo()}
+          disabled={createCheckin.isPending || geoBusy}
         >
           <span className={styles.radar}>
             <IconGeoPinFilled size={22} className={styles.geoIcon} />
           </span>
           <span className={styles.cardText}>
             <span className={styles.geoTitle}>{t.checkinSheet.geoTitle}</span>
-            <span className={styles.geoDesc}>{t.checkinSheet.geoSoonDesc}</span>
+            <span className={styles.geoDesc}>{t.checkinSheet.geoDesc}</span>
           </span>
-          <span className={styles.soon}>{t.checkinSheet.soon}</span>
-        </motion.div>
+        </motion.button>
 
         <motion.div variants={sheetItemVariants} className={styles.cancelWrap}>
           <Button variant="ghost" onClick={onClose}>

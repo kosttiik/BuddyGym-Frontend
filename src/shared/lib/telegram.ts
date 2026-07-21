@@ -12,6 +12,23 @@ import {
 
 let insideTelegram = false;
 
+type TelegramLocation = {
+  latitude: number;
+  longitude: number;
+  horizontal_accuracy?: number;
+};
+
+type TelegramLocationManager = {
+  isInited: boolean;
+  isLocationAvailable: boolean;
+  init: (callback?: () => void) => TelegramLocationManager;
+  getLocation: (callback: (location: TelegramLocation | null) => void) => TelegramLocationManager;
+};
+
+type TelegramWebApp = {
+  LocationManager?: TelegramLocationManager;
+};
+
 export function isInsideTelegram(): boolean {
   return insideTelegram;
 }
@@ -61,6 +78,50 @@ export function getRawInitData(): string | undefined {
   } catch {
     return undefined;
   }
+}
+
+export function getTelegramLocation(): Promise<{
+  lat: number;
+  lon: number;
+  horizontal_accuracy: number;
+}> {
+  return new Promise((resolve, reject) => {
+    const webApp = (window as Window & { Telegram?: { WebApp?: TelegramWebApp } }).Telegram?.WebApp;
+    const manager = webApp?.LocationManager;
+    if (!manager) {
+      reject(new Error("Telegram location manager is unavailable"));
+      return;
+    }
+
+    const readLocation = () => {
+      if (!manager.isLocationAvailable) {
+        reject(new Error("Telegram location is unavailable"));
+        return;
+      }
+      manager.getLocation((location) => {
+        const accuracy = location?.horizontal_accuracy;
+        if (!location || accuracy === undefined || !Number.isFinite(accuracy) || accuracy <= 0) {
+          reject(new Error("Telegram location accuracy is unavailable"));
+          return;
+        }
+        resolve({
+          lat: location.latitude,
+          lon: location.longitude,
+          horizontal_accuracy: accuracy,
+        });
+      });
+    };
+
+    try {
+      if (manager.isInited) {
+        readLocation();
+      } else {
+        manager.init(readLocation);
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
 }
 
 export function getStartParam(): string | undefined {

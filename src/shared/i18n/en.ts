@@ -187,8 +187,6 @@ export const en: typeof ru = {
     chipSize: "up to 10 MB",
     geoTitle: "Geo tag",
     geoDesc: "Counts instantly, no voting",
-    geoSoonDesc: "Check in by location, without a photo",
-    soon: "Soon",
     instant: "INSTANT",
     geoDenied: "Could not get your location",
   },

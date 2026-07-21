@@ -1,4 +1,4 @@
-import { isIos } from "./telegram";
+import { getTelegramLocation, isIos } from "./telegram";
 
 function withUserAgent(userAgent: string, maxTouchPoints = 0) {
   vi.stubGlobal("navigator", { ...navigator, userAgent, maxTouchPoints });
@@ -21,4 +21,43 @@ test("android and desktop keep the in-app camera", () => {
 
   withUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15");
   expect(isIos()).toBe(false);
+});
+
+test("gets location only through Telegram LocationManager", async () => {
+  const manager = {
+    isInited: false,
+    isLocationAvailable: true,
+    init: vi.fn((callback?: () => void) => {
+      callback?.();
+      return manager;
+    }),
+    getLocation: vi.fn((callback: (location: object) => void) => {
+      callback({ latitude: 55.75, longitude: 37.61, horizontal_accuracy: 12 });
+      return manager;
+    }),
+  };
+  vi.stubGlobal("Telegram", { WebApp: { LocationManager: manager } });
+
+  await expect(getTelegramLocation()).resolves.toEqual({
+    lat: 55.75,
+    lon: 37.61,
+    horizontal_accuracy: 12,
+  });
+  expect(manager.init).toHaveBeenCalledOnce();
+  expect(manager.getLocation).toHaveBeenCalledOnce();
+});
+
+test("rejects Telegram locations without horizontal accuracy", async () => {
+  const manager = {
+    isInited: true,
+    isLocationAvailable: true,
+    init: vi.fn(),
+    getLocation: vi.fn((callback: (location: object) => void) => {
+      callback({ latitude: 55.75, longitude: 37.61 });
+      return manager;
+    }),
+  };
+  vi.stubGlobal("Telegram", { WebApp: { LocationManager: manager } });
+
+  await expect(getTelegramLocation()).rejects.toThrow("accuracy is unavailable");
 });

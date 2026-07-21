@@ -88,7 +88,10 @@ export type RoomDetailResponse = {
 export type GeoPoint = {
   lat: number;
   lon: number;
+  horizontal_accuracy: number;
 };
+
+type CheckinGeoPoint = Pick<GeoPoint, "lat" | "lon">;
 
 export type Checkin = {
   id: string;
@@ -100,7 +103,7 @@ export type Checkin = {
   /* photos are purged after a retention window; after that the bytes are gone */
   photo_purged: boolean;
   photo_expires_at?: string;
-  geo?: GeoPoint;
+  geo?: CheckinGeoPoint;
   /* members the author tagged as training with them */
   buddies?: User[];
   comments_count?: number;

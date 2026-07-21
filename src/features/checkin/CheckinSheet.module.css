@@ -212,28 +212,6 @@
   display: none;
 }
 
-/* geo check-in is not available yet: the card is shown, but inert */
-.geoCard[data-soon] {
-  opacity: 0.55;
-  cursor: default;
-  pointer-events: none;
-  box-shadow: none;
-}
-
-.soon {
-  display: inline-flex;
-  align-items: center;
-  padding: 5px 10px;
-  border-radius: var(--radius-pill);
-  background: var(--ghost-bg);
-  color: var(--text-tertiary);
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
 .galleryRow {
   display: flex;
   align-items: center;
