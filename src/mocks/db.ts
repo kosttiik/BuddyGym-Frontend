@@ -14,7 +14,7 @@ import type {
    real uploaded photo occupies without shipping binary fixtures. */
 export function roomPicture(roomId: number): string {
   const hue = (roomId * 67) % 360;
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240">
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240">
     <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="hsl(${hue} 62% 52%)"/>
       <stop offset="100%" stop-color="hsl(${(hue + 48) % 360} 58% 32%)"/>

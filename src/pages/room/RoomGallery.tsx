@@ -133,7 +133,7 @@ export function RoomGallery({
         </button>
       </div>
 
-      <div className={styles.stage} ref={stageRef}>
+      <div className={photos.length > 0 ? styles.stage : styles.stageCenter} ref={stageRef}>
         {photos.length > 0 && width > 0 ? (
           <motion.div
             className={styles.track}
