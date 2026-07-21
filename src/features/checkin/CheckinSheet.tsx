@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useRef, useState } from "react";
 import { useCreateCheckin } from "@/entities/checkin";
 import { useRooms } from "@/entities/room";
+import { ApiError } from "@/shared/api/client";
 import type { Checkin, Member, Room } from "@/shared/api/types";
 import { useI18n } from "@/shared/i18n";
 import { IconCamera, IconClock, IconGeoPinFilled, IconImage } from "@/shared/icons";
@@ -154,21 +155,40 @@ export function CheckinSheet({ open, onClose, room, members, myProgress }: Check
       return;
     }
     setGeoBusy(true);
+    setProcessing(t.checkinSheet.geoLocating);
     try {
       const result = await getTelegramLocation();
       if (!result.ok) {
         hapticNotify("error");
+        setProcessing(null);
         if (result.reason === "denied" && openTelegramLocationSettings()) {
           return;
         }
         showToast({ title: geoErrorTitle(result.reason), tone: "error" });
         return;
       }
+      /* the gym lookup goes out to a places provider, so it takes seconds, not milliseconds */
+      setProcessing(t.checkinSheet.geoSearching(Math.round(result.geo.horizontal_accuracy)));
       createCheckin.mutate(
         { geo: result.geo, roomIds: [room.id] },
         {
-          onSuccess: onCreateSuccess,
-          onError: showApiError,
+          onSuccess: (checkins) => {
+            setProcessing(null);
+            onCreateSuccess(checkins);
+          },
+          onError: (error) => {
+            setProcessing(null);
+            hapticNotify("error");
+            if (error instanceof ApiError && error.status === 400) {
+              showToast({
+                title: t.checkinSheet.geoNoGym,
+                description: t.checkinSheet.geoNoGymDesc,
+                tone: "error",
+              });
+              return;
+            }
+            showApiError(error);
+          },
         },
       );
     } finally {
