@@ -191,7 +191,8 @@ export const en: typeof ru = {
     geoLocating: "Getting your location",
     geoSearching: (m: number) => `Looking for a gym nearby · ${m} m accuracy`,
     geoNoGym: "No gym found nearby",
-    geoNoGymDesc: "A geo tag counts within 150 m of a gym. Move closer or check in with a photo",
+    geoNoGymDesc:
+      "A geo tag counts within 50 m of a gym. Move to the entrance or check in with a photo",
     geoDenied: "Location access is not granted",
     geoUnsupported: "Update Telegram: geo tags need version 8.0 or newer",
     geoUnavailable: "Allow Telegram to use location in your phone settings",
