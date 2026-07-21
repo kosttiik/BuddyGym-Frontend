@@ -56,6 +56,7 @@
   --orange-text: #a8642a;
   --orange-text-strong: #8a5a1f;
   --orange-tint: rgba(244, 162, 97, 0.16);
+  --orange-border: rgba(244, 162, 97, 0.32);
 
   --progress-fill: linear-gradient(180deg, #3ed488, #27b56d);
   --progress-empty: rgba(20, 35, 27, 0.09);
@@ -145,6 +146,7 @@
   --orange-text: #f4a261;
   --orange-text-strong: #f4a261;
   --orange-tint: rgba(244, 162, 97, 0.14);
+  --orange-border: rgba(244, 162, 97, 0.3);
 
   --progress-empty: rgba(238, 244, 240, 0.09);
   --progress-glow: none;

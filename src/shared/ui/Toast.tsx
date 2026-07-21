@@ -2,12 +2,18 @@ import { AnimatePresence, motion } from "motion/react";
 import type { ReactNode } from "react";
 import { createContext, useCallback, useContext, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { IconAlert, IconInfo } from "@/shared/icons";
 import { hapticNotify } from "@/shared/lib/haptics";
 import styles from "./Toast.module.css";
 
 const TOAST_TTL_MS = 4000;
 
 export type ToastTone = "error" | "warning";
+
+/* every toast carries a mark: a caller may pass its own, otherwise the tone picks one */
+function toneIcon(tone: ToastTone | undefined) {
+  return tone === "warning" ? <IconInfo size={20} /> : <IconAlert size={20} />;
+}
 
 export type ToastInput = {
   title: string;
@@ -54,21 +60,16 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                 key={toast.id}
                 layout
                 className={styles.toast}
+                data-tone={toast.tone ?? "error"}
                 initial={{ opacity: 0, y: -24, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -16, scale: 0.95 }}
                 transition={{ type: "spring", stiffness: 480, damping: 34 }}
                 onClick={() => setToasts((prev) => prev.filter((t) => t.id !== toast.id))}
               >
-                {toast.icon && (
-                  <span
-                    className={styles.icon}
-                    data-tone={toast.tone ?? "error"}
-                    aria-hidden="true"
-                  >
-                    {toast.icon}
-                  </span>
-                )}
+                <span className={styles.icon} data-tone={toast.tone ?? "error"} aria-hidden="true">
+                  {toast.icon ?? toneIcon(toast.tone)}
+                </span>
                 <span className={styles.text}>
                   <span className={styles.title}>{toast.title}</span>
                   {toast.description && (

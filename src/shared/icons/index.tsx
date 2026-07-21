@@ -285,6 +285,14 @@ export const IconInfo = icon(
   </>,
 );
 
+export const IconAlert = icon(
+  <>
+    <path d="M12 4.6 2.9 19.2h18.2L12 4.6Z" {...stroke} strokeWidth="2" strokeLinejoin="round" />
+    <path d="M12 10.2v3.9" {...stroke} strokeWidth="2.4" />
+    <circle cx="12" cy="16.8" r="1.3" fill="currentColor" />
+  </>,
+);
+
 export const IconTarget = icon(
   <>
     <circle cx="12" cy="12" r="9" {...stroke} strokeWidth="2" />

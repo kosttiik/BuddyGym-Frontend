@@ -164,7 +164,11 @@ export function CheckinSheet({ open, onClose, room, members, myProgress }: Check
         if (result.reason === "denied" && openTelegramLocationSettings()) {
           return;
         }
-        showToast({ title: geoErrorTitle(result.reason), tone: "error" });
+        showToast({
+          title: geoErrorTitle(result.reason),
+          icon: <IconGeoPinFilled size={20} />,
+          tone: "error",
+        });
         return;
       }
       /* the gym lookup goes out to a places provider, so it takes seconds, not milliseconds */
@@ -183,6 +187,7 @@ export function CheckinSheet({ open, onClose, room, members, myProgress }: Check
               showToast({
                 title: t.checkinSheet.geoNoGym,
                 description: t.checkinSheet.geoNoGymDesc,
+                icon: <IconGeoPinFilled size={20} />,
                 tone: "error",
               });
               return;

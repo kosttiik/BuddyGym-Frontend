@@ -6,6 +6,7 @@ import { CODE_LENGTH, CodeInput, sanitizeCode } from "./CodeInput";
 import { FilterTabs } from "./FilterTabs";
 import { ProgressCounter, SegmentedProgress } from "./Progress";
 import { Stepper } from "./Stepper";
+import { ToastProvider, useToast } from "./Toast";
 
 describe("Button", () => {
   it("fires onClick", async () => {
@@ -106,5 +107,37 @@ describe("FilterTabs", () => {
     );
     await userEvent.click(screen.getByRole("tab", { name: "Approved" }));
     expect(onChange).toHaveBeenCalledWith("approved");
+  });
+});
+
+describe("Toast", () => {
+  function Trigger({ tone }: { tone?: "error" | "warning" }) {
+    const show = useToast();
+    return (
+      <button type="button" onClick={() => show({ title: "Nope", tone })}>
+        show
+      </button>
+    );
+  }
+
+  async function showToast(tone?: "error" | "warning") {
+    render(
+      <ToastProvider>
+        <Trigger tone={tone} />
+      </ToastProvider>,
+    );
+    await userEvent.click(screen.getByRole("button", { name: "show" }));
+    return await screen.findByText("Nope");
+  }
+
+  it("marks every toast with a tone icon, even when the caller passes none", async () => {
+    const toast = (await showToast()).closest("[data-tone]");
+    expect(toast).toHaveAttribute("data-tone", "error");
+    expect(toast?.querySelector("svg")).toBeInTheDocument();
+  });
+
+  it("carries the warning tone through to the markup", async () => {
+    const toast = (await showToast("warning")).closest("[data-tone]");
+    expect(toast).toHaveAttribute("data-tone", "warning");
   });
 });
