@@ -62,6 +62,12 @@ export const en: typeof ru = {
     save: "Save",
     saved: "Settings saved",
     creatorOnly: "Only the room creator can change these settings",
+    deleteRoom: "Delete room",
+    deleteRoomNote: "The room disappears for every member",
+    deleteConfirmTitle: "Delete the room?",
+    deleteConfirmText:
+      "The room goes away for every member along with its check-ins, comments and progress. This cannot be undone.",
+    deleteConfirm: "Delete",
   },
   joinByCode: {
     title: "Join by code",
@@ -163,6 +169,17 @@ export const en: typeof ru = {
       "The kit is still clean",
     ],
   },
+  gallery: {
+    counter: (index: number, total: number) => `Photo ${index} of ${total}`,
+    empty: "This room has no pictures yet",
+    emptyHint: "Add the first room picture",
+    addedBy: (name: string, date: string) => `Added by ${name} · ${date}`,
+    add: "Add a picture",
+    remove: "Delete picture",
+    previous: "Previous picture",
+    next: "Next picture",
+    open: "Room pictures",
+  },
   members: {
     title: "Members",
     you: "YOU",
@@ -186,7 +203,9 @@ export const en: typeof ru = {
     chipHours: "24 h to vote",
     chipSize: "up to 10 MB",
     geoTitle: "Geo tag",
-    geoDesc: "Counts instantly, no voting",
+    geoDesc: "counts instantly",
+    photoIsMoreFun:
+      "A photo is more fun: members vote, comment and get to see the workout. A geo tag counts instantly, but nobody notices it.",
     instant: "INSTANT",
     geoLocating: "Getting your location",
     geoSearching: (m: number) => `Looking for a gym nearby · ${m} m accuracy`,

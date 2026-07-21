@@ -5,9 +5,24 @@ import type {
   Comment,
   Member,
   Room,
+  RoomAvatar,
   RoomWithProgress,
   User,
 } from "@/shared/api/types";
+
+/* Stand-in room picture: a two-tone gradient seeded by the room id, so the mock shows what a
+   real uploaded photo occupies without shipping binary fixtures. */
+export function roomPicture(roomId: number): string {
+  const hue = (roomId * 67) % 360;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240">
+    <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="hsl(${hue} 62% 52%)"/>
+      <stop offset="100%" stop-color="hsl(${(hue + 48) % 360} 58% 32%)"/>
+    </linearGradient></defs>
+    <rect width="240" height="240" fill="url(#g)"/>
+    <circle cx="176" cy="64" r="86" fill="hsl(${hue} 70% 62%)" opacity="0.35"/>
+  </svg>`;
+}
 
 /* Diagonal-hatch placeholder, like the photo stubs in the design handoff. */
 export const PLACEHOLDER_PHOTO = `data:image/svg+xml,${encodeURIComponent(
@@ -62,6 +77,8 @@ export type MockDb = {
   nextCheckinId: number;
   comments: Map<string, Comment[]>;
   nextCommentId: number;
+  roomAvatars: Map<number, RoomAvatar[]>;
+  nextRoomAvatarId: number;
 };
 
 function member(u: User, workouts: number, joinedDaysAgo: number, streak = workouts): Member {
@@ -133,6 +150,7 @@ export function createDb(): MockDb {
       votes_required: 2,
       creator_id: 1,
       created_at: iso(-30 * DAY),
+      has_avatar: true,
     },
     {
       id: 2,
@@ -144,6 +162,7 @@ export function createDb(): MockDb {
       votes_required: 2,
       creator_id: 2,
       created_at: iso(-60 * DAY),
+      has_avatar: false,
     },
     {
       id: 3,
@@ -155,6 +174,7 @@ export function createDb(): MockDb {
       votes_required: 3,
       creator_id: 3,
       created_at: iso(-14 * DAY),
+      has_avatar: true,
     },
     {
       id: 4,
@@ -166,6 +186,7 @@ export function createDb(): MockDb {
       votes_required: 2,
       creator_id: 5,
       created_at: iso(-5 * DAY),
+      has_avatar: false,
     },
     {
       id: 99,
@@ -177,6 +198,7 @@ export function createDb(): MockDb {
       votes_required: 2,
       creator_id: 4,
       created_at: iso(-10 * DAY),
+      has_avatar: false,
     },
   ];
 
@@ -312,6 +334,17 @@ export function createDb(): MockDb {
   ]);
 
   return {
+    roomAvatars: new Map<number, RoomAvatar[]>([
+      [1, [{ id: 11, uploaded_by: 1, created_at: iso(-3 * DAY), is_current: true }]],
+      [
+        3,
+        [
+          { id: 31, uploaded_by: 3, created_at: iso(-2 * DAY), is_current: true },
+          { id: 32, uploaded_by: 5, created_at: iso(-9 * DAY), is_current: false },
+        ],
+      ],
+    ]),
+    nextRoomAvatarId: 100,
     me,
     achievements: meAchievements,
     users,

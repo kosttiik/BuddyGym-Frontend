@@ -9,7 +9,7 @@ import type {
   Stats,
   Theme,
 } from "@/shared/api/types";
-import { createDb, PLACEHOLDER_PHOTO, roomWithProgress } from "./db";
+import { createDb, PLACEHOLDER_PHOTO, roomPicture, roomWithProgress } from "./db";
 
 const MAX_PHOTO_BYTES = 10 << 20;
 
@@ -240,6 +240,7 @@ export const handlers = [
       votes_required: body.votes_required,
       creator_id: db.me.id,
       created_at: new Date().toISOString(),
+      has_avatar: false,
     };
     db.rooms.push(room);
     db.myRoomIds.add(room.id);
@@ -290,6 +291,94 @@ export const handlers = [
       votes_required: body.votes_required,
     });
     return HttpResponse.json(room);
+  }),
+
+  http.get("/api/v1/rooms/:id/avatar", ({ params }) => {
+    const room = db.rooms.find((r) => r.id === Number(params.id));
+    const current = db.roomAvatars.get(room?.id ?? 0)?.[0];
+    if (!room?.has_avatar || !current) {
+      return error(404, "room has no picture");
+    }
+    return new HttpResponse(roomPicture(current.id), {
+      headers: { "Content-Type": "image/svg+xml" },
+    });
+  }),
+
+  http.get("/api/v1/rooms/:id/avatars", ({ params }) => {
+    const res = requireRoom(String(params.id));
+    if ("fail" in res) {
+      return res.fail;
+    }
+    const gallery = db.roomAvatars.get(res.room.id) ?? [];
+    return HttpResponse.json(gallery.map((a, index) => ({ ...a, is_current: index === 0 })));
+  }),
+
+  http.get("/api/v1/rooms/:id/avatars/:avatarId", ({ params }) => {
+    const gallery = db.roomAvatars.get(Number(params.id)) ?? [];
+    const avatar = gallery.find((a) => a.id === Number(params.avatarId));
+    if (!avatar) {
+      return error(404, "picture not found");
+    }
+    return new HttpResponse(roomPicture(avatar.id), {
+      headers: { "Content-Type": "image/svg+xml" },
+    });
+  }),
+
+  http.put("/api/v1/rooms/:id/avatar", async ({ params, request }) => {
+    const res = requireRoom(String(params.id));
+    if ("fail" in res) {
+      return res.fail;
+    }
+    /* the body is not parsed: undici refuses a jsdom File, and the bytes are stubbed anyway */
+    if (!(request.headers.get("content-type") ?? "").startsWith("multipart/form-data")) {
+      return error(400, "photo is required");
+    }
+    await delay(300);
+    const added = {
+      id: db.nextRoomAvatarId++,
+      uploaded_by: db.me.id,
+      created_at: new Date().toISOString(),
+      is_current: true,
+    };
+    db.roomAvatars.set(res.room.id, [added, ...(db.roomAvatars.get(res.room.id) ?? [])]);
+    res.room.has_avatar = true;
+    return HttpResponse.json(added, { status: 201 });
+  }),
+
+  http.delete("/api/v1/rooms/:id/avatars/:avatarId", ({ params }) => {
+    const res = requireRoom(String(params.id));
+    if ("fail" in res) {
+      return res.fail;
+    }
+    const gallery = db.roomAvatars.get(res.room.id) ?? [];
+    const avatar = gallery.find((a) => a.id === Number(params.avatarId));
+    if (!avatar) {
+      return error(404, "picture not found");
+    }
+    if (avatar.uploaded_by !== db.me.id && res.room.creator_id !== db.me.id) {
+      return error(403, "uploader or room creator only");
+    }
+    const left = gallery.filter((a) => a.id !== avatar.id);
+    db.roomAvatars.set(res.room.id, left);
+    res.room.has_avatar = left.length > 0;
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  http.delete("/api/v1/rooms/:id", ({ params }) => {
+    const roomId = Number(params.id);
+    const room = db.rooms.find((r) => r.id === roomId);
+    if (!room) {
+      return error(404, "room not found");
+    }
+    if (room.creator_id !== db.me.id) {
+      return error(403, "room creator only");
+    }
+    db.rooms = db.rooms.filter((r) => r.id !== roomId);
+    db.myRoomIds.delete(roomId);
+    db.members.delete(roomId);
+    db.progress.delete(roomId);
+    db.checkins = db.checkins.filter((c) => c.room_id !== roomId);
+    return new HttpResponse(null, { status: 204 });
   }),
 
   http.get("/api/v1/rooms/:id", ({ params }) => {

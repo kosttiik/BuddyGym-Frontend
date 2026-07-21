@@ -5,7 +5,7 @@ import { useRooms } from "@/entities/room";
 import { ApiError } from "@/shared/api/client";
 import type { Checkin, Member, Room } from "@/shared/api/types";
 import { useI18n } from "@/shared/i18n";
-import { IconCamera, IconClock, IconGeoPinFilled, IconImage } from "@/shared/icons";
+import { IconCamera, IconClock, IconComment, IconGeoPinFilled, IconImage } from "@/shared/icons";
 import { hapticNotify } from "@/shared/lib/haptics";
 import { type CompressedPhoto, compressPhoto } from "@/shared/lib/photo";
 import {
@@ -243,21 +243,23 @@ export function CheckinSheet({ open, onClose, room, members, myProgress }: Check
           {t.checkinSheet.fromGallery}
         </motion.button>
 
+        <motion.p className={styles.hint} variants={sheetItemVariants}>
+          <IconComment size={15} className={styles.hintIcon} />
+          <span>{t.checkinSheet.photoIsMoreFun}</span>
+        </motion.p>
+
+        {/* the quiet option: it counts instantly, so it does not need to sell itself */}
         <motion.button
           type="button"
-          className={styles.geoCard}
+          className={styles.geoRow}
           variants={sheetItemVariants}
           whileTap={{ scale: 0.98 }}
           onClick={() => void sendGeo()}
           disabled={createCheckin.isPending || geoBusy}
         >
-          <span className={styles.radar}>
-            <IconGeoPinFilled size={22} className={styles.geoIcon} />
-          </span>
-          <span className={styles.cardText}>
-            <span className={styles.geoTitle}>{t.checkinSheet.geoTitle}</span>
-            <span className={styles.geoDesc}>{t.checkinSheet.geoDesc}</span>
-          </span>
+          <IconGeoPinFilled size={16} className={styles.geoRowIcon} />
+          <span className={styles.geoRowTitle}>{t.checkinSheet.geoTitle}</span>
+          <span className={styles.geoRowDesc}>{t.checkinSheet.geoDesc}</span>
         </motion.button>
 
         <motion.div variants={sheetItemVariants} className={styles.cancelWrap}>

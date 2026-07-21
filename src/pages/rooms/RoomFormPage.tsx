@@ -1,6 +1,7 @@
 import { useNavigate, useParams } from "@tanstack/react-router";
+import { motion } from "motion/react";
 import { useState } from "react";
-import { useCreateRoom, useRoom, useUpdateRoom } from "@/entities/room";
+import { useCreateRoom, useDeleteRoom, useRoom, useUpdateRoom } from "@/entities/room";
 import { useMe } from "@/entities/user";
 import type { CreateRoomRequest, RoomKind } from "@/shared/api/types";
 import { useI18n } from "@/shared/i18n";
@@ -11,17 +12,20 @@ import {
   IconLock,
   IconSliders,
   IconTarget,
+  IconTrash,
   IconUserCheck,
 } from "@/shared/icons";
-import { hapticNotify } from "@/shared/lib/haptics";
+import { hapticNotify, hapticTap } from "@/shared/lib/haptics";
 import {
   AppHeader,
+  BottomSheet,
   Button,
   GlassCard,
   Page,
   SegmentedControl,
   Skeleton,
   Stepper,
+  sheetItemVariants,
   TextField,
   useToast,
 } from "@/shared/ui";
@@ -70,6 +74,8 @@ export function EditRoomPage() {
   const room = useRoom(id);
   const me = useMe();
   const updateRoom = useUpdateRoom(id);
+  const deleteRoom = useDeleteRoom();
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const isCreator = room.isSuccess && room.data.room.creator_id === me.data?.user.id;
 
@@ -104,7 +110,60 @@ export function EditRoomPage() {
             }
           />
         )}
+        {isCreator && (
+          <div className={styles.danger}>
+            <Button
+              variant="ghost"
+              block
+              className={styles.deleteButton}
+              icon={<IconTrash size={15} />}
+              disabled={deleteRoom.isPending}
+              onClick={() => {
+                hapticTap();
+                setConfirmOpen(true);
+              }}
+            >
+              {t.createRoom.deleteRoom}
+            </Button>
+            <span className={styles.dangerNote}>{t.createRoom.deleteRoomNote}</span>
+          </div>
+        )}
       </Page>
+
+      {/* deleting takes the room away from everyone in it, so it asks first */}
+      <BottomSheet
+        open={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        title={t.createRoom.deleteConfirmTitle}
+      >
+        <motion.p className={styles.confirmText} variants={sheetItemVariants}>
+          {t.createRoom.deleteConfirmText}
+        </motion.p>
+        <motion.div className={styles.confirmActions} variants={sheetItemVariants}>
+          <Button variant="secondary" block onClick={() => setConfirmOpen(false)}>
+            {t.common.cancel}
+          </Button>
+          <Button
+            variant="ghost"
+            block
+            className={styles.deleteButton}
+            disabled={deleteRoom.isPending}
+            onClick={() =>
+              deleteRoom.mutate(id, {
+                onSuccess: () => {
+                  hapticNotify("success");
+                  void navigate({ to: "/", replace: true });
+                },
+                onError: () => {
+                  showToast({ title: t.errors.generic, description: t.errors.genericDesc });
+                },
+              })
+            }
+          >
+            {t.createRoom.deleteConfirm}
+          </Button>
+        </motion.div>
+      </BottomSheet>
     </>
   );
 }

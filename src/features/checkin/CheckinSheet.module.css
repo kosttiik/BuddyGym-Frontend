@@ -229,3 +229,54 @@
 .galleryRow:disabled {
   opacity: 0.55;
 }
+
+/* Geo is the fallback, not the hero: a quiet row instead of the second big card. */
+.geoRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px 14px;
+  border-radius: var(--radius-tile);
+  background: var(--ghost-bg);
+  text-align: left;
+}
+
+.geoRowIcon {
+  color: var(--text-secondary);
+  flex: none;
+}
+
+.geoRowTitle {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  flex: none;
+}
+
+.geoRowDesc {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 14px;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.hintIcon {
+  color: var(--accent-on-tint);
+  flex: none;
+  margin-top: 1px;
+}

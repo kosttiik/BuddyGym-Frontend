@@ -70,3 +70,33 @@
   flex: none;
   margin-top: 1px;
 }
+
+.danger {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-top: 28px;
+}
+
+.deleteButton {
+  color: var(--red-text);
+}
+
+.dangerNote {
+  font-size: 12.5px;
+  color: var(--text-tertiary);
+  text-align: center;
+}
+
+.confirmText {
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--text-secondary);
+}
+
+.confirmActions {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+}

@@ -132,6 +132,9 @@ export const api = {
   postForm<T>(path: string, form: FormData): Promise<T> {
     return request<T>(path, { method: "POST", body: form });
   },
+  putForm<T>(path: string, form: FormData): Promise<T> {
+    return request<T>(path, { method: "PUT", body: form });
+  },
   patch<T>(path: string, json: unknown): Promise<T> {
     return request<T>(path, {
       method: "PATCH",

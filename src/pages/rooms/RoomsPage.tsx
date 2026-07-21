@@ -18,6 +18,7 @@ import {
   Page,
   ProgressCounter,
   PullToRefresh,
+  RoomAvatar,
   SegmentedProgress,
   Skeleton,
   StreakFlame,
@@ -127,6 +128,7 @@ function RoomCard({ room }: { room: RoomWithProgress }) {
         aria-label={room.name}
       />
       <div className={styles.cardTop}>
+        <RoomAvatar roomId={room.id} name={room.name} hasAvatar={room.has_avatar} size={42} />
         <span className={styles.roomName}>{room.name}</span>
         <span className={styles.cardTags}>
           <StreakFlame

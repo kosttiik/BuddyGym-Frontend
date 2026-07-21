@@ -63,6 +63,14 @@ export type Room = {
   votes_required: number;
   creator_id: number;
   created_at: string;
+  has_avatar: boolean;
+};
+
+export type RoomAvatar = {
+  id: number;
+  uploaded_by: number;
+  created_at: string;
+  is_current: boolean;
 };
 
 export type RoomWithProgress = Room & {

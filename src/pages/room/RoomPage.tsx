@@ -31,10 +31,12 @@ import {
   GlassCard,
   Page,
   PullToRefresh,
+  RoomAvatar,
   Skeleton,
 } from "@/shared/ui";
 import { CheckinCard } from "./CheckinCard";
 import { PhotoViewer } from "./PhotoViewer";
+import { RoomGallery } from "./RoomGallery";
 import styles from "./RoomPage.module.css";
 import { ShareRoomSheet } from "./ShareRoomSheet";
 
@@ -80,6 +82,7 @@ export function RoomPage() {
   const allCheckins = useRoomCheckins(id);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
+  const [galleryOpen, setGalleryOpen] = useState(false);
   const [viewer, setViewer] = useState<Checkin | null>(null);
   const [edgeSwipe, setEdgeSwipe] = useState(false);
 
@@ -167,6 +170,7 @@ export function RoomPage() {
               detail={room.data}
               isCreator={room.data.room.creator_id === me.data?.user.id}
               onShare={() => setShareOpen(true)}
+              onOpenGallery={() => setGalleryOpen(true)}
             />
           </motion.div>
         )}
@@ -291,6 +295,19 @@ export function RoomPage() {
       )}
 
       <AnimatePresence>
+        {galleryOpen && room.isSuccess && (
+          <RoomGallery
+            roomId={id}
+            roomName={room.data.room.name}
+            members={[...members.values()]}
+            myId={me.data?.user.id}
+            isCreator={room.data.room.creator_id === me.data?.user.id}
+            onClose={() => setGalleryOpen(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
         {viewer && (
           <PhotoViewer
             checkin={viewer}
@@ -358,10 +375,12 @@ function RoomHeaderCard({
   detail,
   isCreator,
   onShare,
+  onOpenGallery,
 }: {
   detail: { room: import("@/shared/api/types").Room; members: Member[] };
   isCreator: boolean;
   onShare: () => void;
+  onOpenGallery: () => void;
 }) {
   const { t } = useI18n();
   const { room, members } = detail;
@@ -369,6 +388,14 @@ function RoomHeaderCard({
   return (
     <GlassCard className={styles.header}>
       <div className={styles.headerTop}>
+        <RoomAvatar
+          roomId={room.id}
+          name={room.name}
+          hasAvatar={room.has_avatar}
+          size={46}
+          onClick={onOpenGallery}
+          label={t.gallery.open}
+        />
         <h1 className={styles.roomName}>{room.name}</h1>
         <Badge tone={room.kind === "open" ? "green" : "purple"}>
           {room.kind === "open" ? t.rooms.openBadge : t.rooms.inviteBadge}

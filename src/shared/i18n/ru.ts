@@ -61,6 +61,12 @@ export const ru = {
     save: "Сохранить",
     saved: "Настройки сохранены",
     creatorOnly: "Настройки комнаты меняет только создатель",
+    deleteRoom: "Удалить комнату",
+    deleteRoomNote: "Комната исчезнет у всех участников",
+    deleteConfirmTitle: "Удалить комнату?",
+    deleteConfirmText:
+      "Комната пропадёт у всех участников вместе с отметками, комментариями и прогрессом. Отменить это нельзя.",
+    deleteConfirm: "Удалить",
   },
   joinByCode: {
     title: "Войти по коду",
@@ -162,6 +168,17 @@ export const ru = {
       "Форма так и висит чистая",
     ],
   },
+  gallery: {
+    counter: (index: number, total: number) => `Фото ${index} из ${total}`,
+    empty: "У комнаты пока нет фото",
+    emptyHint: "Добавьте первое фото комнаты",
+    addedBy: (name: string, date: string) => `Добавил ${name} · ${date}`,
+    add: "Добавить фото",
+    remove: "Удалить фото",
+    previous: "Предыдущее фото",
+    next: "Следующее фото",
+    open: "Фото комнаты",
+  },
   members: {
     title: "Участники",
     you: "ВЫ",
@@ -185,7 +202,9 @@ export const ru = {
     chipHours: "24 ч на голоса",
     chipSize: "до 10 МБ",
     geoTitle: "Гео-метка",
-    geoDesc: "Зачтётся сразу, без голосования",
+    geoDesc: "зачтётся сразу",
+    photoIsMoreFun:
+      "С фото интереснее: участники голосуют, комментируют и видят, как вы тренировались. Гео-метка зачтётся мгновенно, но пройдёт незаметно.",
     instant: "МГНОВЕННО",
     geoLocating: "Определяем геопозицию",
     geoSearching: (m: number) => `Ищем зал рядом · точность ${m} м`,

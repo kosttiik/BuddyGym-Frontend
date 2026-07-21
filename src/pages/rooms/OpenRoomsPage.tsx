@@ -4,7 +4,16 @@ import type { Room } from "@/shared/api/types";
 import { useI18n } from "@/shared/i18n";
 import { IconGlobe, IconPlus, IconUsers } from "@/shared/icons";
 import { cx } from "@/shared/lib/cx";
-import { AppHeader, Badge, Button, GlassCard, Page, PullToRefresh, Skeleton } from "@/shared/ui";
+import {
+  AppHeader,
+  Badge,
+  Button,
+  GlassCard,
+  Page,
+  PullToRefresh,
+  RoomAvatar,
+  Skeleton,
+} from "@/shared/ui";
 import styles from "./RoomsPage.module.css";
 
 export function OpenRoomsPage() {
@@ -47,6 +56,12 @@ export function OpenRoomsPage() {
             {rooms.data.map((room) => (
               <GlassCard key={room.id}>
                 <div className={styles.cardTop}>
+                  <RoomAvatar
+                    roomId={room.id}
+                    name={room.name}
+                    hasAvatar={room.has_avatar}
+                    size={42}
+                  />
                   <span className={styles.roomName}>{room.name}</span>
                   <Badge tone="green">{t.rooms.openBadge}</Badge>
                 </div>

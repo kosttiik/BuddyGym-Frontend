@@ -13,6 +13,7 @@ export { Page } from "./Page";
 export { ProgressBar, ProgressCounter, SegmentedProgress } from "./Progress";
 export { ProgressRing } from "./ProgressRing";
 export { PullToRefresh } from "./PullToRefresh";
+export { RoomAvatar } from "./RoomAvatar";
 export { SegmentedControl } from "./SegmentedControl";
 export { Skeleton } from "./Skeleton";
 export { Spinner } from "./Spinner";

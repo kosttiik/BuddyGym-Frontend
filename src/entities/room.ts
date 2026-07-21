@@ -3,9 +3,11 @@ import { api } from "@/shared/api/client";
 import type {
   CreateRoomRequest,
   Room,
+  RoomAvatar,
   RoomDetailResponse,
   RoomWithProgress,
 } from "@/shared/api/types";
+import { forgetAvatar, roomAvatarPath } from "@/shared/lib/useAvatar";
 
 export const roomsKey = ["rooms"] as const;
 export const openRoomsKey = ["open-rooms"] as const;
@@ -74,6 +76,60 @@ export function useUpdateRoom(roomId: number) {
       void queryClient.invalidateQueries({ queryKey: roomsKey });
       void queryClient.invalidateQueries({ queryKey: openRoomsKey });
       void queryClient.invalidateQueries({ queryKey: roomKey(roomId) });
+    },
+  });
+}
+
+export const roomAvatarsKey = (id: number) => ["room-avatars", id] as const;
+
+export function useRoomAvatars(roomId: number, enabled = true) {
+  return useQuery({
+    queryKey: roomAvatarsKey(roomId),
+    queryFn: () => api.get<RoomAvatar[]>(`/rooms/${roomId}/avatars`),
+    enabled,
+  });
+}
+
+function useGalleryRefresh(roomId: number) {
+  const queryClient = useQueryClient();
+  return () => {
+    /* the room wears the newest picture, so its cached blob is stale after any change */
+    forgetAvatar(roomAvatarPath(roomId));
+    void queryClient.invalidateQueries({ queryKey: roomAvatarsKey(roomId) });
+    void queryClient.invalidateQueries({ queryKey: roomsKey });
+    void queryClient.invalidateQueries({ queryKey: openRoomsKey });
+    void queryClient.invalidateQueries({ queryKey: roomKey(roomId) });
+  };
+}
+
+export function useAddRoomAvatar(roomId: number) {
+  const refresh = useGalleryRefresh(roomId);
+  return useMutation({
+    mutationFn: (photo: File) => {
+      const form = new FormData();
+      form.append("photo", photo);
+      return api.putForm<RoomAvatar>(`/rooms/${roomId}/avatar`, form);
+    },
+    onSuccess: refresh,
+  });
+}
+
+export function useDeleteRoomAvatar(roomId: number) {
+  const refresh = useGalleryRefresh(roomId);
+  return useMutation({
+    mutationFn: (avatarId: number) => api.del(`/rooms/${roomId}/avatars/${avatarId}`),
+    onSuccess: refresh,
+  });
+}
+
+export function useDeleteRoom() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (roomId: number) => api.del(`/rooms/${roomId}`),
+    onSuccess: (_, roomId) => {
+      queryClient.removeQueries({ queryKey: roomKey(roomId) });
+      void queryClient.invalidateQueries({ queryKey: roomsKey });
+      void queryClient.invalidateQueries({ queryKey: openRoomsKey });
     },
   });
 }

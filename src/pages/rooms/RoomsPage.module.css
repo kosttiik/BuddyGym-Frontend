@@ -43,6 +43,9 @@
 }
 
 .roomName {
+  /* the name takes the slack between the picture and the badges */
+  flex: 1;
+  min-width: 0;
   font-size: 16.5px;
   font-weight: 700;
   color: var(--text-primary);
