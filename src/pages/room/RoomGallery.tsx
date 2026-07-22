@@ -4,7 +4,8 @@ import { createPortal } from "react-dom";
 import { useAddRoomAvatar, useDeleteRoomAvatar, useRoomAvatars } from "@/entities/room";
 import type { Member, RoomAvatar } from "@/shared/api/types";
 import { useI18n } from "@/shared/i18n";
-import { IconChevronLeft, IconChevronRight, IconCross, IconImage, IconTrash } from "@/shared/icons";
+import { IconCross, IconImage, IconTrash } from "@/shared/icons";
+import { cx } from "@/shared/lib/cx";
 import { hapticNotify, hapticTap } from "@/shared/lib/haptics";
 import { spring } from "@/shared/lib/motion";
 import { compressPhoto } from "@/shared/lib/photo";
@@ -173,13 +174,17 @@ export function RoomGallery({
       </div>
 
       {photos.length > 1 && (
-        <div className={styles.dots}>
+        <div className={styles.strip}>
           {photos.map((photo, i) => (
-            <motion.span
+            <GalleryThumb
               key={photo.id}
-              className={styles.dot}
-              animate={{ opacity: i === safeIndex ? 1 : 0.32, scale: i === safeIndex ? 1.25 : 1 }}
-              transition={reduce ? { duration: 0 } : spring.soft}
+              roomId={roomId}
+              photo={photo}
+              index={i}
+              active={i === safeIndex}
+              /* only thumbs near the current frame are worth a full-size fetch */
+              load={Math.abs(i - safeIndex) <= 3}
+              onSelect={() => goTo(i)}
             />
           ))}
         </div>
@@ -197,24 +202,6 @@ export function RoomGallery({
             : t.gallery.emptyHint}
         </span>
         <div className={styles.actions}>
-          <button
-            type="button"
-            className={styles.iconButton}
-            onClick={() => goTo(safeIndex - 1)}
-            disabled={safeIndex <= 0}
-            aria-label={t.gallery.previous}
-          >
-            <IconChevronLeft size={16} />
-          </button>
-          <button
-            type="button"
-            className={styles.iconButton}
-            onClick={() => goTo(safeIndex + 1)}
-            disabled={safeIndex >= last}
-            aria-label={t.gallery.next}
-          >
-            <IconChevronRight size={16} />
-          </button>
           {canDelete && (
             <button
               type="button"
@@ -228,12 +215,12 @@ export function RoomGallery({
           )}
           <button
             type="button"
-            className={styles.iconButton}
+            className={styles.addButton}
             onClick={() => fileRef.current?.click()}
             disabled={addPhoto.isPending}
-            aria-label={t.gallery.add}
           >
             <IconImage size={16} />
+            {t.gallery.add}
           </button>
         </div>
       </div>
@@ -250,6 +237,36 @@ export function RoomGallery({
       />
     </motion.div>,
     document.body,
+  );
+}
+
+function GalleryThumb({
+  roomId,
+  photo,
+  index,
+  active,
+  load,
+  onSelect,
+}: {
+  roomId: number;
+  photo: RoomAvatar;
+  index: number;
+  active: boolean;
+  load: boolean;
+  onSelect: () => void;
+}) {
+  const { t } = useI18n();
+  const url = useRoomGalleryPhoto(roomId, load ? photo.id : undefined);
+  return (
+    <button
+      type="button"
+      className={cx(styles.thumb, active && styles.thumbActive)}
+      aria-label={t.gallery.pick(index + 1)}
+      aria-current={active}
+      onClick={onSelect}
+    >
+      {url && <img src={url} alt="" className={styles.thumbImage} decoding="async" />}
+    </button>
   );
 }
 

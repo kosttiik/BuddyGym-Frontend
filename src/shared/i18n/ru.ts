@@ -205,6 +205,7 @@ export const ru = {
     remove: "Удалить фото",
     previous: "Предыдущее фото",
     next: "Следующее фото",
+    pick: (index: number) => `Открыть фото ${index}`,
     open: "Фото комнаты",
   },
   members: {

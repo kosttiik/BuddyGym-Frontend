@@ -87,9 +87,10 @@ function member(
   workouts: number,
   joinedDaysAgo: number,
   streak = workouts,
-  extra: Partial<Member> = {},
+  extra: Partial<Member> & { roomGoal?: number } = {},
 ): Member {
   const goal = extra.goal_per_period ?? null;
+  const { roomGoal = 3, ...rest } = extra;
   return {
     ...u,
     workouts_count: workouts,
@@ -99,11 +100,11 @@ function member(
     sport_name: "",
     sport_emoji: "",
     goal_per_period: goal,
-    effective_goal: goal ?? 5,
+    effective_goal: goal ?? roomGoal,
     /* joined less than a period ago: nothing has been judged yet, so no shame */
     has_closed_period: joinedDaysAgo >= 7,
     last_closed_period_failed: joinedDaysAgo >= 7 && workouts === 0,
-    ...extra,
+    ...rest,
   };
 }
 
@@ -379,25 +380,48 @@ export function createDb(): MockDb {
       [
         1,
         [
-          member(me, 2, 30, 2, { has_closed_period: true, last_closed_period_failed: true }),
-          member(dima, 1, 25, 1, { has_closed_period: true, last_closed_period_failed: true }),
-          member(lera, 3, 20, 3, { has_closed_period: true, last_closed_period_failed: false }),
-          member(pasha, 0, 5, 0, { has_closed_period: false, last_closed_period_failed: false }),
+          member(me, 2, 30, 2, {
+            roomGoal: 3,
+            has_closed_period: true,
+            last_closed_period_failed: true,
+          }),
+          member(dima, 1, 25, 1, {
+            roomGoal: 3,
+            has_closed_period: true,
+            last_closed_period_failed: true,
+          }),
+          member(lera, 3, 20, 3, {
+            roomGoal: 3,
+            has_closed_period: true,
+            last_closed_period_failed: false,
+          }),
+          member(pasha, 0, 5, 0, {
+            roomGoal: 3,
+            has_closed_period: false,
+            last_closed_period_failed: false,
+          }),
         ],
       ],
       [
         2,
         [
-          member(marina, 4, 60),
-          member(me, 3, 55),
-          member(dima, 2, 50),
-          member(lera, 1, 30),
-          ...extra.map((u, i) => member(u, 0, 20 - i)),
+          member(marina, 4, 60, 4, { roomGoal: 5 }),
+          member(me, 3, 55, 3, { roomGoal: 5 }),
+          member(dima, 2, 50, 2, { roomGoal: 5 }),
+          member(lera, 1, 30, 1, { roomGoal: 5 }),
+          ...extra.map((u, i) => member(u, 0, 20 - i, 0, { roomGoal: 5 })),
         ],
       ],
-      [3, [member(dima, 15, 14), member(me, 12, 13), member(marina, 20, 12)]],
-      [4, [member(pasha, 0, 5)]],
-      [99, [member(lera, 1, 10)]],
+      [
+        3,
+        [
+          member(dima, 15, 14, 15, { roomGoal: 40 }),
+          member(me, 12, 13, 12, { roomGoal: 40 }),
+          member(marina, 20, 12, 20, { roomGoal: 40 }),
+        ],
+      ],
+      [4, [member(pasha, 0, 5, 0, { roomGoal: 2 })]],
+      [99, [member(lera, 1, 10, 1, { roomGoal: 4 })]],
     ]),
     checkins,
     votedBy: new Map([["c-4", new Set([1, 3])]]),

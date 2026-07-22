@@ -89,6 +89,14 @@
   scroll-snap-type: x proximity;
   margin: 0 -16px;
   padding: 6px 16px;
+  /* the row scrolls past the edge: fade the tail so the cut reads as "more", not as broken */
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 16px,
+    #000 calc(100% - 28px),
+    transparent 100%
+  );
 }
 
 .tabs::-webkit-scrollbar {

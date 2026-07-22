@@ -207,6 +207,7 @@ export const en: typeof ru = {
     remove: "Delete picture",
     previous: "Previous picture",
     next: "Next picture",
+    pick: (index: number) => `Open picture ${index}`,
     open: "Room pictures",
   },
   members: {

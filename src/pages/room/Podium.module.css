@@ -4,6 +4,13 @@
   align-items: end;
   gap: 8px;
   margin-bottom: 22px;
+  /* the steps have no bottom border of their own: without a floor they read as cut off */
+  border-bottom: 2px solid var(--card-border);
+}
+
+.podiumShort {
+  grid-template-columns: repeat(2, minmax(0, 132px));
+  justify-content: center;
 }
 
 .step {
