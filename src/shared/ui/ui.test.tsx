@@ -80,15 +80,36 @@ describe("Stepper", () => {
 
   it("increments and decrements within range", async () => {
     render(<Harness />);
+    const field = screen.getByRole("textbox", { name: "Goal" });
     await userEvent.click(screen.getByRole("button", { name: "+" }));
-    expect(screen.getByText("6")).toBeInTheDocument();
+    expect(field).toHaveValue("6");
     await userEvent.click(screen.getByRole("button", { name: "−" }));
-    expect(screen.getByText("5")).toBeInTheDocument();
+    expect(field).toHaveValue("5");
   });
 
   it("disables minus at the minimum", () => {
     render(<Harness initial={1} />);
     expect(screen.getByRole("button", { name: "−" })).toBeDisabled();
+  });
+
+  it("takes a typed number and clamps it to the range", async () => {
+    render(<Harness />);
+    const field = screen.getByRole("textbox", { name: "Goal" });
+
+    await userEvent.clear(field);
+    await userEvent.type(field, "8");
+    await userEvent.tab();
+    expect(field).toHaveValue("8");
+
+    await userEvent.clear(field);
+    await userEvent.type(field, "42");
+    await userEvent.tab();
+    expect(field).toHaveValue("10");
+
+    await userEvent.clear(field);
+    await userEvent.type(field, "abc");
+    await userEvent.tab();
+    expect(field).toHaveValue("10");
   });
 });
 

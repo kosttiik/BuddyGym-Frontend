@@ -17,6 +17,38 @@
   place-items: center;
 }
 
+.glow {
+  position: absolute;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(34, 200, 119, 0.45), transparent 68%);
+  animation: breathe 2.4s ease-in-out infinite;
+}
+
+.glowDone {
+  animation: none;
+  background: radial-gradient(circle, rgba(34, 200, 119, 0.6), transparent 72%);
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(0.94);
+  }
+  50% {
+    opacity: 0.75;
+    transform: scale(1.04);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glow {
+    animation: none;
+  }
+}
+
 .value {
   position: absolute;
   font-family: var(--font-display);

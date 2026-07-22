@@ -83,7 +83,7 @@ export function RoomPage() {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [galleryOpen, setGalleryOpen] = useState(false);
-  const [viewer, setViewer] = useState<Checkin | null>(null);
+  const [viewer, setViewer] = useState<{ checkin: Checkin; comments: boolean } | null>(null);
   const [edgeSwipe, setEdgeSwipe] = useState(false);
 
   const selectTab = (next: CheckinStatus) => {
@@ -254,7 +254,9 @@ export function RoomPage() {
                         isMine={checkin.user_id === me.data?.user.id}
                         roomId={id}
                         disabled={checkinsDown}
-                        onOpenPhoto={() => setViewer(checkin)}
+                        onOpenPhoto={(options) =>
+                          setViewer({ checkin, comments: options?.comments ?? false })
+                        }
                       />
                     </motion.div>
                   ))}
@@ -310,12 +312,13 @@ export function RoomPage() {
       <AnimatePresence>
         {viewer && (
           <PhotoViewer
-            checkin={viewer}
-            author={members.get(viewer.user_id)}
-            isMine={viewer.user_id === me.data?.user.id}
+            checkin={viewer.checkin}
+            author={members.get(viewer.checkin.user_id)}
+            isMine={viewer.checkin.user_id === me.data?.user.id}
             roomId={id}
             myId={me.data?.user.id}
             canModerate={room.data?.room.creator_id === me.data?.user.id}
+            withComments={viewer.comments}
             onClose={() => setViewer(null)}
           />
         )}

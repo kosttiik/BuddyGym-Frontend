@@ -77,3 +77,15 @@ test("the comments sheet opens above the full screen photo", async () => {
   expect(sheet).toBeVisible();
   expect(screen.getByPlaceholderText("Write something...")).toBeVisible();
 });
+
+/* The comments pill used to open the viewer only: writing a reply took a second tap. */
+test("the comments pill opens the thread with the input focused", async () => {
+  window.history.replaceState(null, "", "/rooms/2");
+  render(<App />);
+
+  const pills = await screen.findAllByRole("button", { name: "Comments" }, { timeout: 4000 });
+  await userEvent.click(pills[0] as HTMLElement);
+
+  const input = await screen.findByPlaceholderText("Write something...");
+  expect(input).toHaveFocus();
+});

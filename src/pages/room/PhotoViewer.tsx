@@ -30,6 +30,7 @@ export type PhotoViewerProps = {
   roomId: number;
   myId?: number;
   canModerate: boolean;
+  withComments?: boolean;
   onClose: () => void;
 };
 
@@ -40,10 +41,12 @@ export function PhotoViewer({
   roomId,
   myId,
   canModerate,
+  withComments = false,
   onClose,
 }: PhotoViewerProps) {
   const { t, locale } = useI18n();
-  const [commentsOpen, setCommentsOpen] = useState(false);
+  const [commentsOpen, setCommentsOpen] = useState(withComments);
+  const [composing, setComposing] = useState(withComments);
   const [zoomed, setZoomed] = useState<string | null>(null);
   const [buddiesOpen, setBuddiesOpen] = useState(false);
   const top = checkin.top_comment;
@@ -122,7 +125,10 @@ export function PhotoViewer({
         <button
           type="button"
           className={cx(styles.topComment, !top && styles.topEmpty)}
-          onClick={() => setCommentsOpen(true)}
+          onClick={() => {
+            setComposing(!top);
+            setCommentsOpen(true);
+          }}
         >
           {top ? (
             <>
@@ -154,7 +160,10 @@ export function PhotoViewer({
           aria-label={t.comments.title}
           whileTap={{ scale: 0.92 }}
           transition={spring.snappy}
-          onClick={() => setCommentsOpen(true)}
+          onClick={() => {
+            setComposing(true);
+            setCommentsOpen(true);
+          }}
         >
           <IconComment size={16} />
           {total > 0 && <span className={styles.count}>{total}</span>}
@@ -224,7 +233,11 @@ export function PhotoViewer({
         checkinId={checkin.id}
         roomId={roomId}
         open={commentsOpen}
-        onClose={() => setCommentsOpen(false)}
+        autoFocus={composing}
+        onClose={() => {
+          setCommentsOpen(false);
+          setComposing(false);
+        }}
         myId={myId}
         canModerate={canModerate}
         onOpenPhoto={setZoomed}

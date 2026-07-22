@@ -19,7 +19,7 @@ export type CheckinCardProps = {
   isMine: boolean;
   roomId: number;
   disabled?: boolean;
-  onOpenPhoto: () => void;
+  onOpenPhoto: (options?: { comments?: boolean }) => void;
 };
 
 export function CheckinCard({
@@ -105,7 +105,7 @@ export function CheckinCard({
           <button
             type="button"
             className={styles.thumbButton}
-            onClick={onOpenPhoto}
+            onClick={() => onOpenPhoto()}
             aria-label={name}
           >
             <CheckinPhoto checkin={checkin} className={styles.thumb} />
@@ -131,7 +131,7 @@ export function CheckinCard({
             type="button"
             className={styles.commentsPill}
             aria-label={t.comments.title}
-            onClick={onOpenPhoto}
+            onClick={() => onOpenPhoto({ comments: true })}
           >
             <IconComment size={13} />
             {comments > 0 && <span>{comments}</span>}

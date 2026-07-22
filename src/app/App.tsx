@@ -52,7 +52,7 @@ const viewTransition = {
     fromLocation?: { pathname: string };
     toLocation: { pathname: string };
   }) => {
-    if (!fromLocation) {
+    if (!fromLocation || fromLocation.pathname === toLocation.pathname) {
       return [];
     }
     const from = rankOf(fromLocation.pathname);
