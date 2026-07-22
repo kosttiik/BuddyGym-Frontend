@@ -18,7 +18,7 @@ afterEach(() => {
 });
 afterAll(() => server.close());
 
-/* Room 1 is goal 3 per period: Лера 3 (met it), Костя 2, Дима 1, Паша 0. */
+/* Room 1 is goal 3 per period: Лера 3 (met it), Костя 2, Дима 1, Паша 0 and freshly joined. */
 function openBoard() {
   window.history.replaceState(null, "", "/rooms/1/board");
   render(<App />);
@@ -49,9 +49,23 @@ test("the hall of shame puts the worst on the podium and keeps the goal-hitter o
 
   // Лера hit the goal of 3, so the board has nothing on her
   expect(podium).not.toHaveTextContent("Лера");
-  // laid out 2-1-3, so the worst stands in the middle
-  expect(names[1]).toHaveTextContent("Паша");
-  expect(within(podium).getAllByText(/0\/3|1\/3|2\/3/).length).toBeGreaterThan(0);
-  // the status rides the avatar here too, so the medal must not sit on the same corner
-  expect(within(podium).getByRole("button", { name: "Отдыхаю" })).toBeInTheDocument();
+  // Паша has not lived through a closed period yet: no judgment, no shame
+  expect(podium).not.toHaveTextContent("Паша");
+  // laid out 2-1-3, so the worst judged member stands in the middle
+  expect(names[0]).toHaveTextContent("Костя");
+  expect(names[1]).toHaveTextContent("Дима");
+  expect(within(podium).getAllByText(/1\/3|2\/3/).length).toBeGreaterThan(0);
+});
+
+/* A room where no period has closed yet must not shame anyone. */
+test("the hall of shame is empty until the first period closes", async () => {
+  window.history.replaceState(null, "", "/rooms/4/board");
+  render(<App />);
+
+  await userEvent.click(
+    await screen.findByRole("radio", { name: "Hall of shame" }, { timeout: 4000 }),
+  );
+
+  expect(await screen.findByText("The first period is still running")).toBeInTheDocument();
+  expect(screen.queryByTestId("podium")).not.toBeInTheDocument();
 });

@@ -36,7 +36,10 @@ export function Podium({
   const honor = tone === "honor";
 
   return (
-    <div className={styles.podium} data-testid="podium">
+    <div
+      className={cx(styles.podium, podium.length < 3 && styles.podiumShort)}
+      data-testid="podium"
+    >
       {SLOTS.map((slot) => {
         const member = podium[slot];
         if (!member) {
@@ -152,7 +155,7 @@ export function Podium({
                 animate={{ opacity: 1, scaleY: 1 }}
                 transition={{ ...glide, delay }}
               >
-                {t.board.workouts(member.workouts_count, goal)}
+                {t.board.workouts(member.workouts_count, member.effective_goal || goal)}
               </motion.span>
             </motion.div>
           </div>

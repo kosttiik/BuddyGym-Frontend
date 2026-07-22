@@ -53,11 +53,16 @@ export function ProgressRing({
         transform={`rotate(-90 ${size / 2} ${size / 2})`}
         initial={animated && !reduceMotion ? { pathLength: 0 } : false}
         animate={{ pathLength: clamped }}
-        transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1], delay: 0.25 }}
+        transition={
+          animated
+            ? { duration: 1.1, ease: [0.22, 1, 0.36, 1], delay: 0.25 }
+            : /* live progress: follow the value now, a delayed tween reads as a stuck upload */
+              { type: "spring", stiffness: 140, damping: 24, mass: 0.5 }
+        }
       />
       <defs>
         <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor={muted ? "#5f7d6d" : "#3ed488"} />
+          <stop offset="0" stopColor={muted ? "#5f7d6d" : "#22c877"} />
           <stop offset="1" stopColor={muted ? "#41604f" : "#0ea55c"} />
         </linearGradient>
       </defs>

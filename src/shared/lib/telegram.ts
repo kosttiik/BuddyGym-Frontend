@@ -3,6 +3,7 @@ import {
   init,
   locationManager,
   miniApp,
+  requestWriteAccess,
   retrieveLaunchParams,
   retrieveRawInitData,
   shareURL,
@@ -179,6 +180,25 @@ export function canShareToTelegram(): boolean {
 export function shareToTelegram(url: string, text?: string): void {
   if (shareURL.isAvailable()) {
     shareURL(url, text);
+  }
+}
+
+const WRITE_ACCESS_KEY = "bg.botWriteAccess";
+
+/* The notification bot can only DM users who allowed it. Asked once per install: a decline
+   is remembered too, so the prompt does not follow the user around. */
+export async function ensureBotWriteAccess(): Promise<void> {
+  try {
+    if (!insideTelegram || localStorage.getItem(WRITE_ACCESS_KEY)) {
+      return;
+    }
+    if (!requestWriteAccess.isAvailable()) {
+      return;
+    }
+    const status = await requestWriteAccess();
+    localStorage.setItem(WRITE_ACCESS_KEY, status);
+  } catch {
+    /* a declined or unsupported request must never break the session */
   }
 }
 

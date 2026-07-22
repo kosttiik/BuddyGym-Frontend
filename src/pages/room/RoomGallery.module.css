@@ -94,18 +94,64 @@
   max-width: 260px;
 }
 
-.dots {
+.strip {
   display: flex;
-  justify-content: center;
-  gap: 6px;
-  padding: 12px 0 4px;
+  gap: 8px;
+  padding: 12px 16px 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
 }
 
-.dot {
-  width: 6px;
-  height: 6px;
+.strip::-webkit-scrollbar {
+  display: none;
+}
+
+.thumb {
+  flex: none;
+  width: 54px;
+  height: 54px;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+  opacity: 0.6;
+  transition:
+    opacity 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.thumbActive {
+  opacity: 1;
+  border-color: #fff;
+}
+
+.thumbImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.addButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 16px;
+  border: none;
   border-radius: var(--radius-pill);
-  background: #fff;
+  background: var(--accent-gradient);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.addButton:disabled {
+  opacity: 0.5;
 }
 
 .caption {

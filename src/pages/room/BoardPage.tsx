@@ -44,9 +44,11 @@ export function BoardPage() {
 
   const goal = room.data?.room.goal_per_period ?? 0;
   const ranked = useMemo(() => rank(room.data?.members ?? []), [room.data]);
+  /* Shame lands only once a period has closed on you and the goal was missed: a fresh room
+     has nobody to shame, and a freeze exempts the periods it covers. */
   const slackers = useMemo(
-    () => ranked.filter((m) => m.workouts_count < goal).reverse(),
-    [ranked, goal],
+    () => ranked.filter((m) => m.has_closed_period && m.last_closed_period_failed).reverse(),
+    [ranked],
   );
 
   return (
@@ -69,7 +71,12 @@ export function BoardPage() {
           <Honor members={ranked} goal={goal} myId={me.data?.user.id} />
         )}
         {room.isSuccess && board === "shame" && (
-          <Shame members={slackers} goal={goal} myId={me.data?.user.id} />
+          <Shame
+            members={slackers}
+            goal={goal}
+            myId={me.data?.user.id}
+            anyJudged={ranked.some((m) => m.has_closed_period)}
+          />
         )}
       </Page>
     </>
@@ -122,7 +129,17 @@ function Honor({ members, goal, myId }: { members: Member[]; goal: number; myId?
   );
 }
 
-function Shame({ members, goal, myId }: { members: Member[]; goal: number; myId?: number }) {
+function Shame({
+  members,
+  goal,
+  myId,
+  anyJudged,
+}: {
+  members: Member[];
+  goal: number;
+  myId?: number;
+  anyJudged: boolean;
+}) {
   const { t } = useI18n();
   const rest = members.slice(3);
 
@@ -130,8 +147,8 @@ function Shame({ members, goal, myId }: { members: Member[]; goal: number; myId?
     return (
       <EmptyBoard
         icon={<IconFire size={40} />}
-        title={t.board.shameEmpty}
-        text={t.board.shameEmptyHint}
+        title={anyJudged ? t.board.shameEmpty : t.board.shameEarly}
+        text={anyJudged ? t.board.shameEmptyHint : t.board.shameEarlyHint}
       />
     );
   }
@@ -183,7 +200,7 @@ function Shame({ members, goal, myId }: { members: Member[]; goal: number; myId?
                   </span>
                 </div>
                 <span className={styles.shameCount}>
-                  {t.board.workouts(member.workouts_count, goal)}
+                  {t.board.workouts(member.workouts_count, member.effective_goal || goal)}
                 </span>
               </GlassCard>
             </motion.div>
@@ -224,7 +241,9 @@ function Row({
         </span>
         <StreakFlame streak={member.streak} />
       </div>
-      <span className={styles.count}>{t.board.workouts(member.workouts_count, goal)}</span>
+      <span className={styles.count}>
+        {t.board.workouts(member.workouts_count, member.effective_goal || goal)}
+      </span>
     </GlassCard>
   );
 }

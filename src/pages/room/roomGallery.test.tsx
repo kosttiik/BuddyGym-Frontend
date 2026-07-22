@@ -31,11 +31,12 @@ test("the room picture opens a gallery that walks through the older ones", async
 
   /* room 3 carries two pictures in the mock, newest first */
   expect(await screen.findByText("Photo 1 of 2", {}, { timeout: 4000 })).toBeInTheDocument();
-  await userEvent.click(screen.getByRole("button", { name: "Next picture" }));
-  expect(await screen.findByText("Photo 2 of 2")).toBeInTheDocument();
-  expect(screen.getByRole("button", { name: "Next picture" })).toBeDisabled();
 
-  await userEvent.click(screen.getByRole("button", { name: "Previous picture" }));
+  /* the thumbnail strip jumps straight to a picture instead of swiping to it */
+  await userEvent.click(screen.getByRole("button", { name: "Open picture 2" }));
+  expect(await screen.findByText("Photo 2 of 2")).toBeInTheDocument();
+
+  await userEvent.click(screen.getByRole("button", { name: "Open picture 1" }));
   expect(await screen.findByText("Photo 1 of 2")).toBeInTheDocument();
 });
 

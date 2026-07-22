@@ -1,4 +1,4 @@
-import { getRawInitData } from "@/shared/lib/telegram";
+import { ensureBotWriteAccess, getRawInitData } from "@/shared/lib/telegram";
 import { api, registerAuthRefresh, setToken } from "./client";
 import type { AuthTelegramResponse } from "./types";
 
@@ -9,6 +9,7 @@ export async function authenticate(): Promise<AuthTelegramResponse> {
   const initData = getRawInitData() ?? DEV_INIT_DATA;
   const res = await api.post<AuthTelegramResponse>("/auth/telegram", { init_data: initData });
   setToken(res.token);
+  void ensureBotWriteAccess();
   return res;
 }
 

@@ -24,6 +24,7 @@ export function CommentsSheet({
   checkinId,
   roomId,
   open,
+  autoFocus = false,
   onClose,
   myId,
   canModerate,
@@ -32,6 +33,8 @@ export function CommentsSheet({
   checkinId: string;
   roomId: number;
   open: boolean;
+  /* opened straight from a "write a comment" tap: raise the keyboard right away */
+  autoFocus?: boolean;
   onClose: () => void;
   myId?: number;
   /* the room creator can delete anyone's comment */
@@ -46,9 +49,21 @@ export function CommentsSheet({
   const likeComment = useLikeComment(checkinId, roomId);
 
   const fileRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const [body, setBody] = useState("");
   const [photo, setPhoto] = useState<File | null>(null);
   const photoUrl = useMemo(() => (photo ? URL.createObjectURL(photo) : undefined), [photo]);
+
+  // the sheet animates in, and iOS only raises the keyboard for a focus the user's tap paid for,
+  // so focus on the next frame while the gesture is still fresh
+  useEffect(() => {
+    if (!open || !autoFocus) {
+      return;
+    }
+    const id = requestAnimationFrame(() => inputRef.current?.focus());
+    return () => cancelAnimationFrame(id);
+  }, [open, autoFocus]);
+
   useEffect(() => {
     return () => {
       if (photoUrl) {
@@ -171,6 +186,7 @@ export function CommentsSheet({
             <IconImage size={18} />
           </button>
           <input
+            ref={inputRef}
             className={styles.input}
             value={body}
             maxLength={MAX_BODY}
