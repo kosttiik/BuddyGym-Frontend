@@ -5,9 +5,11 @@ import type {
   CheckinStatus,
   Comment,
   CreateRoomRequest,
+  FreezeRequest,
   GeoPoint,
   Stats,
   Theme,
+  UpdateMembershipRequest,
 } from "@/shared/api/types";
 import { createDb, PLACEHOLDER_PHOTO, roomPicture, roomWithProgress } from "./db";
 
@@ -252,6 +254,12 @@ export const handlers = [
         joined_at: new Date().toISOString(),
         streak: 0,
         period_ends_at: new Date(Date.now() + room.period_days * 86400_000).toISOString(),
+        sport_name: "",
+        sport_emoji: "",
+        goal_per_period: null,
+        effective_goal: room.goal_per_period,
+        has_closed_period: false,
+        last_closed_period_failed: false,
       },
     ]);
     return HttpResponse.json(room, { status: 201 });
@@ -401,6 +409,55 @@ export const handlers = [
     }
     db.myRoomIds.add(roomId);
     return HttpResponse.json(room);
+  }),
+
+  http.patch("/api/v1/rooms/:id/membership", async ({ params, request }) => {
+    const roomId = Number(params.id);
+    const me = db.members.get(roomId)?.find((m) => m.id === db.me.id);
+    if (!me) {
+      return error(403, "room members only");
+    }
+    const body = (await request.json()) as UpdateMembershipRequest;
+    const room = db.rooms.find((r) => r.id === roomId);
+    Object.assign(me, {
+      sport_name: body.sport_name,
+      sport_emoji: body.sport_emoji,
+      goal_per_period: body.goal_per_period,
+      effective_goal: body.goal_per_period ?? room?.goal_per_period ?? 3,
+    });
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  http.post("/api/v1/rooms/:id/freeze", async ({ params, request }) => {
+    const roomId = Number(params.id);
+    const me = db.members.get(roomId)?.find((m) => m.id === db.me.id);
+    if (!me) {
+      return error(403, "room members only");
+    }
+    if (me.freeze) {
+      return error(400, "another freeze is already active or scheduled");
+    }
+    const body = (await request.json()) as FreezeRequest;
+    me.freeze = {
+      id: db.nextFreezeId++,
+      room_id: roomId,
+      user_id: db.me.id,
+      starts_at: body.starts_at,
+      ends_at: body.ends_at,
+      created_at: new Date().toISOString(),
+    };
+    return HttpResponse.json(me.freeze, { status: 201 });
+  }),
+
+  http.delete("/api/v1/rooms/:id/freeze", ({ params }) => {
+    const roomId = Number(params.id);
+    const me = db.members.get(roomId)?.find((m) => m.id === db.me.id);
+    if (!me?.freeze) {
+      return error(404, "no freeze");
+    }
+    me.freeze = undefined;
+    me.freeze_cooldown_until = new Date(Date.now() + 7 * 86400_000).toISOString().slice(0, 10);
+    return new HttpResponse(null, { status: 204 });
   }),
 
   http.post("/api/v1/rooms/:id/leave", ({ params }) => {

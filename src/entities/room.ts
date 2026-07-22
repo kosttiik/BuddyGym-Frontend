@@ -2,10 +2,13 @@ import { queryOptions, useMutation, useQuery, useQueryClient } from "@tanstack/r
 import { api } from "@/shared/api/client";
 import type {
   CreateRoomRequest,
+  Freeze,
+  FreezeRequest,
   Room,
   RoomAvatar,
   RoomDetailResponse,
   RoomWithProgress,
+  UpdateMembershipRequest,
 } from "@/shared/api/types";
 import { forgetAvatar, roomAvatarPath } from "@/shared/lib/useAvatar";
 
@@ -77,6 +80,42 @@ export function useUpdateRoom(roomId: number) {
       void queryClient.invalidateQueries({ queryKey: openRoomsKey });
       void queryClient.invalidateQueries({ queryKey: roomKey(roomId) });
     },
+  });
+}
+
+export function useUpdateMembership(roomId: number) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (body: UpdateMembershipRequest) =>
+      api.patch<void>(`/rooms/${roomId}/membership`, body),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: roomKey(roomId) });
+      void queryClient.invalidateQueries({ queryKey: roomsKey });
+    },
+  });
+}
+
+function useFreezeRefresh(roomId: number) {
+  const queryClient = useQueryClient();
+  return () => {
+    void queryClient.invalidateQueries({ queryKey: roomKey(roomId) });
+    void queryClient.invalidateQueries({ queryKey: roomsKey });
+  };
+}
+
+export function useCreateFreeze(roomId: number) {
+  const refresh = useFreezeRefresh(roomId);
+  return useMutation({
+    mutationFn: (body: FreezeRequest) => api.post<Freeze>(`/rooms/${roomId}/freeze`, body),
+    onSuccess: refresh,
+  });
+}
+
+export function useCancelFreeze(roomId: number) {
+  const refresh = useFreezeRefresh(roomId);
+  return useMutation({
+    mutationFn: () => api.del(`/rooms/${roomId}/freeze`),
+    onSuccess: refresh,
   });
 }
 

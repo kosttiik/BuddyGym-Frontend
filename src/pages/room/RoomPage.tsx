@@ -5,6 +5,7 @@ import { useRoomCheckins } from "@/entities/checkin";
 import { useRoom } from "@/entities/room";
 import { useMe } from "@/entities/user";
 import { CheckinSheet } from "@/features/checkin/CheckinSheet";
+import { MembershipSheet } from "@/features/membership/MembershipSheet";
 import { ApiError } from "@/shared/api/client";
 import type { Checkin, CheckinStatus, Member } from "@/shared/api/types";
 import { useI18n } from "@/shared/i18n";
@@ -14,6 +15,7 @@ import {
   IconDumbbell,
   IconKey,
   IconLockKeyhole,
+  IconPerson,
   IconShare,
   IconSliders,
   IconTrophy,
@@ -83,6 +85,7 @@ export function RoomPage() {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [galleryOpen, setGalleryOpen] = useState(false);
+  const [membershipOpen, setMembershipOpen] = useState(false);
   const [viewer, setViewer] = useState<{ checkin: Checkin; comments: boolean } | null>(null);
   const [edgeSwipe, setEdgeSwipe] = useState(false);
 
@@ -108,6 +111,8 @@ export function RoomPage() {
     }
     return map;
   }, [room.data]);
+
+  const myMembership = me.data ? members.get(me.data.user.id) : undefined;
 
   const byStatus = useMemo(() => {
     const groups: Record<CheckinStatus, Checkin[]> = {
@@ -171,6 +176,7 @@ export function RoomPage() {
               isCreator={room.data.room.creator_id === me.data?.user.id}
               onShare={() => setShareOpen(true)}
               onOpenGallery={() => setGalleryOpen(true)}
+              onOpenMySettings={myMembership ? () => setMembershipOpen(true) : undefined}
             />
           </motion.div>
         )}
@@ -296,6 +302,15 @@ export function RoomPage() {
         />
       )}
 
+      {room.isSuccess && myMembership && (
+        <MembershipSheet
+          room={room.data.room}
+          member={myMembership}
+          open={membershipOpen}
+          onClose={() => setMembershipOpen(false)}
+        />
+      )}
+
       <AnimatePresence>
         {galleryOpen && room.isSuccess && (
           <RoomGallery
@@ -379,11 +394,13 @@ function RoomHeaderCard({
   isCreator,
   onShare,
   onOpenGallery,
+  onOpenMySettings,
 }: {
   detail: { room: import("@/shared/api/types").Room; members: Member[] };
   isCreator: boolean;
   onShare: () => void;
   onOpenGallery: () => void;
+  onOpenMySettings?: () => void;
 }) {
   const { t } = useI18n();
   const { room, members } = detail;
@@ -423,6 +440,18 @@ function RoomHeaderCard({
           />
         </Link>
         <div className={styles.headerActions}>
+          {onOpenMySettings && (
+            <motion.button
+              type="button"
+              className={styles.settingsPill}
+              aria-label={t.room.mySettings}
+              whileTap={{ scale: 0.95 }}
+              transition={spring.snappy}
+              onClick={onOpenMySettings}
+            >
+              <IconPerson size={16} />
+            </motion.button>
+          )}
           {isCreator && (
             <Link
               to="/rooms/$roomId/edit"

@@ -79,6 +79,18 @@ export type RoomWithProgress = Room & {
   streak: number;
   /* when the current period closes and the streak burns unless the goal is met */
   period_ends_at: string;
+  /* my personal goal in this room, falling back to the room goal */
+  my_goal: number;
+};
+
+export type Freeze = {
+  id: number;
+  room_id: number;
+  user_id: number;
+  starts_at: string;
+  ends_at: string;
+  canceled_at?: string;
+  created_at: string;
 };
 
 export type Member = User & {
@@ -86,6 +98,26 @@ export type Member = User & {
   joined_at: string;
   streak: number;
   period_ends_at: string;
+  sport_name: string;
+  sport_emoji: string;
+  goal_per_period: number | null;
+  effective_goal: number;
+  /* judged = closed and not frozen: only then can a member land on the shame board */
+  has_closed_period: boolean;
+  last_closed_period_failed: boolean;
+  freeze?: Freeze;
+  freeze_cooldown_until?: string;
+};
+
+export type UpdateMembershipRequest = {
+  sport_name: string;
+  sport_emoji: string;
+  goal_per_period: number | null;
+};
+
+export type FreezeRequest = {
+  starts_at: string;
+  ends_at: string;
 };
 
 export type RoomDetailResponse = {

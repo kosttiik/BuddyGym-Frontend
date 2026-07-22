@@ -168,21 +168,35 @@ function MemberRow({
       <div className={styles.info}>
         <span className={styles.nameRow}>
           <span className={styles.name}>{member.first_name}</span>
+          {member.sport_emoji && (
+            <span className={styles.sport} title={member.sport_name}>
+              {member.sport_emoji}
+            </span>
+          )}
           <MemberRankBadge rank={member.rank} />
           {isMe && <Badge tone="neutral">{t.members.you}</Badge>}
+          {member.freeze && <Badge tone="purple">{t.members.frozen}</Badge>}
         </span>
-        <span className={styles.meta}>{t.members.since(formatDay(member.joined_at, locale))}</span>
+        <span className={styles.meta}>
+          {member.sport_name
+            ? `${member.sport_name} · ${t.members.since(formatDay(member.joined_at, locale))}`
+            : t.members.since(formatDay(member.joined_at, locale))}
+        </span>
       </div>
       <StreakFlame
         streak={member.streak}
         atRisk={isStreakAtRisk({
           streak: member.streak,
           workouts: member.workouts_count,
-          goal,
+          goal: member.effective_goal || goal,
           periodEndsAt: member.period_ends_at,
         })}
       />
-      <ProgressCounter value={member.workouts_count} goal={goal} trackId={`member:${member.id}`} />
+      <ProgressCounter
+        value={member.workouts_count}
+        goal={member.effective_goal || goal}
+        trackId={`member:${member.id}`}
+      />
     </GlassCard>
   );
 }

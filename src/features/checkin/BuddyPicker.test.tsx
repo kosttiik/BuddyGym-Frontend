@@ -21,6 +21,12 @@ function member(id: number, name: string): Member {
     joined_at: new Date().toISOString(),
     streak: 0,
     period_ends_at: new Date().toISOString(),
+    sport_name: "",
+    sport_emoji: "",
+    goal_per_period: null,
+    effective_goal: 3,
+    has_closed_period: false,
+    last_closed_period_failed: false,
   };
 }
 

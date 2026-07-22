@@ -79,15 +79,31 @@ export type MockDb = {
   nextCommentId: number;
   roomAvatars: Map<number, RoomAvatar[]>;
   nextRoomAvatarId: number;
+  nextFreezeId: number;
 };
 
-function member(u: User, workouts: number, joinedDaysAgo: number, streak = workouts): Member {
+function member(
+  u: User,
+  workouts: number,
+  joinedDaysAgo: number,
+  streak = workouts,
+  extra: Partial<Member> = {},
+): Member {
+  const goal = extra.goal_per_period ?? null;
   return {
     ...u,
     workouts_count: workouts,
     joined_at: iso(-joinedDaysAgo * DAY),
     streak,
     period_ends_at: iso(2 * DAY),
+    sport_name: "",
+    sport_emoji: "",
+    goal_per_period: goal,
+    effective_goal: goal ?? 5,
+    /* joined less than a period ago: nothing has been judged yet, so no shame */
+    has_closed_period: joinedDaysAgo >= 7,
+    last_closed_period_failed: joinedDaysAgo >= 7 && workouts === 0,
+    ...extra,
   };
 }
 
@@ -345,6 +361,7 @@ export function createDb(): MockDb {
       ],
     ]),
     nextRoomAvatarId: 100,
+    nextFreezeId: 1,
     me,
     achievements: meAchievements,
     users,
@@ -357,7 +374,17 @@ export function createDb(): MockDb {
       [3, 12],
     ]),
     members: new Map([
-      [1, [member(me, 2, 30), member(dima, 1, 25), member(lera, 3, 20), member(pasha, 0, 5)]],
+      /* room 1: everyone but Паша has already closed a period, and only Лера met the goal there.
+         Паша joined mid-period, so nothing has been judged on him yet. */
+      [
+        1,
+        [
+          member(me, 2, 30, 2, { has_closed_period: true, last_closed_period_failed: true }),
+          member(dima, 1, 25, 1, { has_closed_period: true, last_closed_period_failed: true }),
+          member(lera, 3, 20, 3, { has_closed_period: true, last_closed_period_failed: false }),
+          member(pasha, 0, 5, 0, { has_closed_period: false, last_closed_period_failed: false }),
+        ],
+      ],
       [
         2,
         [
@@ -390,5 +417,6 @@ export function roomWithProgress(db: MockDb, room: Room): RoomWithProgress {
     members_count: db.members.get(room.id)?.length ?? 0,
     streak: me?.streak ?? 0,
     period_ends_at: me?.period_ends_at ?? iso(2 * DAY),
+    my_goal: me?.effective_goal ?? room.goal_per_period,
   };
 }
