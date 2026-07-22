@@ -32,9 +32,17 @@ export type CheckinSheetProps = {
   members: Member[];
   /* my workouts this period, for the celebration progress card */
   myProgress: number;
+  myGoal?: number;
 };
 
-export function CheckinSheet({ open, onClose, room, members, myProgress }: CheckinSheetProps) {
+export function CheckinSheet({
+  open,
+  onClose,
+  room,
+  members,
+  myProgress,
+  myGoal,
+}: CheckinSheetProps) {
   const { t } = useI18n();
   const showToast = useToast();
   const showApiError = useApiErrorToast();
@@ -332,6 +340,7 @@ export function CheckinSheet({ open, onClose, room, members, myProgress }: Check
             checkin={celebrated}
             room={room}
             myProgress={myProgress}
+            myGoal={myGoal}
             onClose={() => setCelebrated(null)}
           />
         )}

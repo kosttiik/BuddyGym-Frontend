@@ -24,6 +24,16 @@ function formatDate(iso: string, locale: "ru" | "en"): string {
   );
 }
 
+/* A native date input renders in the browser locale, which inside Telegram is not the one
+   the user reads the app in. The value is kept as ISO for the API and shown through Intl. */
+function formatFull(iso: string, locale: "ru" | "en"): string {
+  return new Intl.DateTimeFormat(locale, {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(new Date(`${iso}T00:00:00Z`));
+}
+
 export function freezeStateLabel(member: Member, t: Dictionary, locale: "ru" | "en"): string {
   if (member.freeze) {
     const started = new Date(`${member.freeze.starts_at.slice(0, 10)}T00:00:00Z`) <= new Date();
@@ -92,27 +102,35 @@ export function FreezeSheet({
           <div className={styles.dates}>
             <label className={styles.dateField}>
               <span>{t.membership.freezeFrom}</span>
-              <input
-                type="date"
-                value={from}
-                min={today()}
-                onChange={(event) => {
-                  setFrom(event.target.value);
-                  if (event.target.value >= to) {
-                    setTo(plusDays(event.target.value, 7));
-                  }
-                }}
-              />
+              <span className={styles.dateControl}>
+                <span className={styles.dateValue}>{formatFull(from, locale)}</span>
+                <input
+                  type="date"
+                  aria-label={t.membership.freezeFrom}
+                  value={from}
+                  min={today()}
+                  onChange={(event) => {
+                    setFrom(event.target.value);
+                    if (event.target.value >= to) {
+                      setTo(plusDays(event.target.value, 7));
+                    }
+                  }}
+                />
+              </span>
             </label>
             <label className={styles.dateField}>
               <span>{t.membership.freezeTo}</span>
-              <input
-                type="date"
-                value={to}
-                min={plusDays(from, 1)}
-                max={plusDays(from, 30)}
-                onChange={(event) => setTo(event.target.value)}
-              />
+              <span className={styles.dateControl}>
+                <span className={styles.dateValue}>{formatFull(to, locale)}</span>
+                <input
+                  type="date"
+                  aria-label={t.membership.freezeTo}
+                  value={to}
+                  min={plusDays(from, 1)}
+                  max={plusDays(from, 30)}
+                  onChange={(event) => setTo(event.target.value)}
+                />
+              </span>
             </label>
           </div>
           <p className={styles.hint}>

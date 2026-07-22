@@ -299,7 +299,8 @@ export function RoomPage() {
           onClose={() => setSheetOpen(false)}
           room={room.data.room}
           members={[...members.values()].filter((m) => m.id !== me.data?.user.id)}
-          myProgress={me.data ? (members.get(me.data.user.id)?.workouts_count ?? 0) : 0}
+          myProgress={myMembership?.workouts_count ?? 0}
+          myGoal={myMembership?.effective_goal}
         />
       )}
 

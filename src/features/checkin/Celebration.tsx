@@ -24,15 +24,18 @@ export type CelebrationProps = {
   room: Room;
   /* my workouts this period, including this checkin if it was approved */
   myProgress: number;
+  /* my own goal in this room, falling back to the room goal */
+  myGoal?: number;
   onClose: () => void;
 };
 
-export function Celebration({ checkin, room, myProgress, onClose }: CelebrationProps) {
+export function Celebration({ checkin, room, myProgress, myGoal, onClose }: CelebrationProps) {
   const { t } = useI18n();
   const me = useMe();
   const queryClient = useQueryClient();
   const approved = checkin.status === "approved";
   const progress = approved ? myProgress + 1 : myProgress;
+  const goal = myGoal || room.goal_per_period;
 
   useEffect(() => {
     hapticNotify("success");
@@ -92,8 +95,8 @@ export function Celebration({ checkin, room, myProgress, onClose }: CelebrationP
           <GlassCard className={styles.progressCard}>
             <span className={styles.progressName}>{room.name}</span>
             <div className={styles.progressRow}>
-              <SegmentedProgress value={progress} goal={room.goal_per_period} glowLast={approved} />
-              <ProgressCounter value={progress} goal={room.goal_per_period} />
+              <SegmentedProgress value={progress} goal={goal} glowLast={approved} />
+              <ProgressCounter value={progress} goal={goal} />
             </div>
           </GlassCard>
         </motion.div>
