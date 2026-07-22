@@ -2,16 +2,19 @@ import { AnimatePresence, motion } from "motion/react";
 import type { ReactNode } from "react";
 import { createContext, useCallback, useContext, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { IconAlert, IconInfo } from "@/shared/icons";
+import { IconAlert, IconCheck, IconInfo } from "@/shared/icons";
 import { hapticNotify } from "@/shared/lib/haptics";
 import styles from "./Toast.module.css";
 
 const TOAST_TTL_MS = 4000;
 
-export type ToastTone = "error" | "warning";
+export type ToastTone = "error" | "warning" | "success";
 
 /* every toast carries a mark: a caller may pass its own, otherwise the tone picks one */
 function toneIcon(tone: ToastTone | undefined) {
+  if (tone === "success") {
+    return <IconCheck size={20} />;
+  }
   return tone === "warning" ? <IconInfo size={20} /> : <IconAlert size={20} />;
 }
 
@@ -40,7 +43,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
   const show = useCallback((toast: ToastInput) => {
     const id = nextId.current++;
-    hapticNotify(toast.tone === "warning" ? "warning" : "error");
+    hapticNotify(
+      toast.tone === "success" ? "success" : toast.tone === "warning" ? "warning" : "error",
+    );
     setToasts((prev) => [...prev, { ...toast, id }]);
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));

@@ -31,6 +31,10 @@
   border-color: var(--orange-border);
 }
 
+.toast[data-tone="success"] {
+  border-color: var(--accent-border);
+}
+
 .icon {
   width: 36px;
   height: 36px;
@@ -49,6 +53,11 @@
 .icon[data-tone="warning"] {
   background: var(--orange-tint);
   color: var(--orange-text);
+}
+
+.icon[data-tone="success"] {
+  background: var(--accent-tint);
+  color: var(--accent-on-tint);
 }
 
 .text {

@@ -176,6 +176,7 @@ export function RoomPage() {
               isCreator={room.data.room.creator_id === me.data?.user.id}
               onShare={() => setShareOpen(true)}
               onOpenGallery={() => setGalleryOpen(true)}
+              myGoal={myMembership?.effective_goal}
               onOpenMySettings={myMembership ? () => setMembershipOpen(true) : undefined}
             />
           </motion.div>
@@ -395,12 +396,14 @@ function RoomHeaderCard({
   onShare,
   onOpenGallery,
   onOpenMySettings,
+  myGoal,
 }: {
   detail: { room: import("@/shared/api/types").Room; members: Member[] };
   isCreator: boolean;
   onShare: () => void;
   onOpenGallery: () => void;
   onOpenMySettings?: () => void;
+  myGoal?: number;
 }) {
   const { t } = useI18n();
   const { room, members } = detail;
@@ -422,7 +425,15 @@ function RoomHeaderCard({
         </Badge>
       </div>
       <p className={styles.roomMeta}>
-        {t.room.meta(room.goal_per_period, room.period_days, room.votes_required, members.length)}
+        {t.room.meta(
+          myGoal || room.goal_per_period,
+          room.period_days,
+          room.votes_required,
+          members.length,
+        )}
+        {myGoal !== undefined && myGoal !== room.goal_per_period && (
+          <span className={styles.personalGoal}> {t.room.personalGoal}</span>
+        )}
       </p>
       <div className={styles.headerBottom}>
         <Link
@@ -440,18 +451,6 @@ function RoomHeaderCard({
           />
         </Link>
         <div className={styles.headerActions}>
-          {onOpenMySettings && (
-            <motion.button
-              type="button"
-              className={styles.settingsPill}
-              aria-label={t.room.mySettings}
-              whileTap={{ scale: 0.95 }}
-              transition={spring.snappy}
-              onClick={onOpenMySettings}
-            >
-              <IconPerson size={16} />
-            </motion.button>
-          )}
           {isCreator && (
             <Link
               to="/rooms/$roomId/edit"
@@ -487,6 +486,17 @@ function RoomHeaderCard({
         {t.board.open}
         <IconChevronRight size={15} className={styles.boardsChevron} />
       </Link>
+
+      {onOpenMySettings && (
+        <button type="button" className={styles.mySettingsLink} onClick={onOpenMySettings}>
+          <IconPerson size={16} />
+          <span className={styles.mySettingsText}>
+            {t.room.mySettings}
+            <span className={styles.mySettingsHint}>{t.room.mySettingsHint}</span>
+          </span>
+          <IconChevronRight size={15} className={styles.boardsChevron} />
+        </button>
+      )}
     </GlassCard>
   );
 }

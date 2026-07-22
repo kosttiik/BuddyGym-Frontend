@@ -96,7 +96,7 @@ export function EditRoomPage() {
               updateRoom.mutate(body, {
                 onSuccess: () => {
                   hapticNotify("success");
-                  showToast({ title: t.createRoom.saved });
+                  showToast({ title: t.createRoom.saved, tone: "success" });
                   void navigate({
                     to: "/rooms/$roomId",
                     params: { roomId: String(id) },

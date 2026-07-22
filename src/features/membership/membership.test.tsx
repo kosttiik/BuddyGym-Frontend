@@ -22,7 +22,7 @@ async function openMySettings() {
   window.history.replaceState(null, "", "/rooms/1");
   render(<App />);
   await userEvent.click(
-    await screen.findByRole("button", { name: "My settings" }, { timeout: 4000 }),
+    await screen.findByRole("button", { name: /My settings/ }, { timeout: 4000 }),
   );
 }
 
@@ -49,10 +49,13 @@ test("a member sets their own sport, badge and goal", async () => {
 test("a freeze can be scheduled and lifted again", async () => {
   await openMySettings();
 
+  /* the freeze lives in its own sheet now: the settings row opens it */
+  await userEvent.click(await screen.findByRole("button", { name: /Freeze/ }));
   await userEvent.click(await screen.findByRole("button", { name: "Freeze" }));
   expect(await screen.findByText("Freeze is on")).toBeInTheDocument();
   expect(db.members.get(1)?.find((m) => m.id === db.me.id)?.freeze).toBeDefined();
 
+  await userEvent.click(await screen.findByRole("button", { name: /Freeze/ }));
   await userEvent.click(await screen.findByRole("button", { name: "Unfreeze" }));
   expect(await screen.findByText("Freeze removed")).toBeInTheDocument();
   expect(db.members.get(1)?.find((m) => m.id === db.me.id)?.freeze).toBeUndefined();

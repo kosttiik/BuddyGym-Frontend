@@ -129,6 +129,17 @@ export const IconStar = icon(
   />,
 );
 
+export const IconSnowflake = icon(
+  <>
+    <path d="M12 3v18M4.2 7.5l15.6 9M19.8 7.5l-15.6 9" {...stroke} strokeWidth="2.2" />
+    <path
+      d="M12 6.6l-2 -2M12 6.6l2 -2M12 17.4l-2 2M12 17.4l2 2M7.3 9.4l-2.7 .3M7.3 14.6l-2.7 -.3M16.7 9.4l2.7 .3M16.7 14.6l2.7 -.3"
+      {...stroke}
+      strokeWidth="2"
+    />
+  </>,
+);
+
 export const IconMedal = icon(
   <>
     <circle cx="12" cy="14.5" r="4.6" {...stroke} strokeWidth="2.2" />

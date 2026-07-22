@@ -99,6 +99,8 @@ export const ru = {
     emptyFeed: "Пока нет отметок",
     emptyFeedHint: "Отметьте первую тренировку",
     mySettings: "Мои настройки",
+    mySettingsHint: "Свой вид спорта, цель и заморозка",
+    personalGoal: "· ваша цель",
   },
   membership: {
     title: "Мои настройки в комнате",
@@ -113,6 +115,7 @@ export const ru = {
     save: "Сохранить",
     saved: "Настройки сохранены",
     freezeTitle: "Заморозка",
+    freezeAvailable: "Доступна",
     freezeLede: "Периоды во время заморозки не судятся: серия сохраняется, позор не грозит",
     freezeFrom: "С",
     freezeTo: "По",

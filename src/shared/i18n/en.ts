@@ -100,6 +100,8 @@ export const en: typeof ru = {
     emptyFeed: "No check-ins yet",
     emptyFeedHint: "Log the first workout",
     mySettings: "My settings",
+    mySettingsHint: "Your own sport, goal and freeze",
+    personalGoal: "· your goal",
   },
   membership: {
     title: "My settings in this room",
@@ -114,6 +116,7 @@ export const en: typeof ru = {
     save: "Save",
     saved: "Settings saved",
     freezeTitle: "Freeze",
+    freezeAvailable: "Available",
     freezeLede:
       "Periods covered by a freeze are not judged: the streak survives and no shame lands",
     freezeFrom: "From",

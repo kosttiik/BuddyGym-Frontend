@@ -136,7 +136,7 @@ function RoomCard({ room }: { room: RoomWithProgress }) {
             atRisk={isStreakAtRisk({
               streak: room.streak,
               workouts: room.workouts_count,
-              goal: room.goal_per_period,
+              goal: room.my_goal || room.goal_per_period,
               periodEndsAt: room.period_ends_at,
             })}
           />
@@ -147,17 +147,17 @@ function RoomCard({ room }: { room: RoomWithProgress }) {
       </div>
       <p className={styles.roomMeta}>
         {t.rooms.members(room.members_count)} ·{" "}
-        {t.rooms.goalMeta(room.goal_per_period, room.period_days)}
+        {t.rooms.goalMeta(room.my_goal || room.goal_per_period, room.period_days)}
       </p>
       <div className={styles.progressRow}>
         <SegmentedProgress
           value={room.workouts_count}
-          goal={room.goal_per_period}
+          goal={room.my_goal || room.goal_per_period}
           trackId={`room:${room.id}`}
         />
         <ProgressCounter
           value={room.workouts_count}
-          goal={room.goal_per_period}
+          goal={room.my_goal || room.goal_per_period}
           trackId={`room:${room.id}`}
         />
       </div>

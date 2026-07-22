@@ -298,6 +298,12 @@ export const handlers = [
       period_days: body.period_days,
       votes_required: body.votes_required,
     });
+    /* members without a personal goal follow the room, the way COALESCE does on the server */
+    for (const member of db.members.get(roomId) ?? []) {
+      if (member.goal_per_period === null) {
+        member.effective_goal = body.goal_per_period;
+      }
+    }
     return HttpResponse.json(room);
   }),
 
