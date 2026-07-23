@@ -79,6 +79,9 @@ export function useUpdateRoom(roomId: number) {
       void queryClient.invalidateQueries({ queryKey: roomsKey });
       void queryClient.invalidateQueries({ queryKey: openRoomsKey });
       void queryClient.invalidateQueries({ queryKey: roomKey(roomId) });
+      /* lowering the quorum re-finalizes pending checkins server-side, so the cached
+         feed carries a stale votes_required and a stale status */
+      void queryClient.invalidateQueries({ queryKey: ["checkins", roomId] });
     },
   });
 }

@@ -88,6 +88,7 @@ export const ru = {
     youConfirmed: "Вы подтвердили",
     youRejected: "Вы отклонили",
     votesFor: (cur: number, req: number) => `${cur} из ${req} «за»`,
+    votesAgainst: (cur: number, req: number) => ` · ${cur} из ${req} «против»`,
     timeLeft: (hours: number) => `осталось ${hours} ч`,
     geoApproved: "гео · зачтён",
     expiredBadge: "истёк",
@@ -227,6 +228,10 @@ export const ru = {
     statusNovice: "Новичок",
   },
   checkinSheet: {
+    duplicateTitle: "Тренировка за сегодня уже есть",
+    duplicateText:
+      "Вы уже отмечали тренировку сегодня. Если загрузили не то фото, замените отметку: прежняя перестанет считаться.",
+    duplicateReplace: "Заменить",
     title: "Отметить тренировку",
     photoTitle: "Фото из зала",
     photoDesc: "Снимите сейчас, участники подтвердят голосами",

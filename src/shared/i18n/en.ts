@@ -89,6 +89,7 @@ export const en: typeof ru = {
     youConfirmed: "You approved",
     youRejected: "You rejected",
     votesFor: (cur: number, req: number) => `${cur} of ${req} approvals`,
+    votesAgainst: (cur: number, req: number) => ` · ${cur} of ${req} rejections`,
     timeLeft: (hours: number) => `${hours} h left`,
     geoApproved: "geo · approved",
     expiredBadge: "expired",
@@ -229,6 +230,10 @@ export const en: typeof ru = {
     statusNovice: "Rookie",
   },
   checkinSheet: {
+    duplicateTitle: "Today is already logged",
+    duplicateText:
+      "You logged a workout today. If the photo was wrong, replace the entry: the earlier one stops counting.",
+    duplicateReplace: "Replace",
     title: "Log a workout",
     photoTitle: "Photo from the gym",
     photoDesc: "Shoot it now, members confirm it by voting",

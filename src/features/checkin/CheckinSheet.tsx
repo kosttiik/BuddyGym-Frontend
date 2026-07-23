@@ -60,6 +60,7 @@ export function CheckinSheet({
   const [buddies, setBuddies] = useState<number[]>([]);
   const [progress, setProgress] = useState(0);
   const [celebrated, setCelebrated] = useState<Checkin | null>(null);
+  const [duplicate, setDuplicate] = useState(false);
 
   const myRooms = rooms.data ?? [];
 
@@ -141,24 +142,39 @@ export function CheckinSheet({
     setCelebrated(mine ?? null);
   };
 
-  const sendPhoto = () => {
+  const sendPhoto = (replace = false) => {
     if (!photo || selected.length === 0) {
       return;
     }
     setProgress(0);
     createCheckin.mutate(
-      { photo: photo.file, roomIds: selected, buddyIds: buddies, onProgress: setProgress },
       {
-        onSuccess: onCreateSuccess,
+        photo: photo.file,
+        roomIds: selected,
+        buddyIds: buddies,
+        replace,
+        onProgress: setProgress,
+      },
+      {
+        onSuccess: (checkins) => {
+          setDuplicate(false);
+          onCreateSuccess(checkins);
+        },
         onError: (error) => {
           setProgress(0);
+          /* the day already has a checkin: offer to replace it instead of failing */
+          if (error instanceof ApiError && error.status === 409) {
+            hapticNotify("warning");
+            setDuplicate(true);
+            return;
+          }
           showApiError(error);
         },
       },
     );
   };
 
-  const sendGeo = async () => {
+  const sendGeo = async (replaceGeo = false) => {
     if (createCheckin.isPending || geoBusy) {
       return;
     }
@@ -182,7 +198,7 @@ export function CheckinSheet({
       /* the gym lookup goes out to a places provider, so it takes seconds, not milliseconds */
       setProcessing(t.checkinSheet.geoSearching(Math.round(result.geo.horizontal_accuracy)));
       createCheckin.mutate(
-        { geo: result.geo, roomIds: [room.id] },
+        { geo: result.geo, roomIds: [room.id], replace: replaceGeo },
         {
           onSuccess: (checkins) => {
             setProcessing(null);
@@ -191,6 +207,10 @@ export function CheckinSheet({
           onError: (error) => {
             setProcessing(null);
             hapticNotify("error");
+            if (error instanceof ApiError && error.status === 409) {
+              setDuplicate(true);
+              return;
+            }
             if (error instanceof ApiError && error.status === 400) {
               showToast({
                 title: t.checkinSheet.geoNoGym,
@@ -345,6 +365,28 @@ export function CheckinSheet({
           />
         )}
       </AnimatePresence>
+
+      <BottomSheet
+        open={duplicate}
+        onClose={() => setDuplicate(false)}
+        title={t.checkinSheet.duplicateTitle}
+      >
+        <motion.p className={styles.duplicateText} variants={sheetItemVariants}>
+          {t.checkinSheet.duplicateText}
+        </motion.p>
+        <motion.div className={styles.duplicateActions} variants={sheetItemVariants}>
+          <Button variant="secondary" block onClick={() => setDuplicate(false)}>
+            {t.common.cancel}
+          </Button>
+          <Button
+            block
+            disabled={createCheckin.isPending}
+            onClick={() => (photo ? sendPhoto(true) : void sendGeo(true))}
+          >
+            {t.checkinSheet.duplicateReplace}
+          </Button>
+        </motion.div>
+      </BottomSheet>
     </>
   );
 }

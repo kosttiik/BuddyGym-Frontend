@@ -149,3 +149,7 @@
   background: none;
   cursor: pointer;
 }
+
+.votesAgainst {
+  color: var(--red-text);
+}
