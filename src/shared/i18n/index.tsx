@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { createContext, useCallback, useContext, useMemo, useState } from "react";
+import { api } from "@/shared/api/client";
 import { getTelegramLanguage } from "@/shared/lib/telegram";
 import { en } from "./en";
 import { ru } from "./ru";
@@ -41,6 +42,8 @@ export function I18nProvider({ children }: { children: ReactNode }) {
       /* preference just won't persist */
     }
     document.documentElement.lang = next;
+    /* the notification bot writes in this language, so the server needs to know it too */
+    void api.patch("/me", { language: next }).catch(() => {});
   }, []);
 
   const value = useMemo<I18nContextValue>(

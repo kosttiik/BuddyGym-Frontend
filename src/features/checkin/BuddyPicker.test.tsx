@@ -13,6 +13,7 @@ function member(id: number, name: string): Member {
     photo_url: "",
     has_avatar: false,
     theme: "default",
+    language: "ru",
     rank: "novice",
     status_emoji: "",
     status_text: "",

@@ -29,6 +29,7 @@ export type User = {
   photo_url: string;
   has_avatar: boolean;
   theme: Theme;
+  language: "ru" | "en";
   rank: UserRank;
   status_emoji: string;
   status_text: string;
