@@ -191,4 +191,9 @@ export type Comment = {
   likes: number;
   liked_by_me: boolean;
   created_at: string;
+  /* set when this comment answers another one in the same thread */
+  reply_to?: number;
+  reply_to_author?: string;
+  reply_to_author_id?: number;
+  reply_to_body?: string;
 };

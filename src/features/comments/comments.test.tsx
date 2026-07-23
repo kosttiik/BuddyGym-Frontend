@@ -89,3 +89,35 @@ test("the comments pill opens the thread with the input focused", async () => {
   const input = await screen.findByPlaceholderText("Write something...");
   expect(input).toHaveFocus();
 });
+
+/* A reply keeps the thread readable: the answer quotes what it answers. */
+test("a comment can answer another one and shows the quote", async () => {
+  const checkin = db.checkins.find((c) => c.room_id === 2);
+  db.comments.set(checkin?.id ?? "", [
+    {
+      id: 1,
+      checkin_id: checkin?.id ?? "",
+      user_id: 3,
+      author: db.users.get(3) ?? db.me,
+      body: "Завтра в 8 утра, кто со мной?",
+      has_photo: false,
+      likes: 0,
+      liked_by_me: false,
+      created_at: new Date().toISOString(),
+    },
+  ]);
+
+  await openPhoto();
+  await userEvent.click(await screen.findByText("Завтра в 8 утра, кто со мной?"));
+
+  await userEvent.click(await screen.findByRole("button", { name: "Reply" }));
+  expect(await screen.findByText(/Replying to/)).toBeInTheDocument();
+
+  await userEvent.type(screen.getByPlaceholderText("Write something..."), "Я в деле");
+  await userEvent.click(screen.getByRole("button", { name: "Send" }));
+
+  expect(await screen.findByText("Я в деле")).toBeInTheDocument();
+  const stored = db.comments.get(checkin?.id ?? "") ?? [];
+  expect(stored[1]?.reply_to).toBe(1);
+  expect(stored[1]?.reply_to_author).toBe("Дима");
+});

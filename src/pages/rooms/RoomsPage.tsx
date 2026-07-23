@@ -36,15 +36,25 @@ export function RoomsPage() {
   const navigate = useNavigate();
   const firstReveal = useFirstReveal("rooms-list");
 
-  /* invite deep link: t.me/...?startapp=CODE opens the join screen prefilled */
+  /* deep links: t.me/...?startapp=CODE opens the join screen, ?startapp=room_<id> the room */
   useEffect(() => {
     const raw = getStartParam();
     if (!raw) {
       return;
     }
-    const code = sanitizeCode(raw);
     try {
-      if (code.length === CODE_LENGTH && !sessionStorage.getItem(DEEPLINK_KEY)) {
+      if (sessionStorage.getItem(DEEPLINK_KEY)) {
+        return;
+      }
+      /* the notification bot links straight at a room: startapp=room_<id> */
+      const room = /^room_(\d+)$/.exec(raw);
+      if (room) {
+        sessionStorage.setItem(DEEPLINK_KEY, "1");
+        void navigate({ to: "/rooms/$roomId", params: { roomId: room[1] as string } });
+        return;
+      }
+      const code = sanitizeCode(raw);
+      if (code.length === CODE_LENGTH) {
         sessionStorage.setItem(DEEPLINK_KEY, "1");
         void navigate({ to: "/join", search: { code } });
       }

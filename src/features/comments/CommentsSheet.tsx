@@ -51,6 +51,8 @@ export function CommentsSheet({
   const fileRef = useRef<HTMLInputElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [body, setBody] = useState("");
+  const [replyTo, setReplyTo] = useState<Comment | null>(null);
+  const [highlighted, setHighlighted] = useState<number | null>(null);
   const [photo, setPhoto] = useState<File | null>(null);
   const photoUrl = useMemo(() => (photo ? URL.createObjectURL(photo) : undefined), [photo]);
 
@@ -73,6 +75,14 @@ export function CommentsSheet({
   }, [photoUrl]);
 
   const list = comments.data ?? [];
+
+  /* tapping a quote walks up to the comment it answers and flashes it */
+  const jumpToParent = (commentId: number) => {
+    const node = document.getElementById(`comment-${commentId}`);
+    node?.scrollIntoView({ behavior: "smooth", block: "center" });
+    setHighlighted(commentId);
+    window.setTimeout(() => setHighlighted(null), 1600);
+  };
   const canSend = (body.trim().length > 0 || photo !== null) && !addComment.isPending;
 
   const send = () => {
@@ -80,12 +90,13 @@ export function CommentsSheet({
       return;
     }
     addComment.mutate(
-      { body: body.trim(), photo: photo ?? undefined },
+      { body: body.trim(), photo: photo ?? undefined, replyTo: replyTo?.id },
       {
         onSuccess: () => {
           hapticNotify("success");
           setBody("");
           setPhoto(null);
+          setReplyTo(null);
         },
         onError: showApiError,
       },
@@ -127,6 +138,7 @@ export function CommentsSheet({
                 variants={rowVariants}
                 exit="exit"
                 layout
+                id={`comment-${comment.id}`}
                 className={styles.rowWrap}
               >
                 <CommentRow
@@ -135,6 +147,12 @@ export function CommentsSheet({
                   canDelete={canModerate || comment.user_id === myId}
                   onLike={(c: Comment) => likeComment.mutate({ id: c.id, liked: c.liked_by_me })}
                   onDelete={(c: Comment) => deleteComment.mutate(c.id)}
+                  highlighted={highlighted === comment.id}
+                  onReply={(c: Comment) => {
+                    setReplyTo(c);
+                    inputRef.current?.focus();
+                  }}
+                  onJumpToParent={jumpToParent}
                   onOpenPhoto={onOpenPhoto}
                 />
               </motion.div>
@@ -144,6 +162,33 @@ export function CommentsSheet({
       </div>
 
       <div className={styles.composer}>
+        <AnimatePresence>
+          {replyTo && (
+            <motion.div
+              className={styles.replyBanner}
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+            >
+              <span className={styles.replyBar} />
+              <span className={styles.replyText}>
+                <span className={styles.replyLabel}>
+                  {t.comments.replyingTo} {replyTo.author.first_name}
+                </span>
+                <span className={styles.replyBody}>{replyTo.body || t.comments.photoOnly}</span>
+              </span>
+              <button
+                type="button"
+                className={styles.replyClose}
+                aria-label={t.comments.cancelReply}
+                onClick={() => setReplyTo(null)}
+              >
+                <IconCross size={14} />
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <AnimatePresence>
           {photoUrl && (
             <motion.div

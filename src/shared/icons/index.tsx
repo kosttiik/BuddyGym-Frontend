@@ -129,6 +129,14 @@ export const IconStar = icon(
   />,
 );
 
+export const IconReply = icon(
+  <path
+    d="M9.5 5.5L4 11l5.5 5.5M4.4 11H14a5.5 5.5 0 015.5 5.5v1.2"
+    {...stroke}
+    strokeWidth="2.2"
+  />,
+);
+
 export const IconSnowflake = icon(
   <>
     <path d="M12 3v18M4.2 7.5l15.6 9M19.8 7.5l-15.6 9" {...stroke} strokeWidth="2.2" />

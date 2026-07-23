@@ -2,26 +2,35 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useCommentPhoto } from "@/entities/comment";
 import type { Comment } from "@/shared/api/types";
 import { useI18n } from "@/shared/i18n";
-import { IconHeart, IconHeartFilled, IconTrash } from "@/shared/icons";
+import { IconHeart, IconHeartFilled, IconReply, IconTrash } from "@/shared/icons";
 import { cx } from "@/shared/lib/cx";
 import { hapticTap } from "@/shared/lib/haptics";
 import { spring } from "@/shared/lib/motion";
 import { Avatar } from "@/shared/ui";
 import styles from "./CommentRow.module.css";
 
+/* far enough that a scroll never turns into a reply */
+const SWIPE_REPLY_DISTANCE = 56;
+
 export function CommentRow({
   checkinId,
   comment,
   canDelete,
+  highlighted,
   onLike,
   onDelete,
+  onReply,
+  onJumpToParent,
   onOpenPhoto,
 }: {
   checkinId: string;
   comment: Comment;
   canDelete: boolean;
+  highlighted?: boolean;
   onLike: (comment: Comment) => void;
   onDelete: (comment: Comment) => void;
+  onReply: (comment: Comment) => void;
+  onJumpToParent: (commentId: number) => void;
   onOpenPhoto: (url: string) => void;
 }) {
   const { t } = useI18n();
@@ -30,7 +39,24 @@ export function CommentRow({
   const liked = comment.liked_by_me;
 
   return (
-    <div className={styles.row}>
+    <motion.div
+      className={cx(styles.row, highlighted && styles.highlighted)}
+      /* drag the bubble left to answer it, the way Telegram does */
+      drag={reduced ? false : "x"}
+      dragDirectionLock
+      dragConstraints={{ left: 0, right: 0 }}
+      dragElastic={{ left: 0.4, right: 0 }}
+      dragMomentum={false}
+      onDragEnd={(_, info) => {
+        if (info.offset.x < -SWIPE_REPLY_DISTANCE) {
+          hapticTap();
+          onReply(comment);
+        }
+      }}
+    >
+      <span className={styles.replyHint} aria-hidden="true">
+        <IconReply size={15} />
+      </span>
       <Avatar
         name={comment.author.first_name}
         seed={comment.author.id}
@@ -39,6 +65,18 @@ export function CommentRow({
       />
       <div className={styles.bubble}>
         <span className={styles.name}>{comment.author.first_name}</span>
+        {comment.reply_to !== undefined && (
+          <button
+            type="button"
+            className={styles.quote}
+            onClick={() => onJumpToParent(comment.reply_to as number)}
+          >
+            <span className={styles.quoteAuthor}>{comment.reply_to_author}</span>
+            <span className={styles.quoteBody}>
+              {comment.reply_to_body || t.comments.photoOnly}
+            </span>
+          </button>
+        )}
         {comment.body && <p className={styles.body}>{comment.body}</p>}
         {comment.has_photo && (
           <button
@@ -104,6 +142,18 @@ export function CommentRow({
           {comment.likes > 0 && <span className={styles.likes}>{comment.likes}</span>}
         </motion.button>
 
+        <button
+          type="button"
+          className={styles.replyButton}
+          aria-label={t.comments.reply}
+          onClick={() => {
+            hapticTap();
+            onReply(comment);
+          }}
+        >
+          <IconReply size={15} />
+        </button>
+
         {canDelete && (
           <button
             type="button"
@@ -115,6 +165,6 @@ export function CommentRow({
           </button>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }

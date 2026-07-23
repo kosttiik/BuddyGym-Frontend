@@ -15,18 +15,24 @@ export function useComments(checkinId: string, enabled = true) {
   return useQuery({ ...commentsQueryOptions(checkinId), enabled });
 }
 
-export type NewComment = { body: string; photo?: File };
+export type NewComment = { body: string; photo?: File; replyTo?: number };
 
 export function useAddComment(checkinId: string, roomId: number) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ body, photo }: NewComment) => {
+    mutationFn: ({ body, photo, replyTo }: NewComment) => {
       if (!photo) {
-        return api.post<Comment>(`/checkins/${checkinId}/comments`, { body });
+        return api.post<Comment>(`/checkins/${checkinId}/comments`, {
+          body,
+          ...(replyTo ? { reply_to: replyTo } : {}),
+        });
       }
       const form = new FormData();
       form.append("body", body);
       form.append("photo", photo);
+      if (replyTo) {
+        form.append("reply_to", String(replyTo));
+      }
       return api.postForm<Comment>(`/checkins/${checkinId}/comments`, form);
     },
     onSuccess: (comment) => {
