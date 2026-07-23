@@ -54,9 +54,6 @@ export function CommentRow({
         }
       }}
     >
-      <span className={styles.replyHint} aria-hidden="true">
-        <IconReply size={15} />
-      </span>
       <Avatar
         name={comment.author.first_name}
         seed={comment.author.id}

@@ -107,18 +107,6 @@
   position: relative;
 }
 
-/* the arrow lives under the bubble and shows up as the row slides off it */
-.replyHint {
-  position: absolute;
-  right: 6px;
-  top: 50%;
-  transform: translateY(-50%);
-  display: inline-flex;
-  color: var(--text-tertiary);
-  opacity: 0.55;
-  pointer-events: none;
-}
-
 .highlighted .bubble {
   background: var(--accent-tint);
   transition: background 0.3s ease;
