@@ -149,6 +149,9 @@ export const ru = {
     attach: "Прикрепить картинку",
     like: "Нравится",
     delete: "Удалить",
+    reply: "Ответить",
+    replyingTo: "Ответ",
+    cancelReply: "Отменить ответ",
   },
   buddies: {
     who: "Кто был с вами?",

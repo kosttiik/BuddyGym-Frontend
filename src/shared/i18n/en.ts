@@ -151,6 +151,9 @@ export const en: typeof ru = {
     attach: "Attach a picture",
     like: "Like",
     delete: "Delete",
+    reply: "Reply",
+    replyingTo: "Replying to",
+    cancelReply: "Cancel reply",
   },
   buddies: {
     who: "Who was with you?",

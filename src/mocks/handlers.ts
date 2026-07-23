@@ -150,13 +150,18 @@ export const handlers = [
     const checkinId = String(params.id);
     let body = "";
     let hasPhoto = false;
+    let replyTo: number | undefined;
 
     if ((request.headers.get("content-type") ?? "").includes("multipart/form-data")) {
       const form = await request.formData();
       body = String(form.get("body") ?? "");
       hasPhoto = form.get("photo") instanceof File;
+      const raw = form.get("reply_to");
+      replyTo = raw ? Number(raw) : undefined;
     } else {
-      body = ((await request.json()) as { body?: string }).body ?? "";
+      const json = (await request.json()) as { body?: string; reply_to?: number };
+      body = json.body ?? "";
+      replyTo = json.reply_to;
     }
     body = body.trim();
     if (!body && !hasPhoto) {
@@ -166,6 +171,12 @@ export const handlers = [
       return error(400, "comment too long");
     }
 
+    const thread = db.comments.get(checkinId) ?? [];
+    const parent = replyTo ? thread.find((c) => c.id === replyTo) : undefined;
+    if (replyTo && !parent) {
+      return error(400, "reply target is not in this thread");
+    }
+
     const comment: Comment = {
       id: db.nextCommentId++,
       checkin_id: checkinId,
@@ -173,6 +184,14 @@ export const handlers = [
       author: db.me,
       body,
       has_photo: hasPhoto,
+      ...(parent
+        ? {
+            reply_to: parent.id,
+            reply_to_author: parent.author.first_name,
+            reply_to_author_id: parent.author.id,
+            reply_to_body: parent.body,
+          }
+        : {}),
       likes: 0,
       liked_by_me: false,
       created_at: new Date().toISOString(),
