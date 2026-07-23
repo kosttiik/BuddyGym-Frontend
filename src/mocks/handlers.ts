@@ -500,6 +500,7 @@ export const handlers = [
     if (db.flags.checkinsDown) {
       return unavailable();
     }
+    const replace = new URL(request.url).searchParams.get("replace") === "true";
     const contentType = request.headers.get("content-type") ?? "";
     let geo: GeoPoint | undefined;
     let hasPhoto = false;
@@ -543,6 +544,23 @@ export const handlers = [
         return res.fail;
       }
       rooms.push(res.room);
+    }
+
+    const today = new Date().toISOString().slice(0, 10);
+    const existing = db.checkins.filter(
+      (c) =>
+        c.user_id === db.me.id &&
+        roomIds.includes(c.room_id) &&
+        (c.status === "pending" || c.status === "approved") &&
+        c.created_at.slice(0, 10) === today,
+    );
+    if (existing.length > 0) {
+      if (!replace) {
+        return HttpResponse.json({ error: "already logged today", existing }, { status: 409 });
+      }
+      for (const old of existing) {
+        old.status = "expired";
+      }
     }
 
     await delay(600);

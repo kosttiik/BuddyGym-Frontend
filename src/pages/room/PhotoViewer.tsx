@@ -185,6 +185,8 @@ export function PhotoViewer({
             </span>
             <span className={styles.votesLabel}>
               {t.room.votesFor(checkin.votes_approve, checkin.votes_required)}
+              {checkin.votes_reject > 0 &&
+                t.room.votesAgainst(checkin.votes_reject, checkin.votes_required)}
             </span>
           </div>
           {!isMine && myVote === undefined && (

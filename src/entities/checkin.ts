@@ -37,12 +37,15 @@ export type CreateCheckinInput = {
   /* members who trained with you: they get the workout once the room approves the checkin */
   buddyIds?: number[];
   onProgress?: (fraction: number) => void;
+  /* the user confirmed dropping today's earlier checkin */
+  replace?: boolean;
 } & ({ photo: File } | { geo: GeoPoint });
 
 export function useCreateCheckin(roomId: number) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (input: CreateCheckinInput) => {
+      const path = input.replace ? "/checkins?replace=true" : "/checkins";
       if ("photo" in input) {
         const form = new FormData();
         form.append("photo", input.photo);
@@ -52,9 +55,9 @@ export function useCreateCheckin(roomId: number) {
         for (const id of input.buddyIds ?? []) {
           form.append("buddy_ids", String(id));
         }
-        return api.upload<Checkin[]>("/checkins", form, input.onProgress);
+        return api.upload<Checkin[]>(path, form, input.onProgress);
       }
-      return api.post<Checkin[]>("/checkins", {
+      return api.post<Checkin[]>(path, {
         room_ids: input.roomIds,
         buddy_ids: input.buddyIds ?? [],
         geo: input.geo,

@@ -1,9 +1,9 @@
 import { locationManager } from "@telegram-apps/sdk-react";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { HttpResponse, http } from "msw";
 import { App } from "@/app/App";
-import { resetDb } from "@/mocks/handlers";
+import { db, resetDb } from "@/mocks/handlers";
 import { server } from "@/mocks/node";
 import { setToken } from "@/shared/api/client";
 
@@ -70,4 +70,34 @@ test("denied access opens the Telegram location settings instead of a dead toast
   await openGeoCheckin();
 
   expect(vi.mocked(locationManager.openSettings)).toHaveBeenCalled();
+});
+
+/* A wrong photo is the usual reason for a second checkin the same day, so the app offers to
+   replace the earlier one instead of silently stacking two entries. */
+test("a second checkin on the same day offers to replace the first", async () => {
+  db.checkins.unshift({
+    id: "c-today",
+    room_id: 2,
+    user_id: db.me.id,
+    status: "pending",
+    has_photo: true,
+    photo_purged: false,
+    votes_approve: 0,
+    votes_reject: 0,
+    votes_required: 2,
+    created_at: new Date().toISOString(),
+    expires_at: new Date(Date.now() + 3_600_000).toISOString(),
+  });
+
+  await openGeoCheckin();
+
+  expect(
+    await screen.findByText("Today is already logged", {}, { timeout: 4000 }),
+  ).toBeInTheDocument();
+
+  await userEvent.click(screen.getByRole("button", { name: "Replace" }));
+
+  await waitFor(() => expect(db.checkins.find((c) => c.id === "c-today")?.status).toBe("expired"), {
+    timeout: 4000,
+  });
 });

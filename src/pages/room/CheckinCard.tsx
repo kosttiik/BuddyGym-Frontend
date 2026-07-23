@@ -152,6 +152,11 @@ export function CheckinCard({
             </span>
             <span className={styles.votesLabel}>
               {t.room.votesFor(checkin.votes_approve, checkin.votes_required)}
+              {checkin.votes_reject > 0 && (
+                <span className={styles.votesAgainst}>
+                  {t.room.votesAgainst(checkin.votes_reject, checkin.votes_required)}
+                </span>
+              )}
             </span>
           </div>
 
