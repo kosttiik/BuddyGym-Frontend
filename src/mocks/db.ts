@@ -54,6 +54,7 @@ function user(
     photo_url: "",
     has_avatar: false,
     theme: "default",
+    language: "ru",
     rank,
     status_emoji: status?.emoji ?? "",
     status_text: status?.text ?? "",

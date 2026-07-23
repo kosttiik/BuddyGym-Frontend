@@ -115,9 +115,13 @@ export const handlers = [
   http.patch("/api/v1/me", async ({ request }) => {
     const body = (await request.json()) as {
       theme?: Theme;
+      language?: "ru" | "en";
       status_emoji?: string;
       status_text?: string;
     };
+    if (body.language !== undefined) {
+      db.me.language = body.language;
+    }
     if (body.theme !== undefined) {
       if (!["default", "dark", "neon"].includes(body.theme)) {
         return error(400, "unknown theme");
