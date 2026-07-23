@@ -45,7 +45,12 @@ export function useCreateCheckin(roomId: number) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (input: CreateCheckinInput) => {
-      const path = input.replace ? "/checkins?replace=true" : "/checkins";
+      // the server decides "today" by the user's calendar day, so it needs the device offset
+      const params = new URLSearchParams({ tz_offset: String(new Date().getTimezoneOffset()) });
+      if (input.replace) {
+        params.set("replace", "true");
+      }
+      const path = `/checkins?${params.toString()}`;
       if ("photo" in input) {
         const form = new FormData();
         form.append("photo", input.photo);
